@@ -134,14 +134,14 @@ impl HomePage {
             .build();
         container.append(&cat_scroller);
 
-        // 3. Hızlı Kurulum Paketleri (Ninite Modu)
+        // 3. Hızlı Kurulum Paketleri
         let bundles_title_box = Box::builder()
             .orientation(Orientation::Vertical)
             .spacing(4)
             .build();
 
         let bundles_title = Label::builder()
-            .label("Hızlı Kurulum Paketleri (Ninite Modu)")
+            .label("Hızlı Kurulum Paketleri")
             .halign(Align::Start)
             .css_classes(["title-2"])
             .build();

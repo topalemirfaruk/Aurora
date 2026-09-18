@@ -32,8 +32,8 @@ Arch Linux kullanıcıları geleneksel olarak iki seçenek arasında sıkışmak
 
 ## Öne Çıkan Özellikler
 
-### 1. Toplu Kurulum Sepeti ve Ninite Modu (Batch Queue & Ninite Bundles)
-- **Ninite Felsefesi (1-Tıkla Toplu Kurulum Paketleri):** Yeni kurulmuş bir Arch Linux sisteminde ihtiyaç duyulan multimedya kodekleri, oyun uyumluluk katmanları (Wine, Mesa, Vulkan), ses/bluetooth sürücüleri ve geliştirici dillerini tek tıkla sepete ekleyip kurabilme.
+### 1. Toplu Kurulum Sepeti ve Hızlı Kurulum Paketleri (Batch Queue & Curated Bundles)
+- **Tek Tıkla Toplu Kurulum Paketleri:** Yeni kurulmuş bir Arch Linux sisteminde ihtiyaç duyulan multimedya kodekleri, oyun uyumluluk katmanları (Wine, Mesa, Vulkan), ses/bluetooth sürücüleri ve geliştirici dillerini tek tıkla sepete ekleyip kurabilme.
 - **Toplu Kurulum Sepeti:** Tek tek uygulama kurup beklemek yerine, istediğiniz tüm uygulamaları sepetinize ekleyin.
 - Seçtiğiniz paketlerin resmi repo, AUR veya Flatpak dağılımını özet halinde görün.
 - Arka planda donmayan tek bir akış ile tüm sepeti sırayla kurun.
@@ -79,7 +79,7 @@ Arch Linux kullanıcıları geleneksel olarak iki seçenek arasında sıkışmak
 
 | Sayfa | Açıklama |
 | :--- | :--- |
-| **Keşfet (Home)** | Sistem yetenek hapları, kategori kısayolları, **Hızlı Kurulum Paketleri (Ninite Modu)** ve öne çıkan popüler uygulamalar. |
+| **Keşfet (Home)** | Sistem yetenek hapları, kategori kısayolları, **Hızlı Kurulum Paketleri** ve öne çıkan popüler uygulamalar. |
 | **Katalog (Catalog)** | 86 adet temel uygulama, sürücü, kodek ve çalışma zamanı; 9 kategori filtresi, anlık arama ve depolarda canlı arama. |
 | **Kurulum Sepeti (Cart)** | Toplu kurulacak paketlerin listesi, kaynak dağılım özeti ve canlı kurulum başlatıcı. |
 | **Kurulu & Kaldır (Installed)** | Sistemdeki kurulu paketleri filtreleme, sürüm görüntüleme ve tek tıkla sistemden kaldırma. |
