@@ -50,7 +50,6 @@ impl InstallDialog {
             .margin_bottom(24)
             .build();
 
-        // 1. Bilgilendirme ve Özet
         let title_label = Label::builder()
             .label("Kurulum Onayı ve Güvenlik Denetimi")
             .halign(Align::Start)
@@ -63,7 +62,6 @@ impl InstallDialog {
         let running_root = is_running_as_root();
         let settings_data = settings_state.get();
 
-        // Root Uyarısı
         if running_root {
             let root_box = Box::builder()
                 .orientation(Orientation::Vertical)
@@ -89,7 +87,6 @@ impl InstallDialog {
             content.append(&root_box);
         }
 
-        // Eğer AUR paketi varsa Güvenlik Uyarısı ve Ayar Kontrolü
         if has_aur {
             let aur_warning_box = Box::builder()
                 .orientation(Orientation::Vertical)
@@ -113,7 +110,6 @@ impl InstallDialog {
             aur_warning_box.append(&warn_title);
             aur_warning_box.append(&warn_text);
 
-            // Ayarlarda "PKGBUILD Önizlemesini Zorunlu Tut" açıksa butonları göster
             if settings_data.require_pkgbuild_review {
                 let btn_box = Box::builder()
                     .orientation(Orientation::Horizontal)
@@ -152,7 +148,6 @@ impl InstallDialog {
             content.append(&aur_warning_box);
         }
 
-        // Durum Başlığı & İlerleme Çubuğu
         let status_label = Label::builder()
             .label("Tüm paket adları doğrulandı. Başlatmak için aşağıdaki butona tıklayın.")
             .halign(Align::Start)
@@ -166,7 +161,6 @@ impl InstallDialog {
             .build();
         content.append(&progress_bar);
 
-        // Canlı Konsol / Terminal Çıktısı Alanı
         let text_view = TextView::builder()
             .editable(false)
             .cursor_visible(false)
@@ -183,7 +177,6 @@ impl InstallDialog {
             .build();
         content.append(&console_scroller);
 
-        // Alt Eylem Butonları
         let action_box = Box::builder()
             .orientation(Orientation::Horizontal)
             .halign(Align::End)
@@ -213,7 +206,6 @@ impl InstallDialog {
             dialog_for_close.close();
         });
 
-        // Başlatma Eylemi
         let text_buffer = text_view.buffer();
         let tv_clone = text_view.clone();
         let on_finished = Rc::new(on_finished);
@@ -236,7 +228,6 @@ impl InstallDialog {
             let aur_items: Vec<_> = items_for_action.iter().filter(|i| i.source == PackageSource::Aur).cloned().collect();
             let flatpak_items: Vec<_> = items_for_action.iter().filter(|i| i.source == PackageSource::Flatpak).cloned().collect();
 
-            // Komut ve parametreleri belirle
             let sys = SystemCapabilities::detect();
             let current_settings = settings_for_action.get();
             let aur_helper = if !current_settings.aur_helper.is_empty() {
@@ -266,7 +257,6 @@ impl InstallDialog {
 
             let mut all_commands: Vec<(String, Vec<String>)> = Vec::new();
 
-            // 1. Resmi Depolar (Pacman)
             if !official_items.is_empty() {
                 let safe_pkgs: Vec<String> = official_items
                     .iter()
@@ -285,7 +275,6 @@ impl InstallDialog {
                 }
             }
 
-            // 2. AUR Paketleri
             if !aur_items.is_empty() {
                 let safe_pkgs: Vec<String> = aur_items
                     .iter()
@@ -298,7 +287,6 @@ impl InstallDialog {
                 }
             }
 
-            // 3. Flatpak Paketleri
             if !flatpak_items.is_empty() {
                 let safe_pkgs: Vec<String> = flatpak_items
                     .iter()
@@ -313,7 +301,6 @@ impl InstallDialog {
                 }
             }
 
-            // Asenkron koştur
             glib::spawn_future_local(async move {
                 let mut overall_success = true;
 
@@ -329,7 +316,6 @@ impl InstallDialog {
                         }).await;
                     });
 
-                    // Çıktıları canlı dinle
                     while let Some(msg) = receiver.recv().await {
                         match msg {
                             ProcessMessage::Stdout(line) => {
@@ -376,7 +362,6 @@ impl InstallDialog {
 
         dialog.present();
 
-        // Eğer kullanıcı ayarlarında "İşlem Öncesi Özet Onayı" kapalıysa, kurulum doğrudan başlatılır
         if !settings_data.require_summary_confirmation {
             start_btn.emit_clicked();
         }

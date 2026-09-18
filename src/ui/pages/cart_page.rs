@@ -28,7 +28,6 @@ impl CartPage {
             .margin_bottom(32)
             .build();
 
-        // Başlık alanı
         let header = Box::builder()
             .orientation(Orientation::Horizontal)
             .spacing(12)
@@ -49,7 +48,6 @@ impl CartPage {
         header.append(&clear_btn);
         root.append(&header);
 
-        // Boş sepet sayfası
         let empty_state = adw::StatusPage::builder()
             .icon_name(crate::utils::IconResolver::cart_icon())
             .title("Sepetiniz Boş")
@@ -61,7 +59,6 @@ impl CartPage {
             .spacing(16)
             .build();
 
-        // Özet ve Kurulum Eylem Kutusu
         let summary_box = Box::builder()
             .orientation(Orientation::Horizontal)
             .spacing(16)
@@ -90,7 +87,6 @@ impl CartPage {
         summary_text_box.append(&breakdown_label);
         summary_box.append(&summary_text_box);
 
-        // Canlı Kurulumu Başlat Butonu
         let start_install_btn = Button::builder()
             .label("Kurulumu Başlat")
             .icon_name("system-software-install-symbolic")
@@ -111,7 +107,6 @@ impl CartPage {
         summary_box.append(&start_install_btn);
         content_box.append(&summary_box);
 
-        // Komut Önizleme Kutusu
         let cmd_box = Box::builder()
             .orientation(Orientation::Vertical)
             .spacing(8)
@@ -152,7 +147,6 @@ impl CartPage {
         cmd_box.append(&cmd_text_label);
         content_box.append(&cmd_box);
 
-        // Paket Listesi Başlığı
         let list_title = Label::builder()
             .label("Sepetteki Uygulamalar")
             .halign(Align::Start)
@@ -170,7 +164,6 @@ impl CartPage {
         root.append(&empty_state);
         root.append(&content_box);
 
-        // Kopyalama eylemi
         let current_commands = Rc::new(RefCell::new(String::new()));
         let current_commands_copy = current_commands.clone();
         let copy_btn_clone = copy_btn.clone();
@@ -187,13 +180,11 @@ impl CartPage {
             }
         });
 
-        // Temizleme eylemi
         let cart_state_for_clear = cart_state.clone();
         clear_btn.connect_clicked(move |_| {
             cart_state_for_clear.clear();
         });
 
-        // Yenileme fonksiyonu
         let refresh = {
             let cart_state = cart_state.clone();
             let empty_state = empty_state.clone();
@@ -218,7 +209,6 @@ impl CartPage {
                 empty_state.set_visible(false);
                 content_box.set_visible(true);
 
-                // Çocukları temizle
                 while let Some(child) = items_container.first_child() {
                     items_container.remove(&child);
                 }
@@ -234,7 +224,6 @@ impl CartPage {
                         PackageSource::Flatpak => flatpak_pkgs.push(item.package_name.clone()),
                     }
 
-                    // Her sepet öğesi için satır
                     let row = Box::builder()
                         .orientation(Orientation::Horizontal)
                         .spacing(12)
@@ -292,7 +281,6 @@ impl CartPage {
                     flatpak_pkgs.len()
                 ));
 
-                // Komutları oluştur
                 let sys = SystemCapabilities::detect();
                 let configured_helper = settings_state.get().aur_helper;
                 let aur_helper = if configured_helper.is_empty() {
@@ -321,19 +309,16 @@ impl CartPage {
             })
         };
 
-        // Sepet değiştikçe otomatik yenile
         let refresh_on_change = refresh.clone();
         cart_state.on_change(move |_| {
             refresh_on_change();
         });
 
-        // Ayarlar değiştikçe otomatik yenile
         let refresh_on_settings = refresh.clone();
         settings_state.on_change(move |_| {
             refresh_on_settings();
         });
 
-        // İlk tetikleme
         refresh();
 
         let scroll = ScrolledWindow::builder()

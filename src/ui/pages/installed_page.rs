@@ -20,7 +20,6 @@ impl InstalledPage {
             .margin_bottom(32)
             .build();
 
-        // Üst Başlık
         let header = Box::builder()
             .orientation(Orientation::Horizontal)
             .spacing(12)
@@ -48,13 +47,11 @@ impl InstalledPage {
         header.append(&refresh_btn);
         root.append(&header);
 
-        // Arama Kutusu
         let search_entry = SearchEntry::builder()
             .placeholder_text("Kurulu paketleri filtrele veya kaldırmak için ara...")
             .build();
         root.append(&search_entry);
 
-        // Yükleniyor Göstergesi
         let spinner_box = Box::builder()
             .orientation(Orientation::Vertical)
             .spacing(12)
@@ -79,7 +76,6 @@ impl InstalledPage {
         spinner_box.append(&loading_label);
         root.append(&spinner_box);
 
-        // Paket Listesi
         let list_box = ListBox::builder()
             .css_classes(["boxed-list"])
             .selection_mode(gtk4::SelectionMode::None)
@@ -90,7 +86,6 @@ impl InstalledPage {
         let all_packages = Rc::new(RefCell::new(Vec::<crate::package_managers::pacman::InstalledPackage>::new()));
         let load_data_ref: Rc<RefCell<Option<Rc<dyn Fn()>>>> = Rc::new(RefCell::new(None));
 
-        // Filtreleme fonksiyonu
         let filter_list = {
             let list_box = list_box.clone();
             let all_packages = all_packages.clone();
@@ -112,7 +107,6 @@ impl InstalledPage {
                     }
                 });
 
-                // Performans için ilk 100 paketi listele
                 for pkg in filtered.take(100) {
                     let row = ListBoxRow::new();
                     let row_box = Box::builder()
@@ -179,7 +173,6 @@ impl InstalledPage {
             })
         };
 
-        // Veri yükleme fonksiyonu
         let load_data = {
             let spinner_box = spinner_box.clone();
             let list_box = list_box.clone();
@@ -218,13 +211,11 @@ impl InstalledPage {
 
         *load_data_ref.borrow_mut() = Some(load_data.clone());
 
-        // Arama kutusu filtreleme
         let filter_for_search = filter_list.clone();
         search_entry.connect_search_changed(move |entry| {
             filter_for_search(&entry.text());
         });
 
-        // Yenile butonu
         let load_for_btn = load_data.clone();
         let inst_for_refresh_btn = installed_state.clone();
         refresh_btn.connect_clicked(move |_| {
@@ -232,7 +223,6 @@ impl InstalledPage {
             inst_for_refresh_btn.refresh_background();
         });
 
-        // İlk yükleme
         load_data();
 
         ScrolledWindow::builder()

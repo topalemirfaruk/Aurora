@@ -41,7 +41,6 @@ impl UninstallDialog {
             .margin_bottom(24)
             .build();
 
-        // 1. Başlık
         let title_label = Label::builder()
             .label(&format!("'{}' Paketini Kaldır", package_name))
             .halign(Align::Start)
@@ -49,7 +48,6 @@ impl UninstallDialog {
             .build();
         content.append(&title_label);
 
-        // 2. Güvenlik Denetimi ve Uyarılar
         if !is_valid {
             let err_box = Box::builder()
                 .orientation(Orientation::Vertical)
@@ -124,7 +122,6 @@ impl UninstallDialog {
             return;
         }
 
-        // Normal paket onay açıklaması
         let desc_label = Label::builder()
             .label(&format!(
                 "Bu işlem '{}' paketini ve varsa bağımlılıklarını sisteminizden kaldıracaktır.\nKomut: sudo pacman -R -- {}",
@@ -142,7 +139,6 @@ impl UninstallDialog {
             .build();
         content.append(&progress_bar);
 
-        // Konsol / Çıktı Görünümü
         let text_view = TextView::builder()
             .editable(false)
             .cursor_visible(false)
@@ -159,7 +155,6 @@ impl UninstallDialog {
             .build();
         content.append(&console_scroller);
 
-        // Eylem Butonları
         let action_box = Box::builder()
             .orientation(Orientation::Horizontal)
             .halign(Align::End)
@@ -189,7 +184,6 @@ impl UninstallDialog {
             dialog_for_cancel.close();
         });
 
-        // Kaldırma Eylemi
         let pkg_name_str = package_name.to_string();
         let buffer = text_view.buffer();
         let on_success = Rc::new(on_success);

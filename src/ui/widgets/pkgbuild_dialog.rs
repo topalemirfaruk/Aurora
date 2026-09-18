@@ -36,7 +36,6 @@ impl PkgbuildDialog {
             .margin_bottom(20)
             .build();
 
-        // Bilgi Başlığı
         let info_box = Box::builder()
             .orientation(Orientation::Horizontal)
             .spacing(8)
@@ -58,7 +57,6 @@ impl PkgbuildDialog {
         info_box.append(&copy_btn);
         content.append(&info_box);
 
-        // Spinner / Yükleniyor
         let spinner_box = Box::builder()
             .orientation(Orientation::Vertical)
             .spacing(8)
@@ -83,7 +81,6 @@ impl PkgbuildDialog {
         spinner_box.append(&loading_label);
         content.append(&spinner_box);
 
-        // Monospace Metin Alanı
         let text_view = TextView::builder()
             .editable(false)
             .cursor_visible(false)
@@ -105,7 +102,6 @@ impl PkgbuildDialog {
         root.append(&content);
         dialog.set_content(Some(&root));
 
-        // Kopyalama Eylemi
         let buffer = text_view.buffer();
         let copy_btn_clone = copy_btn.clone();
         let buffer_clone = buffer.clone();
@@ -124,7 +120,6 @@ impl PkgbuildDialog {
             }
         });
 
-        // Arka planda PKGBUILD çekme
         let pkg_name = package_name.to_string();
         glib::spawn_future_local(async move {
             let result = AurManager::get_pkgbuild(&pkg_name).await;

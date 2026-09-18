@@ -27,24 +27,19 @@ impl MainWindow {
         let settings_state = crate::state::SettingsState::new();
         let installed_state = crate::state::InstalledState::new();
 
-        // Başlangıç temasını ayarlardan uygula
         crate::utils::ThemeManager::apply_theme(settings_state.get().dark_theme);
 
-        // Ana Stack (Sayfa Yığını)
         let stack = Stack::builder()
             .transition_type(gtk4::StackTransitionType::Crossfade)
             .hexpand(true)
             .vexpand(true)
             .build();
 
-        // 1. Arama Girişi
         let search_entry = SearchEntry::builder()
             .placeholder_text("Uygulama, paket adı veya etiket ara...")
             .width_request(280)
             .build();
 
-        // 2. Sayfaları Oluştur
-        // Detay açma callback'i
         let window_weak = window.downgrade();
         let cart_for_detail = cart_state.clone();
         let installed_for_detail = installed_state.clone();
@@ -54,11 +49,9 @@ impl MainWindow {
             }
         };
 
-        // Katalog sayfasını kur
         let (catalog_scroll, refresh_catalog) =
             CatalogPage::build(cart_state.clone(), installed_state.clone(), on_detail.clone());
 
-        // Ana sayfadan kategoriye tıklanınca kataloğa gitme
         let stack_for_cat = stack.clone();
         let refresh_cat = refresh_catalog.clone();
         let on_cat_clicked = move |cat: AppCategory| {
@@ -73,7 +66,6 @@ impl MainWindow {
             on_cat_clicked,
         );
 
-        // Kurulum Başlatma Eylemi
         let window_weak_for_install = window.downgrade();
         let cart_for_install_done = cart_state.clone();
         let settings_for_install = settings_state.clone();
@@ -100,7 +92,6 @@ impl MainWindow {
         stack.add_named(&installed_scroll, Some("installed"));
         stack.add_named(&settings_page, Some("settings"));
 
-        // Arama kutusu değiştiğinde kataloğa yönlendir
         let stack_for_search = stack.clone();
         let refresh_search = refresh_catalog.clone();
         search_entry.connect_search_changed(move |entry| {
@@ -111,12 +102,10 @@ impl MainWindow {
             refresh_search(None, &text);
         });
 
-        // Üst Başlık Çubuğu (HeaderBar)
         let header_bar = adw::HeaderBar::builder()
             .title_widget(&search_entry)
             .build();
 
-        // Sepet Butonu (Sağ üst)
         let cart_header_btn = Button::builder()
             .css_classes(["flat"])
             .tooltip_text("Kurulum Sepetini Aç")
@@ -142,7 +131,6 @@ impl MainWindow {
             stack_for_cart_btn.set_visible_child_name("cart");
         });
 
-        // Tema Aç/Kapa Butonu
         let initial_dark = settings_state.get().dark_theme;
         let theme_toggle_btn = Button::builder()
             .icon_name(crate::utils::IconResolver::theme_icon_for(initial_dark))
@@ -171,20 +159,17 @@ impl MainWindow {
         header_bar.pack_end(&theme_toggle_btn);
         header_bar.pack_end(&cart_header_btn);
 
-        // Siber Güvenlik: Root Güvenlik Uyarısı Banner'ı
         let root_banner = adw::Banner::builder()
             .title("Aurora root olarak çalıştırılıyor! Güvenlik ve AUR uyumluluğu için normal kullanıcı olarak başlatın.")
             .revealed(is_running_as_root())
             .build();
 
-        // Sol Kenar Çubuğu (Sidebar)
         let sidebar_box = Box::builder()
             .orientation(Orientation::Vertical)
             .width_request(220)
             .css_classes(["sidebar"])
             .build();
 
-        // Sidebar Logo / Başlık
         let brand_box = Box::builder()
             .orientation(Orientation::Horizontal)
             .spacing(10)
@@ -234,9 +219,7 @@ impl MainWindow {
             row_box.append(&icon);
             row_box.append(&label);
             row.set_child(Some(&row_box));
-            unsafe {
-                row.set_data("page_name", page_name.to_string());
-            }
+            row.set_widget_name(page_name);
             row
         }
 
@@ -252,17 +235,13 @@ impl MainWindow {
         list_box.append(&row_installed);
         list_box.append(&row_settings);
 
-        // İlk satırı seç
         list_box.select_row(Some(&row_home));
 
         let stack_for_nav = stack.clone();
         list_box.connect_row_selected(move |_, selected_row| {
             if let Some(row) = selected_row {
-                unsafe {
-                    if let Some(page_name) = row.data::<String>("page_name") {
-                        stack_for_nav.set_visible_child_name(page_name.as_ref());
-                    }
-                }
+                let page_name = row.widget_name();
+                stack_for_nav.set_visible_child_name(&page_name);
             }
         });
 
