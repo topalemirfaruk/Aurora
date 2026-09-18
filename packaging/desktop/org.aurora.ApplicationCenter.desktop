@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Aurora
+GenericName=Application Center
+GenericName[tr]=Uygulama Merkezi
+Comment=Arch Linux için modern, hızlı ve güvenli uygulama merkezi
+Comment[en]=Modern, fast and secure application center for Arch Linux
+Exec=aurora
+Icon=org.aurora.ApplicationCenter
+Terminal=false
+Type=Application
+Categories=System;PackageManager;Settings;GTK;
+Keywords=pacman;aur;flatpak;software;store;packages;install;
+StartupNotify=true
+StartupWMClass=aurora
+X-Purism-FormFactor=Workstation;Mobile;

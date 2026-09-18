@@ -1,0 +1,164 @@
+use crate::models::{AppCategory, AppItem};
+use crate::services::CatalogService;
+use crate::state::CartState;
+use crate::ui::widgets::AppCard;
+use crate::utils::SystemCapabilities;
+use gtk4::prelude::*;
+use gtk4::{Box, Button, Label, Orientation, ScrolledWindow, Align};
+
+pub struct HomePage;
+
+impl HomePage {
+    pub fn build<F, C>(
+        cart_state: CartState,
+        on_detail_clicked: F,
+        on_category_clicked: C,
+    ) -> ScrolledWindow
+    where
+        F: Fn(AppItem) + Clone + 'static,
+        C: Fn(AppCategory) + Clone + 'static,
+    {
+        let container = Box::builder()
+            .orientation(Orientation::Vertical)
+            .spacing(24)
+            .margin_start(24)
+            .margin_end(24)
+            .margin_top(24)
+            .margin_bottom(32)
+            .build();
+
+        // 1. Hero Banner
+        let hero_box = Box::builder()
+            .orientation(Orientation::Vertical)
+            .spacing(8)
+            .css_classes(["aurora-hero"])
+            .build();
+
+        let hero_title = Label::builder()
+            .label("Aurora Uygulama Merkezi")
+            .halign(Align::Start)
+            .css_classes(["aurora-hero-title"])
+            .build();
+
+        let hero_sub = Label::builder()
+            .label("Arch Linux için modern, hızlı ve güvenli uygulama keşif ve kurulum merkezi.")
+            .halign(Align::Start)
+            .css_classes(["aurora-hero-subtitle"])
+            .build();
+
+        hero_box.append(&hero_title);
+        hero_box.append(&hero_sub);
+
+        // Sistem Yetenekleri Hapları (Capabilities Pills)
+        let sys = SystemCapabilities::detect();
+        let sys_row = Box::builder()
+            .orientation(Orientation::Horizontal)
+            .spacing(8)
+            .margin_top(8)
+            .build();
+
+        let pacman_pill = Label::builder()
+            .label(if sys.has_pacman { "✓ Pacman Aktif" } else { "✗ Pacman Yok" })
+            .css_classes(["status-pill"])
+            .build();
+        sys_row.append(&pacman_pill);
+
+        if let Some(helper) = sys.preferred_aur_helper() {
+            let aur_pill = Label::builder()
+                .label(&format!("✓ AUR: {}", helper))
+                .css_classes(["status-pill"])
+                .build();
+            sys_row.append(&aur_pill);
+        }
+
+        if sys.has_flatpak {
+            let flatpak_pill = Label::builder()
+                .label("✓ Flatpak Mevcut")
+                .css_classes(["status-pill"])
+                .build();
+            sys_row.append(&flatpak_pill);
+        }
+
+        hero_box.append(&sys_row);
+        container.append(&hero_box);
+
+        // 2. Kategori Kısayolları Bölümü
+        let cat_section_title = Label::builder()
+            .label("Kategorilere Göz At")
+            .halign(Align::Start)
+            .css_classes(["title-2"])
+            .build();
+        container.append(&cat_section_title);
+
+        let cat_flow_box = Box::builder()
+            .orientation(Orientation::Horizontal)
+            .spacing(12)
+            .build();
+
+        for cat in AppCategory::all() {
+            let cat_btn = Button::builder()
+                .css_classes(["card", "flat"])
+                .build();
+
+            let btn_content = Box::builder()
+                .orientation(Orientation::Horizontal)
+                .spacing(8)
+                .margin_start(12)
+                .margin_end(12)
+                .margin_top(10)
+                .margin_bottom(10)
+                .build();
+
+            let icon = gtk4::Image::from_icon_name(cat.icon_name());
+            let title = Label::new(Some(cat.title()));
+
+            btn_content.append(&icon);
+            btn_content.append(&title);
+            cat_btn.set_child(Some(&btn_content));
+
+            let on_cat = on_category_clicked.clone();
+            let c = *cat;
+            cat_btn.connect_clicked(move |_| {
+                on_cat(c);
+            });
+
+            cat_flow_box.append(&cat_btn);
+        }
+
+        // Kategori kutusunu yatay kaydırma içerisine alıyoruz
+        let cat_scroller = ScrolledWindow::builder()
+            .hscrollbar_policy(gtk4::PolicyType::Automatic)
+            .vscrollbar_policy(gtk4::PolicyType::Never)
+            .child(&cat_flow_box)
+            .build();
+        container.append(&cat_scroller);
+
+        // 3. Öne Çıkan / Popüler Uygulamalar
+        let featured_title = Label::builder()
+            .label("Öne Çıkan Uygulamalar")
+            .halign(Align::Start)
+            .css_classes(["title-2"])
+            .build();
+        container.append(&featured_title);
+
+        let apps_box = Box::builder()
+            .orientation(Orientation::Vertical)
+            .spacing(12)
+            .build();
+
+        let all_apps = CatalogService::get_all_apps();
+        // İlk 6 popüler uygulamayı öne çıkan olarak gösterelim
+        for app in all_apps.into_iter().take(6) {
+            let card = AppCard::new(app, cart_state.clone(), on_detail_clicked.clone());
+            apps_box.append(&card);
+        }
+
+        container.append(&apps_box);
+
+        ScrolledWindow::builder()
+            .hscrollbar_policy(gtk4::PolicyType::Never)
+            .vscrollbar_policy(gtk4::PolicyType::Automatic)
+            .child(&container)
+            .build()
+    }
+}

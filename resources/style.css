@@ -1,0 +1,94 @@
+/* Aurora Application Center — Modern Theme & Accents */
+
+/* Marka Renkleri ve Vurgular */
+@define-color aurora_purple #7c4dff;
+@define-color aurora_blue #3b82f6;
+@define-color aurora_cyan #06b6d4;
+
+/* Kart ve Konteyner Stilleri */
+.aurora-card {
+    background-color: alpha(@window_fg_color, 0.04);
+    border: 1px solid alpha(@window_fg_color, 0.08);
+    border-radius: 12px;
+    padding: 14px;
+    transition: all 200ms ease-in-out;
+}
+
+.aurora-card:hover {
+    background-color: alpha(@window_fg_color, 0.07);
+    border-color: alpha(@accent_color, 0.4);
+}
+
+.aurora-hero {
+    background: linear-gradient(135deg, alpha(@aurora_purple, 0.25), alpha(@aurora_blue, 0.15));
+    border-radius: 16px;
+    border: 1px solid alpha(@aurora_purple, 0.3);
+    padding: 24px;
+}
+
+.aurora-hero-title {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.aurora-hero-subtitle {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* Kaynak Rozetleri (Source Badges) */
+.badge-official {
+    background-color: alpha(#10b981, 0.15);
+    color: #10b981;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-aur {
+    background-color: alpha(#f59e0b, 0.18);
+    color: #f59e0b;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-flatpak {
+    background-color: alpha(#3b82f6, 0.18);
+    color: #3b82f6;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Durum İpuçları */
+.status-pill {
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    background-color: alpha(@window_fg_color, 0.06);
+}
+
+/* Sepet Rozeti */
+.cart-counter {
+    background-color: @accent_bg_color;
+    color: @accent_fg_color;
+    border-radius: 10px;
+    padding: 1px 6px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* İkon Çerçevesi */
+.aurora-icon-frame {
+    background: alpha(@window_fg_color, 0.05);
+    border-radius: 12px;
+    padding: 6px;
+    border: 1px solid alpha(@window_fg_color, 0.08);
+}
+

@@ -1,0 +1,29 @@
+# Maintainer: Aurora Contributors <aurora@archlinux.org>
+pkgname=aurora-bin
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Arch Linux için modern, hızlı ve güvenli GTK4/libadwaita uygulama merkezi"
+arch=('x86_64')
+url="https://github.com/aurora-linux/aurora"
+license=('GPL-3.0-or-later')
+depends=('gtk4' 'libadwaita' 'pacman')
+optdepends=(
+    'paru: AUR desteği için'
+    'yay: Alternatif AUR desteği için'
+    'flatpak: Flatpak uygulama desteği için'
+)
+makedepends=('rust' 'cargo' 'pkg-config')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+    cd "aurora-$pkgver"
+    cargo build --release --locked
+}
+
+package() {
+    cd "aurora-$pkgver"
+    install -Dm755 "target/release/aurora" "$pkgdir/usr/bin/aurora"
+    install -Dm644 "packaging/desktop/org.aurora.ApplicationCenter.desktop" "$pkgdir/usr/share/applications/org.aurora.ApplicationCenter.desktop"
+    install -Dm644 "assets/icons/org.aurora.ApplicationCenter.svg" "$pkgdir/usr/share/icons/hicolor/scalable/apps/org.aurora.ApplicationCenter.svg"
+}

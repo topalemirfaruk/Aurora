@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="aurora-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c4dff"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Arka Plan Yuvarlatılmış Kare -->
+  <rect x="12" y="12" width="104" height="104" rx="26" fill="url(#aurora-grad)" filter="url(#shadow)"/>
+
+  <!-- İç Yumuşak Işıltı -->
+  <rect x="14" y="14" width="100" height="100" rx="24" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2"/>
+
+  <!-- Modern Paket & Aurora Dalga İkonu -->
+  <!-- Paket Gövdesi -->
+  <path d="M64 34 L92 48 L64 62 L36 48 Z" fill="#ffffff" opacity="0.95"/>
+  <path d="M36 51 L64 65 L64 94 L36 80 Z" fill="#ffffff" opacity="0.8"/>
+  <path d="M92 51 L64 65 L64 94 L92 80 Z" fill="#ffffff" opacity="0.88"/>
+
+  <!-- Aurora Enerji Halkası -->
+  <circle cx="64" cy="64" r="38" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-dasharray="8 6" opacity="0.4"/>
+</svg>

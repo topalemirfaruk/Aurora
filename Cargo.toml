@@ -1,0 +1,21 @@
+[package]
+name = "aurora"
+version = "0.1.0"
+edition = "2021"
+authors = ["Aurora Contributors"]
+description = "Arch Linux için modern, hızlı ve güvenli uygulama merkezi"
+license = "GPL-3.0-or-later"
+
+[dependencies]
+gtk4 = { version = "0.9", features = ["v4_12"] }
+libadwaita = { version = "0.7", features = ["v1_6"] }
+gio = "0.20"
+glib = "0.20"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+which = "7.0"
+rustix = { version = "1.1", features = ["process"] }
+thiserror = "2.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+tokio = { version = "1", features = ["rt-multi-thread", "sync", "process", "macros", "io-util"] }
