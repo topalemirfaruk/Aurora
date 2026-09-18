@@ -173,12 +173,46 @@ impl AppDetailPage {
             action_box.append(&pkgbuild_btn);
         }
 
-        // Kurulu ise Sistemden Kaldır butonu
+        let spacer = Box::builder().hexpand(true).build();
+        action_box.append(&spacer);
+
+        // Sepete Ekle / Yeniden Kur Butonu
+        let add_btn = Button::builder().build();
+
+        let update_btn = {
+            let cart = cart_state.clone();
+            let pkg = item.package_name.clone();
+            let btn = add_btn.clone();
+            move || {
+                if cart.contains(&pkg) {
+                    btn.set_label("Sepetten Kaldır");
+                    btn.set_css_classes(&["destructive-action", "pill"]);
+                } else if is_installed {
+                    btn.set_label("+ Yeniden Kur (Sepet)");
+                    btn.set_css_classes(&["flat"]);
+                } else {
+                    btn.set_label("+ Sepete Ekle");
+                    btn.set_css_classes(&["suggested-action", "pill"]);
+                }
+            }
+        };
+
+        update_btn();
+
+        let cart_clone = cart_state.clone();
+        let item_clone = item.clone();
+        let update_clone = update_btn.clone();
+        add_btn.connect_clicked(move |_| {
+            cart_clone.toggle(item_clone.clone());
+            update_clone();
+        });
+
+        // Kurulu ise Kaldır butonunu ana eylem (pill + destructive-action) yap
         if is_installed {
             let uninstall_btn = Button::builder()
                 .label("🗑️ Sistemden Kaldır")
-                .css_classes(["flat", "destructive-action"])
-                .tooltip_text("Bu uygulamayı sistemden kaldır")
+                .css_classes(["destructive-action", "pill"])
+                .tooltip_text("Bu uygulamayı sistemden tamamen kaldır")
                 .build();
 
             let pkg_name_clone = item.package_name.clone();
@@ -194,49 +228,11 @@ impl AppDetailPage {
                 });
             });
 
+            action_box.append(&add_btn);
             action_box.append(&uninstall_btn);
+        } else {
+            action_box.append(&add_btn);
         }
-
-        let spacer = Box::builder().hexpand(true).build();
-        action_box.append(&spacer);
-
-        // Sepete Ekle Butonu
-        let add_btn = Button::builder()
-            .css_classes(["suggested-action", "pill"])
-            .build();
-
-        let update_btn = {
-            let cart = cart_state.clone();
-            let pkg = item.package_name.clone();
-            let btn = add_btn.clone();
-            move || {
-                if cart.contains(&pkg) {
-                    btn.set_label("Sepetten Kaldır");
-                    btn.remove_css_class("suggested-action");
-                    btn.add_css_class("destructive-action");
-                } else if is_installed {
-                    btn.set_label("Yeniden Kur (+ Sepet)");
-                    btn.remove_css_class("destructive-action");
-                    btn.add_css_class("suggested-action");
-                } else {
-                    btn.set_label("+ Sepete Ekle");
-                    btn.remove_css_class("destructive-action");
-                    btn.add_css_class("suggested-action");
-                }
-            }
-        };
-
-        update_btn();
-
-        let cart_clone = cart_state.clone();
-        let item_clone = item.clone();
-        let update_clone = update_btn.clone();
-        add_btn.connect_clicked(move |_| {
-            cart_clone.toggle(item_clone.clone());
-            update_clone();
-        });
-
-        action_box.append(&add_btn);
         content.append(&action_box);
 
         root_box.append(&content);

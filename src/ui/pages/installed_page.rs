@@ -27,7 +27,7 @@ impl InstalledPage {
             .build();
 
         let title = Label::builder()
-            .label("Kurulu Uygulamalar")
+            .label("Kurulu Uygulamalar & Paket Kaldırma")
             .halign(Align::Start)
             .css_classes(["title-1"])
             .hexpand(true)
@@ -50,7 +50,7 @@ impl InstalledPage {
 
         // Arama Kutusu
         let search_entry = SearchEntry::builder()
-            .placeholder_text("Kurulu paketler arasında filtrele...")
+            .placeholder_text("Kurulu paketleri filtrele veya kaldırmak için ara...")
             .build();
         root.append(&search_entry);
 

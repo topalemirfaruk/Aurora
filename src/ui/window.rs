@@ -20,6 +20,7 @@ impl MainWindow {
             .title(&format!("{} v{}", APP_NAME, APP_VERSION))
             .default_width(1100)
             .default_height(720)
+            .icon_name(crate::config::APP_ID)
             .build();
 
         let cart_state = CartState::new();
@@ -193,8 +194,8 @@ impl MainWindow {
             .margin_bottom(16)
             .build();
 
-        let logo_icon = gtk4::Image::from_icon_name("system-software-install");
-        logo_icon.set_pixel_size(24);
+        let logo_icon = gtk4::Image::from_icon_name(crate::config::APP_ID);
+        logo_icon.set_pixel_size(28);
 
         let brand_label = Label::builder()
             .label(APP_NAME)
@@ -242,7 +243,7 @@ impl MainWindow {
         let row_home = create_sidebar_row("user-home-symbolic", "Keşfet", "home");
         let row_catalog = create_sidebar_row("view-app-grid-symbolic", "Katalog", "catalog");
         let row_cart = create_sidebar_row(crate::utils::IconResolver::cart_icon(), "Kurulum Sepeti", "cart");
-        let row_installed = create_sidebar_row("drive-harddisk-symbolic", "Kurulu Olanlar", "installed");
+        let row_installed = create_sidebar_row("system-software-uninstall-symbolic", "Kurulu & Kaldır", "installed");
         let row_settings = create_sidebar_row("emblem-system-symbolic", "Ayarlar", "settings");
 
         list_box.append(&row_home);

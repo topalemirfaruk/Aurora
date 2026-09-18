@@ -127,6 +127,26 @@ impl AppCard {
             on_detail_clicked(item_clone_for_detail.clone());
         });
 
+        // Doğrudan Sistemden Kaldır Butonu (Sadece kuruluyken görünür)
+        let uninstall_btn = Button::builder()
+            .label("Kaldır")
+            .icon_name("user-trash-symbolic")
+            .css_classes(["flat", "destructive-action"])
+            .tooltip_text("Bu uygulamayı sistemden kaldır")
+            .visible(false)
+            .build();
+
+        let pkg_name_for_uninstall = item.package_name.clone();
+        let inst_for_uninstall = installed_state.clone();
+        uninstall_btn.connect_clicked(move |btn| {
+            if let Some(root_win) = btn.root().and_downcast::<gtk4::Window>() {
+                let inst = inst_for_uninstall.clone();
+                crate::ui::widgets::UninstallDialog::show(&root_win, &pkg_name_for_uninstall, move || {
+                    inst.refresh_background();
+                });
+            }
+        });
+
         // Sepete Ekle / Çıkar / Kurulu Butonu
         let cart_btn = Button::builder()
             .css_classes(["suggested-action"])
@@ -137,10 +157,12 @@ impl AppCard {
             let installed_state = installed_state.clone();
             let item_clone = item.clone();
             let cart_btn = cart_btn.clone();
+            let uninstall_btn = uninstall_btn.clone();
             let installed_badge = installed_badge.clone();
             move || {
                 let is_installed = installed_state.is_installed_item(&item_clone);
                 installed_badge.set_visible(is_installed);
+                uninstall_btn.set_visible(is_installed);
 
                 if cart_state.contains(&item_clone.package_name) {
                     cart_btn.set_label("Eklendi ✓");
@@ -149,11 +171,11 @@ impl AppCard {
                     cart_btn.add_css_class("destructive-action");
                     cart_btn.set_tooltip_text(Some("Sepetten çıkar"));
                 } else if is_installed {
-                    cart_btn.set_label("✓ Kurulu");
+                    cart_btn.set_label("Yeniden Kur");
                     cart_btn.remove_css_class("destructive-action");
                     cart_btn.remove_css_class("suggested-action");
                     cart_btn.add_css_class("flat");
-                    cart_btn.set_tooltip_text(Some("Bu uygulama sisteminizde kurulu. Yeniden kurmak için sepete ekleyebilirsiniz."));
+                    cart_btn.set_tooltip_text(Some("Yeniden kurmak veya derlemek için sepete ekleyin"));
                 } else {
                     cart_btn.set_label("+ Ekle");
                     cart_btn.remove_css_class("destructive-action");
@@ -186,6 +208,7 @@ impl AppCard {
         });
 
         actions_box.append(&detail_btn);
+        actions_box.append(&uninstall_btn);
         actions_box.append(&cart_btn);
         root.append(&actions_box);
 

@@ -17,6 +17,13 @@ echo "📦 Dosyalar $PREFIX altına kuruluyor (sudo yetkisi gerekebilir)..."
 sudo install -Dm755 "target/release/aurora" "$BIN_DIR/aurora"
 sudo install -Dm644 "packaging/desktop/org.aurora.ApplicationCenter.desktop" "$DESKTOP_DIR/org.aurora.ApplicationCenter.desktop"
 sudo install -Dm644 "assets/icons/org.aurora.ApplicationCenter.svg" "$ICON_DIR/org.aurora.ApplicationCenter.svg"
+sudo install -Dm644 "assets/icons/aurora-empty-cart.svg" "$ICON_DIR/aurora-empty-cart.svg"
+
+# Kullanıcı yerel dizinine de kopyala (KDE / GNOME oturumu için anında erişim)
+mkdir -p "$HOME/.local/share/icons/hicolor/scalable/apps" "$HOME/.local/share/applications"
+cp "assets/icons/org.aurora.ApplicationCenter.svg" "$HOME/.local/share/icons/hicolor/scalable/apps/"
+cp "assets/icons/aurora-empty-cart.svg" "$HOME/.local/share/icons/hicolor/scalable/apps/"
+cp "packaging/desktop/org.aurora.ApplicationCenter.desktop" "$HOME/.local/share/applications/"
 
 # 3. İkon ve masaüstü veritabanını güncelle
 if command -v gtk-update-icon-cache >/dev/null 2>&1; then

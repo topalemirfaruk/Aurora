@@ -37,11 +37,18 @@ impl Application {
             icon_theme.add_search_path("/usr/share/icons/Papirus");
             icon_theme.add_search_path("/usr/share/icons/Papirus-Dark");
             icon_theme.add_search_path("/usr/share/pixmaps");
+            if let Some(home) = std::env::var_os("HOME") {
+                let user_icons = std::path::PathBuf::from(home).join(".local/share/icons/hicolor");
+                icon_theme.add_search_path(user_icons);
+            }
             icon_theme.add_search_path("assets/icons");
+            icon_theme.add_search_path("assets/icons/hicolor");
             if let Ok(exe) = std::env::current_exe() {
                 if let Some(dir) = exe.parent() {
                     icon_theme.add_search_path(dir.join("assets/icons"));
                     icon_theme.add_search_path(dir.join("../assets/icons"));
+                    icon_theme.add_search_path(dir.join("../../assets/icons"));
+                    icon_theme.add_search_path(dir.join("../../assets/icons/hicolor"));
                 }
             }
         }
