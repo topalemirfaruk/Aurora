@@ -35,6 +35,9 @@ pub enum AppCategory {
     Gaming,
     Multimedia,
     System,
+    Drivers,
+    Codecs,
+    Runtimes,
 }
 
 impl AppCategory {
@@ -46,6 +49,9 @@ impl AppCategory {
             Self::Gaming => "Oyun & Eğlence",
             Self::Multimedia => "Tasarım & Medya",
             Self::System => "Sistem & Donanım",
+            Self::Drivers => "Sürücüler & Donanım",
+            Self::Codecs => "Medya Kodekleri",
+            Self::Runtimes => "Çalışma Zamanları",
         }
     }
 
@@ -57,6 +63,9 @@ impl AppCategory {
             Self::Gaming => "applications-games-symbolic",
             Self::Multimedia => "applications-multimedia-symbolic",
             Self::System => "applications-system-symbolic",
+            Self::Drivers => "video-display-symbolic",
+            Self::Codecs => "media-optical-audio-symbolic",
+            Self::Runtimes => "system-run-symbolic",
         }
     }
 
@@ -68,6 +77,9 @@ impl AppCategory {
             Self::Gaming,
             Self::Multimedia,
             Self::System,
+            Self::Drivers,
+            Self::Codecs,
+            Self::Runtimes,
         ]
     }
 }

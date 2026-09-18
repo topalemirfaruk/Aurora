@@ -345,6 +345,84 @@ impl IconResolver {
                 "flatseal",
                 "preferences-system",
             ],
+            // Sürücüler & Donanım
+            "vulkan" | "vulkan-radeon" | "vulkan-intel" => &[
+                "vulkan",
+                "video-display",
+                "preferences-desktop-display",
+            ],
+            "nvidia" | "nvidia-open" | "nvidia-utils" => &[
+                "nvidia",
+                "nvidia-settings",
+                "video-display",
+            ],
+            "mesa" => &[
+                "mesa",
+                "video-display",
+                "applications-system",
+            ],
+            "pipewire" | "pipewire-pulse" => &[
+                "audio-card",
+                "multimedia-volume-control",
+                "preferences-desktop-sound",
+            ],
+            "bluez" | "bluetooth" => &[
+                "bluetooth",
+                "preferences-system-bluetooth",
+                "network-wireless",
+            ],
+            "cups" | "printer" => &[
+                "printer",
+                "cups",
+                "document-print",
+            ],
+            // Kodekler
+            "ffmpeg" => &[
+                "ffmpeg",
+                "video-x-generic",
+                "applications-multimedia",
+            ],
+            "gstreamer" | "gst-plugins" => &[
+                "gstreamer-properties",
+                "media-optical-audio",
+                "applications-multimedia",
+            ],
+            "vaapi" | "intel-media-driver" | "libva" => &[
+                "video-display",
+                "media-playback-start",
+                "applications-multimedia",
+            ],
+            // Çalışma Zamanları
+            "wine" | "winetricks" => &[
+                "wine",
+                "wine-staging",
+                "wine-winecfg",
+                "system-run",
+            ],
+            "gamemode" | "gamescope" => &[
+                "speedometer",
+                "applications-games",
+                "system-run",
+            ],
+            "java" | "openjdk" => &[
+                "java",
+                "openjdk",
+                "applications-development",
+            ],
+            "nodejs" => &[
+                "nodejs",
+                "node",
+                "applications-development",
+            ],
+            "python" => &[
+                "python",
+                "python3",
+                "applications-development",
+            ],
+            "dotnet" => &[
+                "dotnet",
+                "applications-development",
+            ],
             _ => &[],
         }
     }
@@ -357,6 +435,9 @@ impl IconResolver {
             AppCategory::Gaming => "applications-games",
             AppCategory::Multimedia => "applications-multimedia",
             AppCategory::System => "applications-system",
+            AppCategory::Drivers => "video-display",
+            AppCategory::Codecs => "media-optical-audio",
+            AppCategory::Runtimes => "system-run",
         }
     }
 }

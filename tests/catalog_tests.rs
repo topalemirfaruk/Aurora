@@ -28,4 +28,26 @@ mod tests {
         let aur_results = CatalogService::search("code");
         assert!(aur_results.iter().any(|a| a.source == PackageSource::Aur));
     }
+
+    #[test]
+    fn test_ninite_bundles_validity() {
+        let bundles = CatalogService::get_ninite_bundles();
+        assert_eq!(bundles.len(), 4, "4 adet Ninite paketi bulunmalıdır");
+
+        let all_apps = CatalogService::get_all_apps();
+
+        for bundle in bundles {
+            assert!(!bundle.id.is_empty());
+            assert!(!bundle.title.is_empty());
+            assert!(!bundle.description.is_empty());
+            assert!(!bundle.icon.is_empty());
+            assert!(!bundle.package_names.is_empty());
+
+            // Paketteki her uygulamanın katalogda kayıtlı olduğunu doğrula
+            for pkg_name in bundle.package_names {
+                let found = all_apps.iter().any(|app| &app.package_name == pkg_name);
+                assert!(found, "Ninite paketindeki '{}' paketi ana katalogda mevcut olmalıdır", pkg_name);
+            }
+        }
+    }
 }

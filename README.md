@@ -32,38 +32,44 @@ Arch Linux kullanıcıları geleneksel olarak iki seçenek arasında sıkışmak
 
 ## ✨ Öne Çıkan Özellikler
 
-### 1. 🛍️ Toplu Kurulum Sepeti (Batch Installation Queue)
-- Tek tek uygulama kurup beklemek yerine, istediğiniz tüm uygulamaları sepetinize ekleyin.
+### 1. 🛍️ Toplu Kurulum Sepeti & Ninite Modu (Batch Queue & Ninite Bundles)
+- **Ninite Felsefesi (1-Tıkla Toplu Kurulum Paketleri):** Yeni kurulmuş bir Arch Linux sisteminde ihtiyaç duyulan multimedya kodekleri, oyun uyumluluk katmanları (Wine, Mesa, Vulkan), ses/bluetooth sürücüleri ve geliştirici dillerini tek tıkla sepete ekleyip kurabilme.
+- **Toplu Kurulum Sepeti:** Tek tek uygulama kurup beklemek yerine, istediğiniz tüm uygulamaları sepetinize ekleyin.
 - Seçtiğiniz paketlerin resmi repo, AUR veya Flatpak dağılımını özet halinde görün.
 - Arka planda donmayan tek bir akış ile tüm sepeti sırayla kurun.
 
-### 2. 🗑️ Doğrudan ve Güvenli Paket Kaldırma (Uninstall System)
+### 2. 🎮 Donanım Sürücüleri, Medya Kodekleri ve Çalışma Zamanları
+- **Sürücüler & Donanım:** `mesa`, `vulkan-radeon`, `vulkan-intel`, `nvidia-open`, `nvidia-utils`, `pipewire-pulse`, `wireplumber`, `bluez`, `cups`.
+- **Medya Kodekleri:** MP4, MKV, AV1 ve tüm formatlar için `ffmpeg`, `gst-plugins-good`, `gst-plugins-bad`, `gst-plugins-ugly`, `gst-libav`, `intel-media-driver`, `libva-mesa-driver`, `dav1d`, `x264`, `x265`.
+- **Çalışma Zamanları & Uyumluluk:** Windows yazılımları ve modern oyunlar için `wine`, `winetricks`, `gamemode`, `gamescope` ile `jdk-openjdk`, `nodejs`, `python`, `dotnet-sdk`.
+
+### 3. 🗑️ Doğrudan ve Güvenli Paket Kaldırma (Uninstall System)
 - **Karttan Doğrudan Kaldırma:** Sisteminizde kurulu olan herhangi bir uygulamanın kartında anında kırmızı `🗑️ Kaldır` butonu belirir.
 - **Detay Sayfasından Kaldırma:** Uygulama detayında kurulu uygulamalar için ana eylem butonu otomatik olarak `🗑️ Sistemden Kaldır` haline gelir.
 - **Kurulu Olanlar Merkezi:** Sistemde kurulu tüm paketleri anlık olarak listeleyin, filtreleyin ve tek tıkla sistemden temizleyin.
 - **Kritik Çekirdek Koruması:** `linux`, `systemd`, `glibc`, `pacman` gibi hayati sistem bileşenlerinin yanlışlıkla kaldırılması Aurora'nın güvenlik kalkanı tarafından kesin olarak engellenir.
 
-### 3. 📦 Üçlü Ekosistem Desteği (Official + AUR + Flatpak)
+### 4. 📦 Üçlü Ekosistem Desteği (Official + AUR + Flatpak)
 - **Resmi Depolar (Pacman):** Arch Linux resmi depolarındaki kararlı paketler (`OFFICIAL` rozeti).
 - **Arch User Repository (AUR):** `paru` veya `yay` aracılığıyla topluluk paketlerini tek tıkla derleme ve kurma (`AUR` rozeti).
 - **Flatpak:** İzolasyonlu, sandbox tabanlı modern masaüstü uygulamaları (`FLATPAK` rozeti).
 
-### 4. ⚡ Canlı Asenkron Yürütme ve Akıllı Askpass Konsolu
+### 5. ⚡ Canlı Asenkron Yürütme ve Akıllı Askpass Konsolu
 - **Donmayan UI:** GTK ana döngüsü ile Tokio thread havuzu bağımsız çalışır; arayüz işlem sürerken %100 tepkisel kalır.
 - **Grafiksel Parola Doğrulama (`SUDO_ASKPASS`):** Terminal şifre isteklerinde (`[sudo] password:`) uygulamanın takılı kalması engellenmiştir; sistem KDE (`kdialog`) veya GNOME (`zenity`) grafik penceresiyle şifre onayını güvenle alır.
 - **Canlı Log Akışı:** Derleme ve indirme adımları renkli terminal çıktısıyla gerçek zamanlı akar, otomatik en alta kayar.
 
-### 5. 🛡️ Siber Güvenlik ve Katı Doğrulama
+### 6. 🛡️ Siber Güvenlik ve Katı Doğrulama
 - **Enjeksiyon Koruması:** Paket adları katı regex kurallarıyla denetlenir; `&&`, `;`, `|`, `$(...)` gibi zararlı kabuk enjeksiyonları filtrelenir.
 - **PKGBUILD Önizleme:** AUR paketlerinin derleme scriptleri ve kaynak kod adresleri kurulmadan önce dahili editörde satır satır incelenebilir.
 - **Root Uyarı Kalkanı:** Aurora root (`sudo`) olarak başlatıldığında AUR derleyicilerinin güvenlik açıklarına karşı kullanıcıyı uyaran güvenlik banner'ı devreye girer.
 
-### 6. 🎨 Kusursuz Görsel Deneyim ve Akıllı İkonlar
+### 7. 🎨 Kusursuz Görsel Deneyim ve Akıllı İkonlar
 - **Özel Vektörel Simgeler:** Boş sepet durumunda veya uygulama simgelerinde bulanık/düşük pikselli bitmap'ler yerine yüksek çözünürlüklü özel SVG vektörleri (`aurora-empty-cart.svg`, `org.aurora.ApplicationCenter.svg`) kullanılır.
-- **Gelişmiş Simge Çözümleyici (`IconResolver`):** Brave, KeePassXC, VS Code, Discord, Spotify gibi uygulamaların masaüstü simge takma adları dinamik olarak çözümlenir ve kırık simge oluşması engellenir.
+- **Gelişmiş Simge Çözümleyici (`IconResolver`):** Brave, KeePassXC, VS Code, Discord, Spotify, Vulkan, NVIDIA, Wine gibi uygulamaların masaüstü simge takma adları dinamik olarak çözümlenir.
 - **KDE Plasma & GNOME Uyumlu Tema Motoru:** Kullanıcının yerel GTK konfigürasyonunu ezmeden çalışan yüksek öncelikli dinamik CSS sağlayıcısı ile kusursuz Açık ve Koyu tema desteği.
 
-### 7. 📋 Bellek İçi Reaktif Durum Takibi (`InstalledState`)
+### 8. 📋 Bellek İçi Reaktif Durum Takibi (`InstalledState`)
 - `pacman -Q` ve `flatpak list` verilerini arka planda önbelleğe alarak \(O(1)\) hızında kurulu paket kontrolü yapar.
 - Bir paket kurulduğunda veya kaldırıldığında tüm sayfalar (`Keşfet`, `Katalog`, `Kurulu Olanlar`) kullanıcı arayüzü yenilemeye gerek kalmadan anında güncellenir.
 
@@ -73,8 +79,8 @@ Arch Linux kullanıcıları geleneksel olarak iki seçenek arasında sıkışmak
 
 | Sayfa | Açıklama |
 | :--- | :--- |
-| **🏠 Keşfet (Home)** | Sistem yetenek hapları (Pacman, AUR yardımcısı, Flatpak durumu), kategori kısayolları ve öne çıkan popüler uygulamalar. |
-| **📚 Katalog (Catalog)** | 58 adet özenle seçilmiş temel uygulama, kategori filtreleri, anlık arama ve depolarda canlı arama butonu. |
+| **🏠 Keşfet (Home)** | Sistem yetenek hapları, kategori kısayolları, **⚡ Hızlı Kurulum Paketleri (Ninite Modu)** ve öne çıkan popüler uygulamalar. |
+| **📚 Katalog (Catalog)** | 86 adet temel uygulama, sürücü, kodek ve çalışma zamanı; 9 kategori filtresi, anlık arama ve depolarda canlı arama. |
 | **🛒 Kurulum Sepeti (Cart)** | Toplu kurulacak paketlerin listesi, kaynak dağılım özeti ve canlı kurulum başlatıcı. |
 | **🗑️ Kurulu & Kaldır (Installed)** | Sistemdeki kurulu paketleri filtreleme, sürüm görüntüleme ve tek tıkla sistemden kaldırma. |
 | **⚙️ Ayarlar (Settings)** | AUR yardımcısı tercihi (`paru`/`yay`), PKGBUILD zorunlu inceleme ayarı, özet onay penceresi ve tema seçimi. |
@@ -107,7 +113,7 @@ cargo run
 ```bash
 cargo test
 ```
-*(Güvenlik doğrulamaları, sepet yönetimi, ayarlar ve katalog testleri dahil 18 testin tamamı otomatize olarak koşulur).*
+*(Güvenlik doğrulamaları, Ninite paket bütünlüğü, sepet yönetimi, ayarlar ve 86 paketlik katalog testleri dahil 19 testin tamamı otomatize olarak koşulur).*
 
 ### 4. Sisteme Kalıcı Kurulum:
 Hazırlanan kurulum betiği uygulamayı optimize release modunda derler, masaüstü kısayolunu (`.desktop`) ve yüksek çözünürlüklü SVG logolarını sisteminize kaydeder:
