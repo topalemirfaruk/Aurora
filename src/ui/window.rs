@@ -173,7 +173,7 @@ impl MainWindow {
 
         // Siber Güvenlik: Root Güvenlik Uyarısı Banner'ı
         let root_banner = adw::Banner::builder()
-            .title("⚠️ Aurora root olarak çalıştırılıyor! Güvenlik ve AUR uyumluluğu için normal kullanıcı olarak başlatın.")
+            .title("Aurora root olarak çalıştırılıyor! Güvenlik ve AUR uyumluluğu için normal kullanıcı olarak başlatın.")
             .revealed(is_running_as_root())
             .build();
 

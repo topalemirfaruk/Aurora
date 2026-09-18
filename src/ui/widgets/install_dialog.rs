@@ -72,7 +72,7 @@ impl InstallDialog {
                 .build();
 
             let root_title = Label::builder()
-                .label("🛑 DİKKAT: Root Olarak Çalıştırılıyor")
+                .label("Dikkat: Root Olarak Çalıştırılıyor")
                 .halign(Align::Start)
                 .css_classes(["heading"])
                 .build();
@@ -98,7 +98,7 @@ impl InstallDialog {
                 .build();
 
             let warn_title = Label::builder()
-                .label("⚠️ AUR Güvenlik Bildirimi")
+                .label("AUR Güvenlik Bildirimi")
                 .halign(Align::Start)
                 .css_classes(["heading"])
                 .build();
@@ -122,7 +122,7 @@ impl InstallDialog {
                     .build();
 
                 let notice_label = Label::builder()
-                    .label("⚙️ Ayarınız gereği PKGBUILD incelemesi:")
+                    .label("Ayarınız gereği PKGBUILD incelemesi:")
                     .css_classes(["caption", "dim-label"])
                     .halign(Align::Start)
                     .build();
@@ -130,7 +130,8 @@ impl InstallDialog {
 
                 for item in &aur_items_preview {
                     let review_btn = Button::builder()
-                        .label(&format!("📄 {} İncele", item.package_name))
+                        .label(&format!("{} İncele", item.package_name))
+                        .icon_name("text-x-script-symbolic")
                         .css_classes(["flat", "pill"])
                         .build();
 
@@ -365,10 +366,10 @@ impl InstallDialog {
 
                 pbar.set_visible(false);
                 if overall_success {
-                    status.set_label("✓ Kurulum işlemi başarıyla tamamlandı!");
+                    status.set_label("Kurulum işlemi başarıyla tamamlandı.");
                     on_done();
                 } else {
-                    status.set_label("⚠️ Bazı işlemler tamamlanamadı veya iptal edildi. Günlükleri inceleyin.");
+                    status.set_label("Bazı işlemler tamamlanamadı veya iptal edildi. Günlükleri inceleyin.");
                 }
             });
         });

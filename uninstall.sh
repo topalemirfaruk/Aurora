@@ -8,7 +8,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🌌 Aurora — Kaldırma (Uninstall) Betiği${NC}"
+echo -e "${BLUE}Aurora — Sistemden Kaldırma (Uninstall) Betiği${NC}"
 echo "----------------------------------------------------"
 
 # Onay iste (eğer -y veya --force verilmemişse)
@@ -31,65 +31,65 @@ LOCAL_ICON_APP="$HOME/.local/share/icons/hicolor/scalable/apps/org.aurora.Applic
 LOCAL_ICON_CART="$HOME/.local/share/icons/hicolor/scalable/apps/aurora-empty-cart.svg"
 CONFIG_DIR="$HOME/.config/aurora"
 
-echo -e "\n${YELLOW}📦 Sistem düzeyindeki dosyalar siliniyor (sudo yetkisi gerekebilir)...${NC}"
+echo -e "\n${YELLOW}Sistem düzeyindeki dosyalar siliniyor (sudo yetkisi gerekebilir)...${NC}"
 
 # Sistem dosyaları
 if [ -f "$BIN_FILE" ]; then
     sudo rm -f "$BIN_FILE"
-    echo -e "  ${GREEN}✓${NC} $BIN_FILE silindi."
+    echo -e "  ${GREEN}[OK]${NC} $BIN_FILE silindi."
 fi
 
 if [ -f "$DESKTOP_FILE" ]; then
     sudo rm -f "$DESKTOP_FILE"
-    echo -e "  ${GREEN}✓${NC} $DESKTOP_FILE silindi."
+    echo -e "  ${GREEN}[OK]${NC} $DESKTOP_FILE silindi."
 fi
 
 if [ -f "$ICON_APP" ]; then
     sudo rm -f "$ICON_APP"
-    echo -e "  ${GREEN}✓${NC} $ICON_APP silindi."
+    echo -e "  ${GREEN}[OK]${NC} $ICON_APP silindi."
 fi
 
 if [ -f "$ICON_CART" ]; then
     sudo rm -f "$ICON_CART"
-    echo -e "  ${GREEN}✓${NC} $ICON_CART silindi."
+    echo -e "  ${GREEN}[OK]${NC} $ICON_CART silindi."
 fi
 
-echo -e "\n${YELLOW}👤 Kullanıcı yerel dizinindeki dosyalar siliniyor...${NC}"
+echo -e "\n${YELLOW}Kullanıcı yerel dizinindeki dosyalar siliniyor...${NC}"
 
 # Kullanıcı yerel dosyaları
 if [ -f "$LOCAL_DESKTOP" ]; then
     rm -f "$LOCAL_DESKTOP"
-    echo -e "  ${GREEN}✓${NC} $LOCAL_DESKTOP silindi."
+    echo -e "  ${GREEN}[OK]${NC} $LOCAL_DESKTOP silindi."
 fi
 
 if [ -f "$LOCAL_ICON_APP" ]; then
     rm -f "$LOCAL_ICON_APP"
-    echo -e "  ${GREEN}✓${NC} $LOCAL_ICON_APP silindi."
+    echo -e "  ${GREEN}[OK]${NC} $LOCAL_ICON_APP silindi."
 fi
 
 if [ -f "$LOCAL_ICON_CART" ]; then
     rm -f "$LOCAL_ICON_CART"
-    echo -e "  ${GREEN}✓${NC} $LOCAL_ICON_CART silindi."
+    echo -e "  ${GREEN}[OK]${NC} $LOCAL_ICON_CART silindi."
 fi
 
 # Yapılandırma dosyaları temizlensin mi?
 if [ -d "$CONFIG_DIR" ]; then
     if [[ "$1" == "-y" || "$1" == "--yes" || "$1" == "--force" ]]; then
         rm -rf "$CONFIG_DIR"
-        echo -e "  ${GREEN}✓${NC} $CONFIG_DIR (yapılandırma dosyaları) silindi."
+        echo -e "  ${GREEN}[OK]${NC} $CONFIG_DIR (yapılandırma dosyaları) silindi."
     else
         read -p "Kullanıcı ayarları ve önbellek ($CONFIG_DIR) silinsin mi? [e/H]: " rm_conf
         if [[ "$rm_conf" == "e" || "$rm_conf" == "E" || "$rm_conf" == "y" || "$rm_conf" == "Y" ]]; then
             rm -rf "$CONFIG_DIR"
-            echo -e "  ${GREEN}✓${NC} $CONFIG_DIR silindi."
+            echo -e "  ${GREEN}[OK]${NC} $CONFIG_DIR silindi."
         else
-            echo -e "  ${BLUE}ℹ${NC} $CONFIG_DIR korundu."
+            echo -e "  ${BLUE}[INFO]${NC} $CONFIG_DIR korundu."
         fi
     fi
 fi
 
 # Masaüstü ve ikon önbelleklerini güncelle
-echo -e "\n${YELLOW}🔄 Masaüstü ve ikon veritabanları güncelleniyor...${NC}"
+echo -e "\n${YELLOW}Masaüstü ve ikon veritabanları güncelleniyor...${NC}"
 
 if command -v gtk-update-icon-cache >/dev/null 2>&1; then
     sudo gtk-update-icon-cache -f -t "$PREFIX/share/icons/hicolor" 2>/dev/null || true
@@ -101,4 +101,4 @@ if command -v update-desktop-database >/dev/null 2>&1; then
     update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
 fi
 
-echo -e "\n${GREEN}✨ Aurora sisteminizden başarıyla kaldırıldı!${NC}"
+echo -e "\n${GREEN}Aurora sisteminizden başarıyla kaldırıldı.${NC}"

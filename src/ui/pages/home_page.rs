@@ -59,14 +59,14 @@ impl HomePage {
             .build();
 
         let pacman_pill = Label::builder()
-            .label(if sys.has_pacman { "✓ Pacman Aktif" } else { "✗ Pacman Yok" })
+            .label(if sys.has_pacman { "Pacman Aktif" } else { "Pacman Yok" })
             .css_classes(["status-pill"])
             .build();
         sys_row.append(&pacman_pill);
 
         if let Some(helper) = sys.preferred_aur_helper() {
             let aur_pill = Label::builder()
-                .label(&format!("✓ AUR: {}", helper))
+                .label(&format!("AUR: {}", helper))
                 .css_classes(["status-pill"])
                 .build();
             sys_row.append(&aur_pill);
@@ -74,7 +74,7 @@ impl HomePage {
 
         if sys.has_flatpak {
             let flatpak_pill = Label::builder()
-                .label("✓ Flatpak Mevcut")
+                .label("Flatpak Mevcut")
                 .css_classes(["status-pill"])
                 .build();
             sys_row.append(&flatpak_pill);
@@ -141,13 +141,13 @@ impl HomePage {
             .build();
 
         let bundles_title = Label::builder()
-            .label("⚡ Hızlı Kurulum Paketleri (Ninite Modu)")
+            .label("Hızlı Kurulum Paketleri (Ninite Modu)")
             .halign(Align::Start)
             .css_classes(["title-2"])
             .build();
 
         let bundles_sub = Label::builder()
-            .label("Tek tıkla temel multimedya, oyun uyumluluk, ses ve geliştirici ortamlarını topluca kurun.")
+            .label("Temel multimedya, oyun uyumluluk, ses ve geliştirici ortamlarını tek tıkla topluca kurun.")
             .halign(Align::Start)
             .css_classes(["dim-label"])
             .build();
@@ -221,7 +221,7 @@ impl HomePage {
 
             // Paket listesi özeti
             let pkgs_summary = Label::builder()
-                .label(&format!("📦 {}", bundle.package_names.join(", ")))
+                .label(&format!("Paketler: {}", bundle.package_names.join(", ")))
                 .halign(Align::Start)
                 .wrap(true)
                 .css_classes(["caption"])
@@ -245,17 +245,17 @@ impl HomePage {
                 move || {
                     let in_cart_count = pkgs.iter().filter(|pkg| cart_state.contains(pkg)).count();
                     if in_cart_count == total_pkgs {
-                        btn.set_label("✓ Tümü Sepette");
+                        btn.set_label("Tümü Sepette");
                         btn.remove_css_class("suggested-action");
                         btn.add_css_class("flat");
                         btn.set_tooltip_text(Some("Bu paketteki tüm uygulamalar sepete eklenmiş"));
                     } else if in_cart_count > 0 {
-                        btn.set_label(&format!("+ Kalanı Ekle ({}/{})", total_pkgs - in_cart_count, total_pkgs));
+                        btn.set_label(&format!("Kalanı Ekle ({}/{})", total_pkgs - in_cart_count, total_pkgs));
                         btn.add_css_class("suggested-action");
                         btn.remove_css_class("flat");
                         btn.set_tooltip_text(Some("Henüz sepette olmayan paketleri ekle"));
                     } else {
-                        btn.set_label(&format!("+ Tümünü Sepete Ekle ({} Paket)", total_pkgs));
+                        btn.set_label(&format!("Sepete Ekle ({} Paket)", total_pkgs));
                         btn.add_css_class("suggested-action");
                         btn.remove_css_class("flat");
                         btn.set_tooltip_text(Some("Paketteki tüm uygulamaları sepete ekle"));

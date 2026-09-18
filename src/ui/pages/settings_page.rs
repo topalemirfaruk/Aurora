@@ -188,7 +188,7 @@ impl SettingsPage {
             glib::spawn_future_local(async move {
                 let _ = crate::process::CommandExecutor::run_captured("pkexec", &["pacman", "-Sc", "--noconfirm"]).await;
                 btn.set_sensitive(true);
-                btn.set_label("Temizlendi ✓");
+                btn.set_label("Temizlendi");
                 let b = btn.clone();
                 glib::timeout_add_local_once(std::time::Duration::from_millis(2000), move || {
                     b.set_label("Önbelleği Temizle");

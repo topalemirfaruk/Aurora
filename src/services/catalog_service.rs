@@ -1091,7 +1091,7 @@ impl CatalogService {
         vec![
             NiniteBundle {
                 id: "codecs-pack",
-                title: "🎬 Eksiksiz Medya & Kodek Paketi",
+                title: "Medya ve Kodek Paketi",
                 description: "Video ve ses dosyalarını (MP4, MKV, AV1, MP3 vb.) sorunsuz oynatmak için gerekli tüm GStreamer ve FFmpeg kodekleri.",
                 icon: "media-optical-audio-symbolic",
                 package_names: &[
@@ -1105,7 +1105,7 @@ impl CatalogService {
             },
             NiniteBundle {
                 id: "gaming-pack",
-                title: "🎮 Linux Oyun & Uyumluluk Altyapısı",
+                title: "Oyun ve Uyumluluk Altyapısı",
                 description: "Steam, Epic ve Windows oyunlarını Linux'ta yüksek performansla çalıştırmak için Wine, Mesa, Vulkan, GameMode ve Gamescope.",
                 icon: "applications-games-symbolic",
                 package_names: &[
@@ -1119,7 +1119,7 @@ impl CatalogService {
             },
             NiniteBundle {
                 id: "audio-hardware-pack",
-                title: "🎧 Modern Ses & Bluetooth Altyapısı",
+                title: "Ses ve Donanım Altyapısı",
                 description: "Düşük gecikmeli PipeWire ses sunucusu, WirePlumber oturum yöneticisi ve Bluetooth protokol araçları.",
                 icon: "multimedia-volume-control-symbolic",
                 package_names: &[
@@ -1131,7 +1131,7 @@ impl CatalogService {
             },
             NiniteBundle {
                 id: "developer-runtime-pack",
-                title: "💻 Temel Geliştirici Çalışma Zamanları",
+                title: "Geliştirici Çalışma Zamanları",
                 description: "Yazılım geliştirme ve script çalıştırma için resmi Python, Node.js, OpenJDK Java ve .NET Core SDK ortamları.",
                 icon: "applications-development-symbolic",
                 package_names: &[

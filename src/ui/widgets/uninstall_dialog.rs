@@ -58,7 +58,7 @@ impl UninstallDialog {
                 .build();
 
             let err_title = Label::builder()
-                .label("🛑 Geçersiz veya Tehlikeli Paket Adı")
+                .label("Geçersiz veya Tehlikeli Paket Adı")
                 .halign(Align::Start)
                 .css_classes(["heading"])
                 .build();
@@ -87,7 +87,7 @@ impl UninstallDialog {
                 .build();
 
             let crit_title = Label::builder()
-                .label("🛑 KRİTİK SİSTEM BİLEŞENİ")
+                .label("Kritik Sistem Bileşeni")
                 .halign(Align::Start)
                 .css_classes(["heading"])
                 .build();

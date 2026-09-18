@@ -92,7 +92,8 @@ impl CartPage {
 
         // Canlı Kurulumu Başlat Butonu
         let start_install_btn = Button::builder()
-            .label("🚀 Kurulumu Başlat")
+            .label("Kurulumu Başlat")
+            .icon_name("system-software-install-symbolic")
             .valign(Align::Center)
             .css_classes(["suggested-action", "pill"])
             .build();
@@ -130,7 +131,8 @@ impl CartPage {
             .build();
 
         let copy_btn = Button::builder()
-            .label("📋 Kopyala")
+            .label("Kopyala")
+            .icon_name("edit-copy-symbolic")
             .css_classes(["suggested-action"])
             .build();
 
@@ -177,10 +179,10 @@ impl CartPage {
             if let Some(display) = Display::default() {
                 let clipboard = display.clipboard();
                 clipboard.set_text(&text);
-                copy_btn_clone.set_label("Kopyalandı! ✓");
+                copy_btn_clone.set_label("Kopyalandı");
                 let btn = copy_btn_clone.clone();
                 glib::timeout_add_local_once(std::time::Duration::from_millis(1500), move || {
-                    btn.set_label("📋 Kopyala");
+                    btn.set_label("Kopyala");
                 });
             }
         });

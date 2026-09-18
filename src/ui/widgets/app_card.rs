@@ -62,7 +62,7 @@ impl AppCard {
             .build();
 
         let installed_badge = Label::builder()
-            .label("✓ Kurulu")
+            .label("Kurulu")
             .css_classes(["badge-installed"])
             .halign(Align::Start)
             .visible(false)
@@ -89,13 +89,13 @@ impl AppCard {
             .build();
 
         let pkg_label = Label::builder()
-            .label(&format!("📦 {}", item.package_name))
+            .label(&item.package_name)
             .css_classes(["caption", "dim-label"])
             .halign(Align::Start)
             .build();
 
         let cat_label = Label::builder()
-            .label(&format!("🏷️ {}", item.category.title()))
+            .label(item.category.title())
             .css_classes(["caption", "dim-label"])
             .halign(Align::Start)
             .build();
@@ -165,7 +165,7 @@ impl AppCard {
                 uninstall_btn.set_visible(is_installed);
 
                 if cart_state.contains(&item_clone.package_name) {
-                    cart_btn.set_label("Eklendi ✓");
+                    cart_btn.set_label("Sepette");
                     cart_btn.remove_css_class("suggested-action");
                     cart_btn.remove_css_class("flat");
                     cart_btn.add_css_class("destructive-action");
@@ -177,7 +177,7 @@ impl AppCard {
                     cart_btn.add_css_class("flat");
                     cart_btn.set_tooltip_text(Some("Yeniden kurmak veya derlemek için sepete ekleyin"));
                 } else {
-                    cart_btn.set_label("+ Ekle");
+                    cart_btn.set_label("Ekle");
                     cart_btn.remove_css_class("destructive-action");
                     cart_btn.remove_css_class("flat");
                     cart_btn.add_css_class("suggested-action");

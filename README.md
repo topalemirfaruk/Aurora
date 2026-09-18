@@ -1,4 +1,4 @@
-# 🌌 Aurora — Modern Arch Linux Uygulama ve Paket Yönetim Merkezi
+# Aurora — Modern Arch Linux Uygulama ve Paket Yönetim Merkezi
 
 <p align="center">
   <img src="assets/icons/org.aurora.ApplicationCenter.svg" width="128" height="128" alt="Aurora Logo" />
@@ -17,11 +17,11 @@
 
 ---
 
-## 🧭 Aurora Nedir?
+## Aurora Nedir?
 
-**Aurora**, Arch Linux ekosistemindeki kullanıcıların terminal komutlarına bağımlı kalmadan; uygulamaları, geliştirme ortamlarını, oyunları ve sistem araçlarını **keşfetmesini, toplu olarak kurmasını ve kolayca kaldırmasını (uninstall)** sağlayan yeni nesil bir masaüstü yazılım merkezidir.
+**Aurora**, Arch Linux ekosistemindeki kullanıcıların terminal komutlarına bağımlı kalmadan; uygulamaları, donanım sürücülerini, medya kodeklerini ve çalışma zamanlarını **keşfetmesini, toplu olarak kurmasını ve sistemden kaldırmasını (uninstall)** sağlayan yeni nesil bir masaüstü yazılım merkezidir.
 
-### 🎯 Neden Aurora?
+### Neden Aurora?
 Arch Linux kullanıcıları geleneksel olarak iki seçenek arasında sıkışmaktadır:
 1. **Terminal Komutları:** Hızlı ve güçlüdür ancak onlarca paketi aramak, bağımlılıkları denetlemek ve toplu kurulumları yönetmek yeni ve orta seviye kullanıcılar için zordur.
 2. **Mevcut Grafiksel Paket Yöneticileri (Pamac, Discover, GNOME Software):** Çoğu zaman aşırı bellek tüketir, arayüzleri AUR derlemeleri sırasında kilitlenir veya terminaldeki şifre isteklerinde (`sudo`) donup kalırlar.
@@ -30,64 +30,64 @@ Arch Linux kullanıcıları geleneksel olarak iki seçenek arasında sıkışmak
 
 ---
 
-## ✨ Öne Çıkan Özellikler
+## Öne Çıkan Özellikler
 
-### 1. 🛍️ Toplu Kurulum Sepeti & Ninite Modu (Batch Queue & Ninite Bundles)
+### 1. Toplu Kurulum Sepeti ve Ninite Modu (Batch Queue & Ninite Bundles)
 - **Ninite Felsefesi (1-Tıkla Toplu Kurulum Paketleri):** Yeni kurulmuş bir Arch Linux sisteminde ihtiyaç duyulan multimedya kodekleri, oyun uyumluluk katmanları (Wine, Mesa, Vulkan), ses/bluetooth sürücüleri ve geliştirici dillerini tek tıkla sepete ekleyip kurabilme.
 - **Toplu Kurulum Sepeti:** Tek tek uygulama kurup beklemek yerine, istediğiniz tüm uygulamaları sepetinize ekleyin.
 - Seçtiğiniz paketlerin resmi repo, AUR veya Flatpak dağılımını özet halinde görün.
 - Arka planda donmayan tek bir akış ile tüm sepeti sırayla kurun.
 
-### 2. 🎮 Donanım Sürücüleri, Medya Kodekleri ve Çalışma Zamanları
+### 2. Donanım Sürücüleri, Medya Kodekleri ve Çalışma Zamanları
 - **Sürücüler & Donanım:** `mesa`, `vulkan-radeon`, `vulkan-intel`, `nvidia-open`, `nvidia-utils`, `pipewire-pulse`, `wireplumber`, `bluez`, `cups`.
 - **Medya Kodekleri:** MP4, MKV, AV1 ve tüm formatlar için `ffmpeg`, `gst-plugins-good`, `gst-plugins-bad`, `gst-plugins-ugly`, `gst-libav`, `intel-media-driver`, `libva-mesa-driver`, `dav1d`, `x264`, `x265`.
 - **Çalışma Zamanları & Uyumluluk:** Windows yazılımları ve modern oyunlar için `wine`, `winetricks`, `gamemode`, `gamescope` ile `jdk-openjdk`, `nodejs`, `python`, `dotnet-sdk`.
 
-### 3. 🗑️ Doğrudan ve Güvenli Paket Kaldırma (Uninstall System)
-- **Karttan Doğrudan Kaldırma:** Sisteminizde kurulu olan herhangi bir uygulamanın kartında anında kırmızı `🗑️ Kaldır` butonu belirir.
-- **Detay Sayfasından Kaldırma:** Uygulama detayında kurulu uygulamalar için ana eylem butonu otomatik olarak `🗑️ Sistemden Kaldır` haline gelir.
+### 3. Doğrudan ve Güvenli Paket Kaldırma (Uninstall System)
+- **Karttan Doğrudan Kaldırma:** Sisteminizde kurulu olan herhangi bir uygulamanın kartında anında belirgin `Kaldır` butonu yer alır.
+- **Detay Sayfasından Kaldırma:** Uygulama detayında kurulu uygulamalar için ana eylem butonu otomatik olarak `Sistemden Kaldır` haline gelir.
 - **Kurulu Olanlar Merkezi:** Sistemde kurulu tüm paketleri anlık olarak listeleyin, filtreleyin ve tek tıkla sistemden temizleyin.
 - **Kritik Çekirdek Koruması:** `linux`, `systemd`, `glibc`, `pacman` gibi hayati sistem bileşenlerinin yanlışlıkla kaldırılması Aurora'nın güvenlik kalkanı tarafından kesin olarak engellenir.
 
-### 4. 📦 Üçlü Ekosistem Desteği (Official + AUR + Flatpak)
+### 4. Üçlü Ekosistem Desteği (Official + AUR + Flatpak)
 - **Resmi Depolar (Pacman):** Arch Linux resmi depolarındaki kararlı paketler (`OFFICIAL` rozeti).
 - **Arch User Repository (AUR):** `paru` veya `yay` aracılığıyla topluluk paketlerini tek tıkla derleme ve kurma (`AUR` rozeti).
 - **Flatpak:** İzolasyonlu, sandbox tabanlı modern masaüstü uygulamaları (`FLATPAK` rozeti).
 
-### 5. ⚡ Canlı Asenkron Yürütme ve Akıllı Askpass Konsolu
+### 5. Canlı Asenkron Yürütme ve Akıllı Askpass Konsolu
 - **Donmayan UI:** GTK ana döngüsü ile Tokio thread havuzu bağımsız çalışır; arayüz işlem sürerken %100 tepkisel kalır.
 - **Grafiksel Parola Doğrulama (`SUDO_ASKPASS`):** Terminal şifre isteklerinde (`[sudo] password:`) uygulamanın takılı kalması engellenmiştir; sistem KDE (`kdialog`) veya GNOME (`zenity`) grafik penceresiyle şifre onayını güvenle alır.
 - **Canlı Log Akışı:** Derleme ve indirme adımları renkli terminal çıktısıyla gerçek zamanlı akar, otomatik en alta kayar.
 
-### 6. 🛡️ Siber Güvenlik ve Katı Doğrulama
+### 6. Siber Güvenlik ve Katı Doğrulama
 - **Enjeksiyon Koruması:** Paket adları katı regex kurallarıyla denetlenir; `&&`, `;`, `|`, `$(...)` gibi zararlı kabuk enjeksiyonları filtrelenir.
 - **PKGBUILD Önizleme:** AUR paketlerinin derleme scriptleri ve kaynak kod adresleri kurulmadan önce dahili editörde satır satır incelenebilir.
 - **Root Uyarı Kalkanı:** Aurora root (`sudo`) olarak başlatıldığında AUR derleyicilerinin güvenlik açıklarına karşı kullanıcıyı uyaran güvenlik banner'ı devreye girer.
 
-### 7. 🎨 Kusursuz Görsel Deneyim ve Akıllı İkonlar
+### 7. Kusursuz Görsel Deneyim ve Akıllı İkonlar
 - **Özel Vektörel Simgeler:** Boş sepet durumunda veya uygulama simgelerinde bulanık/düşük pikselli bitmap'ler yerine yüksek çözünürlüklü özel SVG vektörleri (`aurora-empty-cart.svg`, `org.aurora.ApplicationCenter.svg`) kullanılır.
 - **Gelişmiş Simge Çözümleyici (`IconResolver`):** Brave, KeePassXC, VS Code, Discord, Spotify, Vulkan, NVIDIA, Wine gibi uygulamaların masaüstü simge takma adları dinamik olarak çözümlenir.
 - **KDE Plasma & GNOME Uyumlu Tema Motoru:** Kullanıcının yerel GTK konfigürasyonunu ezmeden çalışan yüksek öncelikli dinamik CSS sağlayıcısı ile kusursuz Açık ve Koyu tema desteği.
 
-### 8. 📋 Bellek İçi Reaktif Durum Takibi (`InstalledState`)
-- `pacman -Q` ve `flatpak list` verilerini arka planda önbelleğe alarak \(O(1)\) hızında kurulu paket kontrolü yapar.
+### 8. Bellek İçi Reaktif Durum Takibi (`InstalledState`)
+- `pacman -Q` ve `flatpak list` verilerini arka planda önbelleğe alarak O(1) hızında kurulu paket kontrolü yapar.
 - Bir paket kurulduğunda veya kaldırıldığında tüm sayfalar (`Keşfet`, `Katalog`, `Kurulu Olanlar`) kullanıcı arayüzü yenilemeye gerek kalmadan anında güncellenir.
 
 ---
 
-## 🗂️ Sayfa ve Gezinti Mimarisi
+## Sayfa ve Gezinti Mimarisi
 
 | Sayfa | Açıklama |
 | :--- | :--- |
-| **🏠 Keşfet (Home)** | Sistem yetenek hapları, kategori kısayolları, **⚡ Hızlı Kurulum Paketleri (Ninite Modu)** ve öne çıkan popüler uygulamalar. |
-| **📚 Katalog (Catalog)** | 86 adet temel uygulama, sürücü, kodek ve çalışma zamanı; 9 kategori filtresi, anlık arama ve depolarda canlı arama. |
-| **🛒 Kurulum Sepeti (Cart)** | Toplu kurulacak paketlerin listesi, kaynak dağılım özeti ve canlı kurulum başlatıcı. |
-| **🗑️ Kurulu & Kaldır (Installed)** | Sistemdeki kurulu paketleri filtreleme, sürüm görüntüleme ve tek tıkla sistemden kaldırma. |
-| **⚙️ Ayarlar (Settings)** | AUR yardımcısı tercihi (`paru`/`yay`), PKGBUILD zorunlu inceleme ayarı, özet onay penceresi ve tema seçimi. |
+| **Keşfet (Home)** | Sistem yetenek hapları, kategori kısayolları, **Hızlı Kurulum Paketleri (Ninite Modu)** ve öne çıkan popüler uygulamalar. |
+| **Katalog (Catalog)** | 86 adet temel uygulama, sürücü, kodek ve çalışma zamanı; 9 kategori filtresi, anlık arama ve depolarda canlı arama. |
+| **Kurulum Sepeti (Cart)** | Toplu kurulacak paketlerin listesi, kaynak dağılım özeti ve canlı kurulum başlatıcı. |
+| **Kurulu & Kaldır (Installed)** | Sistemdeki kurulu paketleri filtreleme, sürüm görüntüleme ve tek tıkla sistemden kaldırma. |
+| **Ayarlar (Settings)** | AUR yardımcısı tercihi (`paru`/`yay`), PKGBUILD zorunlu inceleme ayarı, özet onay penceresi ve tema seçimi. |
 
 ---
 
-## 🛠️ Sistem Gereksinimleri
+## Sistem Gereksinimleri
 
 - **İşletim Sistemi:** Arch Linux, CachyOS, EndeavourOS, Manjaro veya herhangi bir Arch tabanlı dağıtım
 - **Derleyici & Araçlar:** Rust & Cargo 1.80+
@@ -96,7 +96,7 @@ Arch Linux kullanıcıları geleneksel olarak iki seçenek arasında sıkışmak
 
 ---
 
-## 🚀 Kurulum ve Çalıştırma
+## Kurulum ve Çalıştırma
 
 ### 1. Depoyu Klonlayın:
 ```bash
@@ -133,7 +133,7 @@ chmod +x uninstall.sh
 
 ---
 
-## 📁 Proje Dizin Yapısı
+## Proje Dizin Yapısı
 
 ```text
 Aurora/
@@ -173,7 +173,7 @@ Aurora/
 
 ---
 
-## 🔒 Güvenlik Politikası
+## Güvenlik Politikası
 
 Aurora, Arch Linux kullanıcılarının sistem bütünlüğünü korumak için tasarlanmıştır:
 - Sistem kabuğuna (`sh -c`) asla parametresiz komut dizgisi gönderilmez; tüm süreçler `tokio::process::Command` ile bağımsız argüman vektörleri olarak çalıştırılır.
@@ -182,7 +182,6 @@ Aurora, Arch Linux kullanıcılarının sistem bütünlüğünü korumak için t
 
 ---
 
-## 📜 Lisans
+## Lisans
 
 Bu proje **GNU General Public License v3.0 or later (GPL-3.0-or-later)** altında lisanslanmıştır. Detaylar için lisans metnini inceleyebilirsiniz.
-

@@ -82,7 +82,8 @@ impl CatalogPage {
         empty_box.append(&status_page);
 
         let live_search_btn = Button::builder()
-            .label("🔍 Tüm Depolarda Canlı Ara (Pacman & AUR)")
+            .label("Tüm Depolarda Canlı Ara (Pacman ve AUR)")
+            .icon_name("system-search-symbolic")
             .css_classes(["suggested-action", "pill"])
             .halign(Align::Center)
             .build();

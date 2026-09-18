@@ -43,7 +43,7 @@ impl PkgbuildDialog {
             .build();
 
         let info_label = Label::builder()
-            .label(&format!("📦 AUR Kaynak ve Derleme Scripti: {}", package_name))
+            .label(&format!("AUR Kaynak ve Derleme Scripti: {}", package_name))
             .halign(Align::Start)
             .css_classes(["heading"])
             .hexpand(true)
@@ -51,7 +51,8 @@ impl PkgbuildDialog {
         info_box.append(&info_label);
 
         let copy_btn = Button::builder()
-            .label("📋 Kopyala")
+            .label("Kopyala")
+            .icon_name("edit-copy-symbolic")
             .css_classes(["flat"])
             .build();
         info_box.append(&copy_btn);
@@ -115,10 +116,10 @@ impl PkgbuildDialog {
             if let Some(display) = Display::default() {
                 let clipboard = display.clipboard();
                 clipboard.set_text(&text);
-                copy_btn_clone.set_label("Kopyalandı! ✓");
+                copy_btn_clone.set_label("Kopyalandı");
                 let btn = copy_btn_clone.clone();
                 glib::timeout_add_local_once(std::time::Duration::from_millis(1500), move || {
-                    btn.set_label("📋 Kopyala");
+                    btn.set_label("Kopyala");
                 });
             }
         });

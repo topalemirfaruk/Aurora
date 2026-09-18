@@ -82,7 +82,7 @@ impl AppDetailPage {
             .build();
 
         let installed_badge = Label::builder()
-            .label("✓ Kurulu")
+            .label("Kurulu")
             .css_classes(["badge-installed"])
             .halign(Align::Start)
             .visible(is_installed)
@@ -110,7 +110,7 @@ impl AppDetailPage {
         let status_row = adw::ActionRow::builder()
             .title("Kurulum Durumu")
             .subtitle(if is_installed {
-                "✓ Bu uygulama sisteminizde kurulu"
+                "Bu uygulama sisteminizde kurulu"
             } else {
                 "Sisteminizde kurulu değil"
             })
@@ -157,7 +157,8 @@ impl AppDetailPage {
         // AUR paketi ise PKGBUILD İncele Butonu
         if item.source == PackageSource::Aur {
             let pkgbuild_btn = Button::builder()
-                .label("📄 PKGBUILD İncele")
+                .label("PKGBUILD İncele")
+                .icon_name("text-x-script-symbolic")
                 .css_classes(["flat"])
                 .tooltip_text("Paketin derleme scriptini ve kaynak adreslerini inceleyin")
                 .build();
@@ -188,10 +189,10 @@ impl AppDetailPage {
                     btn.set_label("Sepetten Kaldır");
                     btn.set_css_classes(&["destructive-action", "pill"]);
                 } else if is_installed {
-                    btn.set_label("+ Yeniden Kur (Sepet)");
+                    btn.set_label("Yeniden Kur (Sepet)");
                     btn.set_css_classes(&["flat"]);
                 } else {
-                    btn.set_label("+ Sepete Ekle");
+                    btn.set_label("Sepete Ekle");
                     btn.set_css_classes(&["suggested-action", "pill"]);
                 }
             }
@@ -210,7 +211,8 @@ impl AppDetailPage {
         // Kurulu ise Kaldır butonunu ana eylem (pill + destructive-action) yap
         if is_installed {
             let uninstall_btn = Button::builder()
-                .label("🗑️ Sistemden Kaldır")
+                .label("Sistemden Kaldır")
+                .icon_name("user-trash-symbolic")
                 .css_classes(["destructive-action", "pill"])
                 .tooltip_text("Bu uygulamayı sistemden tamamen kaldır")
                 .build();
