@@ -65,6 +65,16 @@
     font-weight: 600;
 }
 
+.badge-installed {
+    background-color: alpha(#10b981, 0.22);
+    color: #10b981;
+    border: 1px solid alpha(#10b981, 0.3);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
 /* Durum İpuçları */
 .status-pill {
     border-radius: 20px;

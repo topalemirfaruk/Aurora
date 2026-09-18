@@ -1,7 +1,7 @@
 use crate::models::{AppCategory, AppItem, PackageSource};
 use crate::package_managers::{AurManager, PacmanManager};
 use crate::services::CatalogService;
-use crate::state::CartState;
+use crate::state::{CartState, InstalledState};
 use crate::ui::widgets::AppCard;
 use gtk4::prelude::*;
 use gtk4::{Box, Button, CheckButton, Label, Orientation, ScrolledWindow, Spinner, Align};
@@ -12,7 +12,11 @@ use std::rc::Rc;
 pub struct CatalogPage;
 
 impl CatalogPage {
-    pub fn build<F>(cart_state: CartState, on_detail_clicked: F) -> (ScrolledWindow, Rc<dyn Fn(Option<AppCategory>, &str)>)
+    pub fn build<F>(
+        cart_state: CartState,
+        installed_state: InstalledState,
+        on_detail_clicked: F,
+    ) -> (ScrolledWindow, Rc<dyn Fn(Option<AppCategory>, &str)>)
     where
         F: Fn(AppItem) + Clone + 'static,
     {
@@ -102,6 +106,7 @@ impl CatalogPage {
             let empty_box = empty_box.clone();
             let count_label = count_label.clone();
             let cart_state = cart_state.clone();
+            let installed_state = installed_state.clone();
             let on_detail_clicked = on_detail_clicked.clone();
             let current_category = current_category.clone();
             let current_query = current_query.clone();
@@ -147,7 +152,7 @@ impl CatalogPage {
                     empty_box.set_visible(false);
                     apps_container.set_visible(true);
                     for item in filtered {
-                        let card = AppCard::new(item, cart_state.clone(), on_detail_clicked.clone());
+                        let card = AppCard::new(item, cart_state.clone(), installed_state.clone(), on_detail_clicked.clone());
                         apps_container.append(&card);
                     }
                 }
@@ -161,6 +166,7 @@ impl CatalogPage {
         let live_search_btn_clone = live_search_btn.clone();
         let live_spinner_clone = live_spinner.clone();
         let cart_state_for_live = cart_state.clone();
+        let installed_state_for_live = installed_state.clone();
         let on_detail_for_live = on_detail_clicked.clone();
         let count_label_for_live = count_label.clone();
 
@@ -178,6 +184,7 @@ impl CatalogPage {
             let btn = live_search_btn_clone.clone();
             let spin = live_spinner_clone.clone();
             let cart = cart_state_for_live.clone();
+            let inst = installed_state_for_live.clone();
             let on_detail = on_detail_for_live.clone();
             let count_lbl = count_label_for_live.clone();
 
@@ -233,7 +240,7 @@ impl CatalogPage {
                     }
 
                     for item in found_items {
-                        let card = AppCard::new(item, cart.clone(), on_detail.clone());
+                        let card = AppCard::new(item, cart.clone(), inst.clone(), on_detail.clone());
                         container.append(&card);
                     }
                 } else {

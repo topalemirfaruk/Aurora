@@ -10,7 +10,7 @@ use std::rc::Rc;
 pub struct InstalledPage;
 
 impl InstalledPage {
-    pub fn build() -> ScrolledWindow {
+    pub fn build(installed_state: crate::state::InstalledState) -> ScrolledWindow {
         let root = Box::builder()
             .orientation(Orientation::Vertical)
             .spacing(16)
@@ -95,6 +95,7 @@ impl InstalledPage {
             let list_box = list_box.clone();
             let all_packages = all_packages.clone();
             let load_data_ref = load_data_ref.clone();
+            let inst_for_filter = installed_state.clone();
 
             Rc::new(move |query: &str| {
                 while let Some(child) = list_box.first_child() {
@@ -156,14 +157,17 @@ impl InstalledPage {
 
                     let pkg_name = pkg.name.clone();
                     let load_data_for_success = load_data_ref.clone();
+                    let inst_refresh = inst_for_filter.clone();
 
                     remove_btn.connect_clicked(move |btn| {
                         if let Some(root_win) = btn.root().and_downcast::<gtk4::Window>() {
                             let load_fn = load_data_for_success.borrow().clone();
+                            let inst = inst_refresh.clone();
                             UninstallDialog::show(&root_win, &pkg_name, move || {
                                 if let Some(ref f) = load_fn {
                                     f();
                                 }
+                                inst.refresh_background();
                             });
                         }
                     });
@@ -222,8 +226,10 @@ impl InstalledPage {
 
         // Yenile butonu
         let load_for_btn = load_data.clone();
+        let inst_for_refresh_btn = installed_state.clone();
         refresh_btn.connect_clicked(move |_| {
             load_for_btn();
+            inst_for_refresh_btn.refresh_background();
         });
 
         // İlk yükleme

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="cartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c4dff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.8"/>
+    </linearGradient>
+  </defs>
+  <!-- Background subtle halo -->
+  <circle cx="64" cy="64" r="54" fill="url(#cartGrad)" opacity="0.12"/>
+  
+  <!-- Shopping Cart / Queue Basket -->
+  <path d="M 28 34 L 38 34 L 48 76 L 94 76 L 104 46 L 42 46" 
+        fill="none" 
+        stroke="url(#cartGrad)" 
+        stroke-width="6" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+        
+  <!-- Wheels -->
+  <circle cx="52" cy="94" r="8" fill="none" stroke="url(#cartGrad)" stroke-width="5"/>
+  <circle cx="90" cy="94" r="8" fill="none" stroke="url(#cartGrad)" stroke-width="5"/>
+  <circle cx="52" cy="94" r="3" fill="#3b82f6"/>
+  <circle cx="90" cy="94" r="3" fill="#3b82f6"/>
+  
+  <!-- Download arrow pointing down into basket -->
+  <path d="M 70 20 L 70 54" stroke="#7c4dff" stroke-width="6" stroke-linecap="round"/>
+  <path d="M 58 42 L 70 54 L 82 42" fill="none" stroke="#7c4dff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

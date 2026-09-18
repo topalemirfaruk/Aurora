@@ -1,5 +1,5 @@
 use crate::models::AppItem;
-use crate::state::CartState;
+use crate::state::{CartState, InstalledState};
 use crate::utils::IconResolver;
 use gtk4::prelude::*;
 use gtk4::{Box, Button, Image, Label, Orientation, Align};
@@ -7,7 +7,12 @@ use gtk4::{Box, Button, Image, Label, Orientation, Align};
 pub struct AppCard;
 
 impl AppCard {
-    pub fn new<F>(item: AppItem, cart_state: CartState, on_detail_clicked: F) -> Box
+    pub fn new<F>(
+        item: AppItem,
+        cart_state: CartState,
+        installed_state: InstalledState,
+        on_detail_clicked: F,
+    ) -> Box
     where
         F: Fn(AppItem) + 'static,
     {
@@ -38,7 +43,7 @@ impl AppCard {
             .hexpand(true)
             .build();
 
-        // Başlık satırı: İsim + Kaynak Rozeti
+        // Başlık satırı: İsim + Kaynak Rozeti + Kurulu Rozeti
         let title_row = Box::builder()
             .orientation(Orientation::Horizontal)
             .spacing(8)
@@ -56,8 +61,16 @@ impl AppCard {
             .halign(Align::Start)
             .build();
 
+        let installed_badge = Label::builder()
+            .label("✓ Kurulu")
+            .css_classes(["badge-installed"])
+            .halign(Align::Start)
+            .visible(false)
+            .build();
+
         title_row.append(&name_label);
         title_row.append(&badge);
+        title_row.append(&installed_badge);
 
         // Açıklama
         let desc_label = Label::builder()
@@ -114,24 +127,37 @@ impl AppCard {
             on_detail_clicked(item_clone_for_detail.clone());
         });
 
-        // Sepete Ekle / Çıkar Butonu
+        // Sepete Ekle / Çıkar / Kurulu Butonu
         let cart_btn = Button::builder()
             .css_classes(["suggested-action"])
             .build();
 
         let update_btn_state = {
             let cart_state = cart_state.clone();
-            let pkg_name = item.package_name.clone();
+            let installed_state = installed_state.clone();
+            let item_clone = item.clone();
             let cart_btn = cart_btn.clone();
+            let installed_badge = installed_badge.clone();
             move || {
-                if cart_state.contains(&pkg_name) {
+                let is_installed = installed_state.is_installed_item(&item_clone);
+                installed_badge.set_visible(is_installed);
+
+                if cart_state.contains(&item_clone.package_name) {
                     cart_btn.set_label("Eklendi ✓");
                     cart_btn.remove_css_class("suggested-action");
+                    cart_btn.remove_css_class("flat");
                     cart_btn.add_css_class("destructive-action");
                     cart_btn.set_tooltip_text(Some("Sepetten çıkar"));
+                } else if is_installed {
+                    cart_btn.set_label("✓ Kurulu");
+                    cart_btn.remove_css_class("destructive-action");
+                    cart_btn.remove_css_class("suggested-action");
+                    cart_btn.add_css_class("flat");
+                    cart_btn.set_tooltip_text(Some("Bu uygulama sisteminizde kurulu. Yeniden kurmak için sepete ekleyebilirsiniz."));
                 } else {
                     cart_btn.set_label("+ Ekle");
                     cart_btn.remove_css_class("destructive-action");
+                    cart_btn.remove_css_class("flat");
                     cart_btn.add_css_class("suggested-action");
                     cart_btn.set_tooltip_text(Some("Kurulum sepetine ekle"));
                 }
@@ -148,10 +174,15 @@ impl AppCard {
             update_for_click();
         });
 
-        // Sepet değişimlerini dinle
-        let update_for_listen = update_btn_state;
+        // Sepet ve sistem kurulu paket değişimlerini dinle
+        let update_for_cart = update_btn_state.clone();
         cart_state.on_change(move |_| {
-            update_for_listen();
+            update_for_cart();
+        });
+
+        let update_for_installed = update_btn_state;
+        installed_state.on_change(move || {
+            update_for_installed();
         });
 
         actions_box.append(&detail_btn);

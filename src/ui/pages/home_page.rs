@@ -1,6 +1,6 @@
 use crate::models::{AppCategory, AppItem};
 use crate::services::CatalogService;
-use crate::state::CartState;
+use crate::state::{CartState, InstalledState};
 use crate::ui::widgets::AppCard;
 use crate::utils::SystemCapabilities;
 use gtk4::prelude::*;
@@ -11,6 +11,7 @@ pub struct HomePage;
 impl HomePage {
     pub fn build<F, C>(
         cart_state: CartState,
+        installed_state: InstalledState,
         on_detail_clicked: F,
         on_category_clicked: C,
     ) -> ScrolledWindow
@@ -149,7 +150,7 @@ impl HomePage {
         let all_apps = CatalogService::get_all_apps();
         // İlk 6 popüler uygulamayı öne çıkan olarak gösterelim
         for app in all_apps.into_iter().take(6) {
-            let card = AppCard::new(app, cart_state.clone(), on_detail_clicked.clone());
+            let card = AppCard::new(app, cart_state.clone(), installed_state.clone(), on_detail_clicked.clone());
             apps_box.append(&card);
         }
 

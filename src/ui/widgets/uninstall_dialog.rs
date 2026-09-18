@@ -206,9 +206,9 @@ impl UninstallDialog {
 
             let sys = SystemCapabilities::detect();
             let (cmd, args) = if sys.has_paru {
-                ("paru".to_string(), vec!["-R".to_string(), "--noconfirm".to_string(), "--".to_string(), pkg])
+                ("paru".to_string(), vec!["-R".to_string(), "--noconfirm".to_string(), "--sudoflags".to_string(), "-A".to_string(), "--".to_string(), pkg])
             } else if sys.has_yay {
-                ("yay".to_string(), vec!["-R".to_string(), "--noconfirm".to_string(), "--".to_string(), pkg])
+                ("yay".to_string(), vec!["-R".to_string(), "--noconfirm".to_string(), "--sudoflags".to_string(), "-A".to_string(), "--".to_string(), pkg])
             } else {
                 ("pkexec".to_string(), vec!["pacman".to_string(), "-R".to_string(), "--noconfirm".to_string(), "--".to_string(), pkg])
             };

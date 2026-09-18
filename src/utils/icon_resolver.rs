@@ -54,11 +54,10 @@ impl IconResolver {
     pub fn cart_icon() -> &'static str {
         Self::first_available(
             &[
-                "shopping-cart-symbolic",
-                "shopping-cart",
-                "edit-download",
+                "aurora-empty-cart",
                 "package-x-generic",
-                "package",
+                "folder-download-symbolic",
+                "shopping-cart",
             ],
             "package-x-generic",
         )
@@ -95,85 +94,256 @@ impl IconResolver {
     fn get_aliases(icon: &str) -> &'static [&'static str] {
         match icon {
             "nautilus" | "org.gnome.Nautilus" => &[
+                "org.gnome.Nautilus",
                 "system-file-manager",
                 "folder",
                 "document-open",
             ],
+            "dolphin" | "org.kde.dolphin" => &[
+                "org.kde.dolphin",
+                "system-file-manager",
+                "folder",
+            ],
+            "thunar" | "org.xfce.thunar" => &[
+                "org.xfce.thunar",
+                "system-file-manager",
+                "folder",
+            ],
             "evince" | "org.gnome.Evince" => &[
-                "x-office-document",
+                "org.gnome.Evince",
                 "document-viewer",
+                "x-office-document",
                 "application-pdf",
             ],
+            "okular" | "org.kde.okular" => &[
+                "okular",
+                "org.kde.okular",
+                "document-viewer",
+            ],
             "keepassxc" | "org.keepassxc.KeePassXC" => &[
+                "keepassxc",
+                "org.keepassxc.KeePassXC",
+                "keepassxc-unlocked",
                 "dialog-password",
                 "security-high",
-                "system-lock-screen",
+            ],
+            "bitwarden" => &[
+                "bitwarden",
+                "dialog-password",
+                "security-high",
             ],
             "firefox" => &["firefox", "internet-web-browser"],
-            "brave-browser" | "brave" => &[
+            "brave-browser" | "brave" | "brave-bin" | "com.brave.Browser" => &[
+                "brave-desktop",
+                "brave-browser",
+                "brave",
+                "com.brave.Browser",
                 "internet-web-browser",
-                "web-browser",
-                "applications-internet",
+            ],
+            "google-chrome" | "google-chrome-stable" => &[
+                "google-chrome",
+                "google-chrome-stable",
+                "chromium",
+                "internet-web-browser",
+            ],
+            "chromium" | "org.chromium.Chromium" => &[
+                "chromium",
+                "org.chromium.Chromium",
+                "internet-web-browser",
+            ],
+            "librewolf" | "librewolf-bin" => &[
+                "librewolf",
+                "firefox",
+                "internet-web-browser",
+            ],
+            "tor-browser" | "tor-browser-bin" => &[
+                "tor-browser",
+                "internet-web-browser",
             ],
             "thunderbird" | "org.mozilla.thunderbird" => &[
+                "thunderbird",
+                "org.mozilla.thunderbird",
                 "mail-client",
                 "internet-mail",
-                "applications-internet",
             ],
             "telegram" | "telegram-desktop" | "org.telegram.desktop" => &[
+                "org.telegram.desktop",
+                "telegram-desktop",
+                "telegram",
                 "internet-chat",
-                "applications-internet",
             ],
-            "code" | "visual-studio-code" | "vscodium" => &[
+            "discord" | "com.discordapp.Discord" => &[
+                "discord",
+                "com.discordapp.Discord",
+                "internet-chat",
+            ],
+            "vesktop" | "vesktop-bin" => &[
+                "vesktop",
+                "discord",
+                "internet-chat",
+            ],
+            "slack" | "slack-desktop" => &[
+                "slack",
+                "slack-desktop",
+                "internet-chat",
+            ],
+            "signal" | "signal-desktop" => &[
+                "signal-desktop",
+                "signal",
+                "internet-chat",
+            ],
+            "spotify" | "com.spotify.Client" => &[
+                "spotify",
+                "spotify-client",
+                "com.spotify.Client",
+                "audio-player",
+            ],
+            "vlc" | "org.videolan.VLC" => &[
+                "vlc",
+                "org.videolan.VLC",
+                "video-player",
+            ],
+            "mpv" => &[
+                "mpv",
+                "video-player",
+                "applications-multimedia",
+            ],
+            "code" | "visual-studio-code" | "vscodium" | "com.visualstudio.code" => &[
+                "com.visualstudio.code.oss",
+                "com.visualstudio.code",
+                "code",
+                "visual-studio-code",
+                "vscodium",
                 "applications-development",
                 "text-editor",
-                "utilities-terminal",
+            ],
+            "sublime-text" | "sublime-text-4" => &[
+                "sublime-text",
+                "sublime-text-4",
+                "text-editor",
+                "applications-development",
             ],
             "neovim" | "nvim" => &[
+                "nvim",
+                "neovim",
                 "utilities-terminal",
                 "text-editor",
+            ],
+            "gitkraken" => &[
+                "gitkraken",
                 "applications-development",
             ],
-            "git" | "docker" => &[
+            "dbeaver" => &[
+                "dbeaver",
+                "dbeaver-ce",
                 "applications-development",
-                "utilities-terminal",
             ],
-            "steam" | "lutris" | "heroic" | "bottles" => &[
-                "com.usebottles.bottles",
-                "heroic",
+            "postman" => &[
+                "postman",
+                "applications-development",
+            ],
+            "docker" => &[
+                "docker",
+                "applications-development",
+            ],
+            "steam" => &[
+                "steam",
+                "com.valvesoftware.Steam",
                 "applications-games",
-                "input-gaming",
             ],
-            "gimp" | "inkscape" | "org.inkscape.Inkscape" => &[
+            "lutris" | "net.lutris.Lutris" => &[
+                "lutris",
+                "net.lutris.Lutris",
+                "applications-games",
+            ],
+            "heroic" | "heroic-games-launcher" => &[
+                "heroic",
+                "com.heroicgameslauncher.hgl",
+                "applications-games",
+            ],
+            "bottles" | "com.usebottles.bottles" => &[
+                "com.usebottles.bottles",
+                "bottles",
+                "applications-games",
+            ],
+            "retroarch" => &[
+                "retroarch",
+                "applications-games",
+            ],
+            "gimp" | "org.gimp.GIMP" => &[
+                "org.gimp.GIMP",
+                "gimp",
                 "applications-graphics",
-                "image-x-generic",
-                "applications-multimedia",
+            ],
+            "krita" | "org.kde.krita" => &[
+                "krita",
+                "org.kde.krita",
+                "applications-graphics",
+            ],
+            "inkscape" | "org.inkscape.Inkscape" => &[
+                "org.inkscape.Inkscape",
+                "inkscape",
+                "applications-graphics",
             ],
             "obs-studio" | "com.obsproject.Studio" => &[
                 "com.obsproject.Studio",
+                "obs-studio",
+                "obs",
                 "applications-multimedia",
-                "video-x-generic",
             ],
-            "blender" => &[
+            "blender" | "org.blender.Blender" => &[
+                "blender",
+                "org.blender.Blender",
                 "applications-graphics",
+            ],
+            "kdenlive" | "org.kde.kdenlive" => &[
+                "kdenlive",
+                "org.kde.kdenlive",
                 "applications-multimedia",
             ],
-            "gnome-system-monitor" | "org.gnome.SystemMonitor" => &[
-                "utilities-system-monitor",
-                "applications-system",
+            "audacity" => &[
+                "audacity",
+                "applications-multimedia",
             ],
-            "gnome-disk-utility" | "org.gnome.DiskUtility" => &[
-                "drive-harddisk",
-                "applications-system",
+            "handbrake" | "fr.handbrake.ghb" => &[
+                "fr.handbrake.ghb",
+                "handbrake",
+                "applications-multimedia",
             ],
-            "btop" => &[
-                "utilities-system-monitor",
+            "alacritty" | "Alacritty" => &[
+                "Alacritty",
+                "alacritty",
                 "utilities-terminal",
             ],
+            "kitty" => &[
+                "kitty",
+                "utilities-terminal",
+            ],
+            "fastfetch" => &[
+                "fastfetch",
+                "utilities-terminal",
+            ],
+            "btop" => &[
+                "btop",
+                "utilities-system-monitor",
+            ],
+            "htop" => &[
+                "htop",
+                "utilities-system-monitor",
+            ],
             "timeshift" => &[
+                "timeshift",
+                "timeshift-gtk",
                 "document-revert",
-                "applications-system",
-                "system-software-update",
+            ],
+            "gparted" => &[
+                "gparted",
+                "drive-harddisk",
+            ],
+            "flatseal" | "com.github.tchx84.Flatseal" => &[
+                "com.github.tchx84.Flatseal",
+                "flatseal",
+                "preferences-system",
             ],
             _ => &[],
         }

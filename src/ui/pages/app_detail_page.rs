@@ -1,6 +1,6 @@
 use crate::models::{AppItem, PackageSource};
-use crate::state::CartState;
-use crate::ui::widgets::PkgbuildDialog;
+use crate::state::{CartState, InstalledState};
+use crate::ui::widgets::{PkgbuildDialog, UninstallDialog};
 use crate::utils::IconResolver;
 use gtk4::prelude::*;
 use gtk4::{Box, Button, Image, Label, Orientation, Align};
@@ -10,7 +10,12 @@ use libadwaita::prelude::*;
 pub struct AppDetailPage;
 
 impl AppDetailPage {
-    pub fn show(parent: &impl IsA<gtk4::Window>, item: AppItem, cart_state: CartState) {
+    pub fn show(
+        parent: &impl IsA<gtk4::Window>,
+        item: AppItem,
+        cart_state: CartState,
+        installed_state: InstalledState,
+    ) {
         let dialog = adw::Window::builder()
             .transient_for(parent)
             .modal(true)
@@ -68,14 +73,24 @@ impl AppDetailPage {
             .css_classes(["title-2"])
             .build();
 
+        let is_installed = installed_state.is_installed_item(&item);
+
         let badge = Label::builder()
             .label(item.source.badge_label())
             .halign(Align::Start)
             .css_classes([item.source.css_class()])
             .build();
 
+        let installed_badge = Label::builder()
+            .label("✓ Kurulu")
+            .css_classes(["badge-installed"])
+            .halign(Align::Start)
+            .visible(is_installed)
+            .build();
+
         title_box.append(&name_label);
         title_box.append(&badge);
+        title_box.append(&installed_badge);
         top_row.append(&title_box);
         content.append(&top_row);
 
@@ -91,6 +106,16 @@ impl AppDetailPage {
         let info_group = adw::PreferencesGroup::builder()
             .title("Paket Ayrıntıları")
             .build();
+
+        let status_row = adw::ActionRow::builder()
+            .title("Kurulum Durumu")
+            .subtitle(if is_installed {
+                "✓ Bu uygulama sisteminizde kurulu"
+            } else {
+                "Sisteminizde kurulu değil"
+            })
+            .build();
+        info_group.add(&status_row);
 
         let pkg_row = adw::ActionRow::builder()
             .title("Paket Adı")
@@ -148,6 +173,30 @@ impl AppDetailPage {
             action_box.append(&pkgbuild_btn);
         }
 
+        // Kurulu ise Sistemden Kaldır butonu
+        if is_installed {
+            let uninstall_btn = Button::builder()
+                .label("🗑️ Sistemden Kaldır")
+                .css_classes(["flat", "destructive-action"])
+                .tooltip_text("Bu uygulamayı sistemden kaldır")
+                .build();
+
+            let pkg_name_clone = item.package_name.clone();
+            let parent_window = parent.as_ref().clone();
+            let inst_clone = installed_state.clone();
+            let dialog_clone = dialog.clone();
+            uninstall_btn.connect_clicked(move |_| {
+                let inst = inst_clone.clone();
+                let dlg = dialog_clone.clone();
+                UninstallDialog::show(&parent_window, &pkg_name_clone, move || {
+                    inst.refresh_background();
+                    dlg.close();
+                });
+            });
+
+            action_box.append(&uninstall_btn);
+        }
+
         let spacer = Box::builder().hexpand(true).build();
         action_box.append(&spacer);
 
@@ -165,6 +214,10 @@ impl AppDetailPage {
                     btn.set_label("Sepetten Kaldır");
                     btn.remove_css_class("suggested-action");
                     btn.add_css_class("destructive-action");
+                } else if is_installed {
+                    btn.set_label("Yeniden Kur (+ Sepet)");
+                    btn.remove_css_class("destructive-action");
+                    btn.add_css_class("suggested-action");
                 } else {
                     btn.set_label("+ Sepete Ekle");
                     btn.remove_css_class("destructive-action");

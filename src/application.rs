@@ -19,6 +19,7 @@ impl Application {
             let settings = crate::state::SettingsState::new();
             crate::utils::ThemeManager::apply_theme(settings.get().dark_theme);
             Self::load_css();
+            Self::setup_icons();
         });
 
         app.connect_activate(|app| {
@@ -27,6 +28,23 @@ impl Application {
         });
 
         Self { app }
+    }
+
+    fn setup_icons() {
+        if let Some(display) = Display::default() {
+            let icon_theme = gtk4::IconTheme::for_display(&display);
+            icon_theme.add_search_path("/usr/share/icons/hicolor");
+            icon_theme.add_search_path("/usr/share/icons/Papirus");
+            icon_theme.add_search_path("/usr/share/icons/Papirus-Dark");
+            icon_theme.add_search_path("/usr/share/pixmaps");
+            icon_theme.add_search_path("assets/icons");
+            if let Ok(exe) = std::env::current_exe() {
+                if let Some(dir) = exe.parent() {
+                    icon_theme.add_search_path(dir.join("assets/icons"));
+                    icon_theme.add_search_path(dir.join("../assets/icons"));
+                }
+            }
+        }
     }
 
     fn load_css() {

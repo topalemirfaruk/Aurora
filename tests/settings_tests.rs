@@ -39,4 +39,10 @@ mod tests {
         assert!(called.get());
         assert!(!state.get().require_pkgbuild_review);
     }
+
+    #[test]
+    fn test_installed_state_basic() {
+        let state = aurora::state::InstalledState::new();
+        assert!(!state.is_installed("package-that-does-not-exist-ever-12345"));
+    }
 }

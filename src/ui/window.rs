@@ -24,6 +24,7 @@ impl MainWindow {
 
         let cart_state = CartState::new();
         let settings_state = crate::state::SettingsState::new();
+        let installed_state = crate::state::InstalledState::new();
 
         // Başlangıç temasını ayarlardan uygula
         crate::utils::ThemeManager::apply_theme(settings_state.get().dark_theme);
@@ -45,15 +46,16 @@ impl MainWindow {
         // Detay açma callback'i
         let window_weak = window.downgrade();
         let cart_for_detail = cart_state.clone();
+        let installed_for_detail = installed_state.clone();
         let on_detail = move |item: AppItem| {
             if let Some(win) = window_weak.upgrade() {
-                AppDetailPage::show(&win, item, cart_for_detail.clone());
+                AppDetailPage::show(&win, item, cart_for_detail.clone(), installed_for_detail.clone());
             }
         };
 
         // Katalog sayfasını kur
         let (catalog_scroll, refresh_catalog) =
-            CatalogPage::build(cart_state.clone(), on_detail.clone());
+            CatalogPage::build(cart_state.clone(), installed_state.clone(), on_detail.clone());
 
         // Ana sayfadan kategoriye tıklanınca kataloğa gitme
         let stack_for_cat = stack.clone();
@@ -65,6 +67,7 @@ impl MainWindow {
 
         let home_scroll = HomePage::build(
             cart_state.clone(),
+            installed_state.clone(),
             on_detail.clone(),
             on_cat_clicked,
         );
@@ -73,18 +76,21 @@ impl MainWindow {
         let window_weak_for_install = window.downgrade();
         let cart_for_install_done = cart_state.clone();
         let settings_for_install = settings_state.clone();
+        let installed_for_install = installed_state.clone();
         let on_install = move |items: Vec<AppItem>| {
             if let Some(win) = window_weak_for_install.upgrade() {
                 let cart_clear = cart_for_install_done.clone();
                 let current_settings = settings_for_install.clone();
+                let inst_refresh = installed_for_install.clone();
                 InstallDialog::show(&win, items, current_settings, move || {
                     cart_clear.clear();
+                    inst_refresh.refresh_background();
                 });
             }
         };
 
         let (cart_scroll, _refresh_cart) = CartPage::build(cart_state.clone(), settings_state.clone(), on_install);
-        let installed_scroll = InstalledPage::build();
+        let installed_scroll = InstalledPage::build(installed_state.clone());
         let settings_page = SettingsPage::build(settings_state.clone());
 
         stack.add_named(&home_scroll, Some("home"));
