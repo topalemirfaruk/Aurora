@@ -2,8 +2,8 @@
 name = "aurora"
 version = "0.1.0"
 edition = "2021"
-authors = ["Aurora Contributors"]
-description = "Arch Linux için modern, hızlı ve güvenli uygulama merkezi"
+authors = ["Emir Faruk Topal <topalemirfaruk@users.noreply.github.com>"]
+description = "Arch Linux için grafiksel paket ve uygulama yönetim merkezi"
 license = "GPL-3.0-or-later"
 
 [dependencies]

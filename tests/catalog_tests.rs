@@ -30,9 +30,9 @@ mod tests {
     }
 
     #[test]
-    fn test_ninite_bundles_validity() {
-        let bundles = CatalogService::get_ninite_bundles();
-        assert_eq!(bundles.len(), 4, "4 adet Ninite paketi bulunmalıdır");
+    fn test_package_bundles_validity() {
+        let bundles = CatalogService::get_package_bundles();
+        assert_eq!(bundles.len(), 4, "4 adet paket seti bulunmalıdır");
 
         let all_apps = CatalogService::get_all_apps();
 
@@ -46,7 +46,7 @@ mod tests {
             // Paketteki her uygulamanın katalogda kayıtlı olduğunu doğrula
             for pkg_name in bundle.package_names {
                 let found = all_apps.iter().any(|app| &app.package_name == pkg_name);
-                assert!(found, "Ninite paketindeki '{}' paketi ana katalogda mevcut olmalıdır", pkg_name);
+                assert!(found, "Paket setindeki '{}' paketi ana katalogda mevcut olmalıdır", pkg_name);
             }
         }
     }

@@ -1076,9 +1076,9 @@ impl CatalogService {
     }
 }
 
-/// Ninite felsefesine uygun 1-Tıkla Toplu Kurulum Paketleri (Bundles)
+/// Önceden hazırlanmış hızlı kurulum paketleri (Curated Bundles)
 #[derive(Debug, Clone)]
-pub struct NiniteBundle {
+pub struct PackageBundle {
     pub id: &'static str,
     pub title: &'static str,
     pub description: &'static str,
@@ -1087,9 +1087,9 @@ pub struct NiniteBundle {
 }
 
 impl CatalogService {
-    pub fn get_ninite_bundles() -> Vec<NiniteBundle> {
+    pub fn get_package_bundles() -> Vec<PackageBundle> {
         vec![
-            NiniteBundle {
+            PackageBundle {
                 id: "codecs-pack",
                 title: "Medya ve Kodek Paketi",
                 description: "Video ve ses dosyalarını (MP4, MKV, AV1, MP3 vb.) sorunsuz oynatmak için gerekli tüm GStreamer ve FFmpeg kodekleri.",
@@ -1103,7 +1103,7 @@ impl CatalogService {
                     "dav1d",
                 ],
             },
-            NiniteBundle {
+            PackageBundle {
                 id: "gaming-pack",
                 title: "Oyun ve Uyumluluk Altyapısı",
                 description: "Steam, Epic ve Windows oyunlarını Linux'ta yüksek performansla çalıştırmak için Wine, Mesa, Vulkan, GameMode ve Gamescope.",
@@ -1117,7 +1117,7 @@ impl CatalogService {
                     "vulkan-radeon",
                 ],
             },
-            NiniteBundle {
+            PackageBundle {
                 id: "audio-hardware-pack",
                 title: "Ses ve Donanım Altyapısı",
                 description: "Düşük gecikmeli PipeWire ses sunucusu, WirePlumber oturum yöneticisi ve Bluetooth protokol araçları.",
@@ -1129,7 +1129,7 @@ impl CatalogService {
                     "bluez-utils",
                 ],
             },
-            NiniteBundle {
+            PackageBundle {
                 id: "developer-runtime-pack",
                 title: "Geliştirici Çalışma Zamanları",
                 description: "Yazılım geliştirme ve script çalıştırma için resmi Python, Node.js, OpenJDK Java ve .NET Core SDK ortamları.",

@@ -28,7 +28,6 @@ impl HomePage {
             .margin_bottom(32)
             .build();
 
-        // 1. Hero Banner
         let hero_box = Box::builder()
             .orientation(Orientation::Vertical)
             .spacing(8)
@@ -50,7 +49,6 @@ impl HomePage {
         hero_box.append(&hero_title);
         hero_box.append(&hero_sub);
 
-        // Sistem Yetenekleri Hapları (Capabilities Pills)
         let sys = SystemCapabilities::detect();
         let sys_row = Box::builder()
             .orientation(Orientation::Horizontal)
@@ -83,7 +81,6 @@ impl HomePage {
         hero_box.append(&sys_row);
         container.append(&hero_box);
 
-        // 2. Kategori Kısayolları Bölümü
         let cat_section_title = Label::builder()
             .label("Kategorilere Göz At")
             .halign(Align::Start)
@@ -126,7 +123,6 @@ impl HomePage {
             cat_flow_box.append(&cat_btn);
         }
 
-        // Kategori kutusunu yatay kaydırma içerisine alıyoruz
         let cat_scroller = ScrolledWindow::builder()
             .hscrollbar_policy(gtk4::PolicyType::Automatic)
             .vscrollbar_policy(gtk4::PolicyType::Never)
@@ -134,7 +130,6 @@ impl HomePage {
             .build();
         container.append(&cat_scroller);
 
-        // 3. Hızlı Kurulum Paketleri
         let bundles_title_box = Box::builder()
             .orientation(Orientation::Vertical)
             .spacing(4)
@@ -162,7 +157,7 @@ impl HomePage {
             .column_homogeneous(true)
             .build();
 
-        let bundles = CatalogService::get_ninite_bundles();
+        let bundles = CatalogService::get_package_bundles();
         for (i, bundle) in bundles.into_iter().enumerate() {
             let bundle_card = Box::builder()
                 .orientation(Orientation::Vertical)
@@ -170,7 +165,6 @@ impl HomePage {
                 .css_classes(["aurora-card"])
                 .build();
 
-            // Üst başlık satırı
             let header_row = Box::builder()
                 .orientation(Orientation::Horizontal)
                 .spacing(12)
@@ -210,7 +204,6 @@ impl HomePage {
             header_row.append(&title_col);
             bundle_card.append(&header_row);
 
-            // Açıklama
             let desc_lbl = Label::builder()
                 .label(bundle.description)
                 .halign(Align::Start)
@@ -219,7 +212,6 @@ impl HomePage {
                 .build();
             bundle_card.append(&desc_lbl);
 
-            // Paket listesi özeti
             let pkgs_summary = Label::builder()
                 .label(&format!("Paketler: {}", bundle.package_names.join(", ")))
                 .halign(Align::Start)
@@ -228,7 +220,6 @@ impl HomePage {
                 .build();
             bundle_card.append(&pkgs_summary);
 
-            // Buton: Ekle / Sepette
             let btn = Button::builder()
                 .css_classes(["suggested-action", "pill"])
                 .margin_top(4)
@@ -236,7 +227,6 @@ impl HomePage {
 
             let bundle_pkgs: Vec<String> = bundle.package_names.iter().map(|s| s.to_string()).collect();
 
-            // Buton durumunu güncelleyen closure
             let update_btn = {
                 let cart_state = cart_state.clone();
                 let btn = btn.clone();
@@ -296,7 +286,6 @@ impl HomePage {
 
         container.append(&bundles_grid);
 
-        // 4. Öne Çıkan / Popüler Uygulamalar
         let featured_title = Label::builder()
             .label("Öne Çıkan Uygulamalar")
             .halign(Align::Start)
@@ -310,7 +299,6 @@ impl HomePage {
             .build();
 
         let all_apps = CatalogService::get_all_apps();
-        // İlk 6 popüler uygulamayı öne çıkan olarak gösterelim
         for app in all_apps.into_iter().take(6) {
             let card = AppCard::new(app, cart_state.clone(), installed_state.clone(), on_detail_clicked.clone());
             apps_box.append(&card);
