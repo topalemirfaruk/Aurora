@@ -25,6 +25,7 @@ BIN_FILE="$PREFIX/bin/aurora"
 DESKTOP_FILE="$PREFIX/share/applications/org.aurora.ApplicationCenter.desktop"
 ICON_APP="$PREFIX/share/icons/hicolor/scalable/apps/org.aurora.ApplicationCenter.svg"
 ICON_CART="$PREFIX/share/icons/hicolor/scalable/apps/aurora-empty-cart.svg"
+LICENSE_DIR="$PREFIX/share/licenses/aurora"
 
 LOCAL_DESKTOP="$HOME/.local/share/applications/org.aurora.ApplicationCenter.desktop"
 LOCAL_ICON_APP="$HOME/.local/share/icons/hicolor/scalable/apps/org.aurora.ApplicationCenter.svg"
@@ -52,6 +53,11 @@ fi
 if [ -f "$ICON_CART" ]; then
     sudo rm -f "$ICON_CART"
     echo -e "  ${GREEN}[OK]${NC} $ICON_CART silindi."
+fi
+
+if [ -d "$LICENSE_DIR" ]; then
+    sudo rm -rf "$LICENSE_DIR"
+    echo -e "  ${GREEN}[OK]${NC} $LICENSE_DIR silindi."
 fi
 
 echo -e "\n${YELLOW}Kullanıcı yerel dizinindeki dosyalar siliniyor...${NC}"

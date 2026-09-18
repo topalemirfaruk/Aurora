@@ -168,6 +168,7 @@ Aurora/
 ├── install.sh                       # Sisteme tek tıkla kurma betiği
 ├── uninstall.sh                     # Sistemden tamamen kaldırma betiği
 ├── Cargo.toml                       # Rust bağımlılık yapılandırması
+├── LICENSE                          # GNU General Public License v3.0 (GPL-3.0-or-later)
 └── README.md                        # Proje dokümantasyonu
 ```
 
@@ -184,4 +185,4 @@ Aurora, Arch Linux kullanıcılarının sistem bütünlüğünü korumak için t
 
 ## Lisans
 
-Bu proje **GNU General Public License v3.0 or later (GPL-3.0-or-later)** altında lisanslanmıştır. Detaylar için lisans metnini inceleyebilirsiniz.
+Bu proje **GNU General Public License v3.0 or later (GPL-3.0-or-later)** altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) metnini inceleyebilirsiniz.

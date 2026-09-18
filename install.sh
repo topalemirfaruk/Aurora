@@ -18,6 +18,7 @@ sudo install -Dm755 "target/release/aurora" "$BIN_DIR/aurora"
 sudo install -Dm644 "packaging/desktop/org.aurora.ApplicationCenter.desktop" "$DESKTOP_DIR/org.aurora.ApplicationCenter.desktop"
 sudo install -Dm644 "assets/icons/org.aurora.ApplicationCenter.svg" "$ICON_DIR/org.aurora.ApplicationCenter.svg"
 sudo install -Dm644 "assets/icons/aurora-empty-cart.svg" "$ICON_DIR/aurora-empty-cart.svg"
+sudo install -Dm644 "LICENSE" "$PREFIX/share/licenses/aurora/LICENSE"
 
 # Kullanıcı yerel dizinine de kopyala (KDE / GNOME oturumu için anında erişim)
 mkdir -p "$HOME/.local/share/icons/hicolor/scalable/apps" "$HOME/.local/share/applications"
