@@ -123,6 +123,14 @@ chmod +x install.sh
 ```
 Kurulum tamamlandıktan sonra uygulama menünüzden **"Aurora"** olarak başlatabilir veya terminalde doğrudan `aurora` komutunu verebilirsiniz.
 
+### 5. Sistemden Kaldırma (Uninstall):
+Aurora'yı, masaüstü kısayollarını, sistem ve kullanıcı simgelerini temizlemek için hazır kaldırma betiğini çalıştırabilirsiniz:
+```bash
+chmod +x uninstall.sh
+./uninstall.sh
+```
+*(İsteğe bağlı olarak `~/.config/aurora` yapılandırma dizinini de temizleme seçeneği sunulur).*
+
 ---
 
 ## 📁 Proje Dizin Yapısı
@@ -149,7 +157,7 @@ Aurora/
 │   ├── package_managers/            # Pacman, AUR ve Flatpak sistem çağrıları
 │   ├── process/                     # Canlı asenkron komut yürütücü (CommandExecutor)
 │   ├── security/                    # Paket adı doğrulama, regex filtreleme ve root kalkanı
-│   ├── services/                    # 58 uygulamalı zenginleştirilmiş katalog ve arama
+│   ├── services/                    # 86 uygulamalı zenginleştirilmiş katalog ve arama
 │   ├── state/                       # Reaktif sepet (CartState), ayarlar ve kurulu durum (InstalledState)
 │   ├── ui/
 │   │   ├── window.rs                # Ana pencere, kenar çubuğu ve başlık çubuğu
@@ -158,6 +166,7 @@ Aurora/
 │   └── utils/                       # Sudo Askpass yardımcısı, tema motoru ve IconResolver
 ├── tests/                           # Birim, entegrasyon ve siber güvenlik testleri
 ├── install.sh                       # Sisteme tek tıkla kurma betiği
+├── uninstall.sh                     # Sistemden tamamen kaldırma betiği
 ├── Cargo.toml                       # Rust bağımlılık yapılandırması
 └── README.md                        # Proje dokümantasyonu
 ```
