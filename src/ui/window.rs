@@ -138,7 +138,7 @@ impl MainWindow {
         };
 
         let (cart_scroll, _refresh_cart) = CartPage::build(cart_state.clone(), settings_state.clone(), on_install);
-        let installed_scroll = InstalledPage::build(installed_state.clone());
+        let installed_scroll = InstalledPage::build(installed_state.clone(), settings_state.clone());
         let settings_page = SettingsPage::build(settings_state.clone());
 
         stack.add_named(&home_scroll, Some("home"));

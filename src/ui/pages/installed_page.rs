@@ -10,7 +10,10 @@ use std::rc::Rc;
 pub struct InstalledPage;
 
 impl InstalledPage {
-    pub fn build(installed_state: crate::state::InstalledState) -> ScrolledWindow {
+    pub fn build(
+        installed_state: crate::state::InstalledState,
+        settings_state: crate::state::SettingsState,
+    ) -> ScrolledWindow {
         let root = Box::builder()
             .orientation(Orientation::Vertical)
             .spacing(16)
@@ -41,11 +44,54 @@ impl InstalledPage {
 
         let refresh_btn = Button::builder()
             .icon_name("view-refresh-symbolic")
-            .tooltip_text("Kurulu paketleri yeniden tara")
+            .tooltip_text("Kurulu paketleri ve güncellemeleri yeniden tara")
             .css_classes(["flat", "circular"])
             .build();
         header.append(&refresh_btn);
         root.append(&header);
+
+        let updates_card = Box::builder()
+            .orientation(Orientation::Horizontal)
+            .spacing(16)
+            .css_classes(["aurora-card"])
+            .build();
+
+        let update_icon = gtk4::Image::from_icon_name("software-update-available-symbolic");
+        update_icon.set_pixel_size(32);
+        updates_card.append(&update_icon);
+
+        let update_text_box = Box::builder()
+            .orientation(Orientation::Vertical)
+            .spacing(2)
+            .hexpand(true)
+            .build();
+
+        let update_title = Label::builder()
+            .label("Sistem Güncelleme Denetimi")
+            .halign(Align::Start)
+            .css_classes(["heading"])
+            .build();
+
+        let update_subtitle = Label::builder()
+            .label("Güncellemeler denetleniyor...")
+            .halign(Align::Start)
+            .css_classes(["caption", "dim-label"])
+            .build();
+
+        update_text_box.append(&update_title);
+        update_text_box.append(&update_subtitle);
+        updates_card.append(&update_text_box);
+
+        let upgrade_btn = Button::builder()
+            .label("Sistemi Güncelle")
+            .icon_name("software-update-available-symbolic")
+            .css_classes(["suggested-action", "pill"])
+            .valign(Align::Center)
+            .visible(false)
+            .build();
+        updates_card.append(&upgrade_btn);
+
+        root.append(&updates_card);
 
         let search_entry = SearchEntry::builder()
             .placeholder_text("Kurulu paketleri filtrele veya kaldırmak için ara...")
@@ -173,6 +219,9 @@ impl InstalledPage {
             })
         };
 
+        let update_sub_for_load = update_subtitle.clone();
+        let upgrade_btn_for_load = upgrade_btn.clone();
+
         let load_data = {
             let spinner_box = spinner_box.clone();
             let list_box = list_box.clone();
@@ -193,6 +242,9 @@ impl InstalledPage {
                 let filter_list = filter_list.clone();
                 let search_entry = search_entry.clone();
 
+                let update_sub_clone = update_sub_for_load.clone();
+                let upgrade_btn_clone = upgrade_btn_for_load.clone();
+
                 glib::spawn_future_local(async move {
                     if let Ok(pkgs) = PacmanManager::list_installed().await {
                         let total = pkgs.len();
@@ -205,11 +257,46 @@ impl InstalledPage {
 
                     spinner_box.set_visible(false);
                     list_box.set_visible(true);
+
+                    match PacmanManager::check_updates().await {
+                        Ok(updates) if !updates.is_empty() => {
+                            update_sub_clone.set_label(&format!("{} adet sistem ve AUR paketi için güncelleme mevcut.", updates.len()));
+                            upgrade_btn_clone.set_visible(true);
+                        }
+                        Ok(_) => {
+                            update_sub_clone.set_label("Sisteminiz güncel. Bekleyen paket güncellemesi yok.");
+                            upgrade_btn_clone.set_visible(false);
+                        }
+                        Err(_) => {
+                            update_sub_clone.set_label("Güncelleme durumu kontrol edilemedi.");
+                            upgrade_btn_clone.set_visible(false);
+                        }
+                    }
                 });
             })
         };
 
         *load_data_ref.borrow_mut() = Some(load_data.clone());
+
+        let load_data_for_upgrade = load_data_ref.clone();
+        let settings_for_upgrade = settings_state.clone();
+        let inst_for_upgrade = installed_state.clone();
+        upgrade_btn.connect_clicked(move |btn| {
+            if let Some(root_win) = btn.root().and_downcast::<gtk4::Window>() {
+                let load_fn = load_data_for_upgrade.borrow().clone();
+                let inst = inst_for_upgrade.clone();
+                crate::ui::widgets::InstallDialog::show_system_upgrade(
+                    &root_win,
+                    settings_for_upgrade.clone(),
+                    move || {
+                        if let Some(ref f) = load_fn {
+                            f();
+                        }
+                        inst.refresh_background();
+                    },
+                );
+            }
+        });
 
         let filter_for_search = filter_list.clone();
         search_entry.connect_search_changed(move |entry| {

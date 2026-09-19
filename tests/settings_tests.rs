@@ -45,4 +45,16 @@ mod tests {
         let state = aurora::state::InstalledState::new();
         assert!(!state.is_installed("package-that-does-not-exist-ever-12345"));
     }
+
+    #[test]
+    fn test_package_update_model() {
+        let update = aurora::package_managers::pacman::PackageUpdate {
+            name: "linux".to_string(),
+            old_version: "6.8.1.arch1-1".to_string(),
+            new_version: "6.8.2.arch1-1".to_string(),
+        };
+        assert_eq!(update.name, "linux");
+        assert_eq!(update.old_version, "6.8.1.arch1-1");
+        assert_eq!(update.new_version, "6.8.2.arch1-1");
+    }
 }

@@ -366,4 +366,200 @@ impl InstallDialog {
             start_btn.emit_clicked();
         }
     }
+
+    pub fn show_system_upgrade(
+        parent: &impl IsA<gtk4::Window>,
+        settings_state: SettingsState,
+        on_finished: impl Fn() + 'static,
+    ) {
+        let dialog = adw::Window::builder()
+            .transient_for(parent)
+            .modal(true)
+            .title("Sistem Güncellemesi")
+            .default_width(700)
+            .default_height(540)
+            .build();
+
+        let root = Box::builder()
+            .orientation(Orientation::Vertical)
+            .spacing(0)
+            .build();
+
+        let header = adw::HeaderBar::builder()
+            .show_end_title_buttons(true)
+            .build();
+        root.append(&header);
+
+        let content = Box::builder()
+            .orientation(Orientation::Vertical)
+            .spacing(16)
+            .margin_start(24)
+            .margin_end(24)
+            .margin_top(16)
+            .margin_bottom(24)
+            .build();
+
+        let title_label = Label::builder()
+            .label("Tüm Sistem ve AUR Paketlerini Güncelle")
+            .halign(Align::Start)
+            .css_classes(["title-2"])
+            .build();
+        content.append(&title_label);
+
+        let desc_label = Label::builder()
+            .label("Bu işlem resmi Arch Linux depolarındaki ve AUR üzerindeki tüm güncellemeleri kontrol edip sisteminizi en güncel sürüme yükseltecektir.")
+            .halign(Align::Start)
+            .wrap(true)
+            .css_classes(["dim-label"])
+            .build();
+        content.append(&desc_label);
+
+        let status_label = Label::builder()
+            .label("Başlatmak için 'Güncellemeyi Başlat' butonuna tıklayın.")
+            .halign(Align::Start)
+            .css_classes(["dim-label"])
+            .build();
+        content.append(&status_label);
+
+        let progress_bar = ProgressBar::builder()
+            .visible(false)
+            .pulse_step(0.1)
+            .build();
+        content.append(&progress_bar);
+
+        let text_view = TextView::builder()
+            .editable(false)
+            .cursor_visible(false)
+            .monospace(true)
+            .wrap_mode(gtk4::WrapMode::WordChar)
+            .build();
+
+        let console_scroller = ScrolledWindow::builder()
+            .hscrollbar_policy(gtk4::PolicyType::Automatic)
+            .vscrollbar_policy(gtk4::PolicyType::Automatic)
+            .height_request(240)
+            .css_classes(["card"])
+            .child(&text_view)
+            .build();
+        content.append(&console_scroller);
+
+        let action_box = Box::builder()
+            .orientation(Orientation::Horizontal)
+            .halign(Align::End)
+            .spacing(12)
+            .margin_top(8)
+            .build();
+
+        let close_btn = Button::builder()
+            .label("İptal")
+            .css_classes(["flat"])
+            .build();
+
+        let start_btn = Button::builder()
+            .label("Güncellemeyi Başlat")
+            .icon_name("software-update-available-symbolic")
+            .css_classes(["suggested-action", "pill"])
+            .build();
+
+        action_box.append(&close_btn);
+        action_box.append(&start_btn);
+        content.append(&action_box);
+
+        root.append(&content);
+        dialog.set_content(Some(&root));
+
+        let dialog_for_close = dialog.clone();
+        close_btn.connect_clicked(move |_| {
+            dialog_for_close.close();
+        });
+
+        let text_buffer = text_view.buffer();
+        let tv_clone = text_view.clone();
+        let on_finished = Rc::new(on_finished);
+        let settings_for_action = settings_state.clone();
+
+        start_btn.connect_clicked(move |btn| {
+            btn.set_sensitive(false);
+            close_btn.set_label("Kapat");
+            progress_bar.set_visible(true);
+            status_label.set_label("Güncelleme işlemi yürütülüyor... Gerekirse parolanızı girin.");
+
+            let buffer = text_buffer.clone();
+            let tv = tv_clone.clone();
+            let status = status_label.clone();
+            let pbar = progress_bar.clone();
+            let on_done = on_finished.clone();
+
+            let sys = SystemCapabilities::detect();
+            let configured = settings_for_action.get().aur_helper;
+            let helper = if !configured.is_empty() {
+                configured
+            } else {
+                sys.preferred_aur_helper().unwrap_or("paru").to_string()
+            };
+
+            let (cmd, args) = if helper == "paru" {
+                ("paru".to_string(), vec!["-Syu".to_string(), "--skipreview".to_string(), "--sudoflags".to_string(), "-A".to_string(), "--noconfirm".to_string()])
+            } else if helper == "yay" {
+                ("yay".to_string(), vec!["-Syu".to_string(), "--answeredit".to_string(), "None".to_string(), "--answerclean".to_string(), "None".to_string(), "--sudoflags".to_string(), "-A".to_string(), "--noconfirm".to_string()])
+            } else {
+                ("sudo".to_string(), vec!["-A".to_string(), "pacman".to_string(), "-Syu".to_string(), "--noconfirm".to_string()])
+            };
+
+            glib::spawn_future_local(async move {
+                let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
+                let cmd_clone = cmd.clone();
+                let args_clone = args.clone();
+
+                let handle = tokio::spawn(async move {
+                    let _ = CommandExecutor::run_streaming(&cmd_clone, &args_clone, move |msg| {
+                        let _ = sender.send(msg);
+                    }).await;
+                });
+
+                let mut overall_success = false;
+
+                while let Some(msg) = receiver.recv().await {
+                    match msg {
+                        ProcessMessage::Stdout(line) => {
+                            let mut end_iter = buffer.end_iter();
+                            buffer.insert(&mut end_iter, &format!("{}\n", line));
+                            pbar.pulse();
+                            let mark = buffer.create_mark(None, &buffer.end_iter(), false);
+                            tv.scroll_to_mark(&mark, 0.0, true, 0.0, 1.0);
+                            buffer.delete_mark(&mark);
+                        }
+                        ProcessMessage::Stderr(line) => {
+                            let mut end_iter = buffer.end_iter();
+                            buffer.insert(&mut end_iter, &format!("[ERR] {}\n", line));
+                            pbar.pulse();
+                            let mark = buffer.create_mark(None, &buffer.end_iter(), false);
+                            tv.scroll_to_mark(&mark, 0.0, true, 0.0, 1.0);
+                            buffer.delete_mark(&mark);
+                        }
+                        ProcessMessage::Finished(success, code) => {
+                            overall_success = success;
+                            let mut end_iter = buffer.end_iter();
+                            buffer.insert(&mut end_iter, &format!("\n--- Güncelleme bitti (Başarı: {}, Kod: {:?}) ---\n", success, code));
+                            let mark = buffer.create_mark(None, &buffer.end_iter(), false);
+                            tv.scroll_to_mark(&mark, 0.0, true, 0.0, 1.0);
+                            buffer.delete_mark(&mark);
+                        }
+                    }
+                }
+
+                let _ = handle.await;
+                pbar.set_visible(false);
+
+                if overall_success {
+                    status.set_label("Sistem başarıyla güncellendi.");
+                    on_done();
+                } else {
+                    status.set_label("Güncelleme işlemi sırasında bir sorun oluştu veya işlem iptal edildi.");
+                }
+            });
+        });
+
+        dialog.present();
+    }
 }

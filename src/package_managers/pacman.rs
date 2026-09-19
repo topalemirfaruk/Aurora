@@ -11,6 +11,13 @@ pub struct InstalledPackage {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PackageUpdate {
+    pub name: String,
+    pub old_version: String,
+    pub new_version: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SearchResult {
     pub repo: String,
     pub name: String,
@@ -109,5 +116,42 @@ impl PacmanManager {
         } else {
             Ok(format!("Paket bilgisi bulunamadı: {}", stderr))
         }
+    }
+
+    pub async fn check_updates() -> Result<Vec<PackageUpdate>, std::io::Error> {
+        let has_checkupdates = which::which("checkupdates").is_ok();
+        let (success, stdout, _) = if has_checkupdates {
+            CommandExecutor::run_captured("checkupdates", &["--nocolor"]).await?
+        } else {
+            CommandExecutor::run_captured("pacman", &["-Qu"]).await?
+        };
+
+        if !success || stdout.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        let mut updates = Vec::new();
+        for line in stdout.lines() {
+            let parts: Vec<&str> = line.split_whitespace().collect();
+            if parts.len() >= 4 && parts[2] == "->" {
+                updates.push(PackageUpdate {
+                    name: parts[0].to_string(),
+                    old_version: parts[1].to_string(),
+                    new_version: parts[3].to_string(),
+                });
+            } else if parts.len() >= 2 {
+                let new_ver = if parts.len() >= 3 {
+                    parts[2].to_string()
+                } else {
+                    parts[1].to_string()
+                };
+                updates.push(PackageUpdate {
+                    name: parts[0].to_string(),
+                    old_version: parts[1].to_string(),
+                    new_version: new_ver,
+                });
+            }
+        }
+        Ok(updates)
     }
 }
