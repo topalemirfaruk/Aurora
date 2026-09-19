@@ -12,7 +12,7 @@ impl PkgbuildDialog {
         let dialog = adw::Window::builder()
             .transient_for(parent)
             .modal(true)
-            .title(&format!("PKGBUILD İncele — {}", package_name))
+            .title(format!("PKGBUILD İncele — {}", package_name))
             .default_width(680)
             .default_height(540)
             .build();
@@ -42,7 +42,7 @@ impl PkgbuildDialog {
             .build();
 
         let info_label = Label::builder()
-            .label(&format!("AUR Kaynak ve Derleme Scripti: {}", package_name))
+            .label(format!("AUR Kaynak ve Derleme Scripti: {}", package_name))
             .halign(Align::Start)
             .css_classes(["heading"])
             .hexpand(true)

@@ -9,6 +9,12 @@ pub struct Application {
     app: adw::Application,
 }
 
+impl Default for Application {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Application {
     pub fn new() -> Self {
         let app = adw::Application::builder()

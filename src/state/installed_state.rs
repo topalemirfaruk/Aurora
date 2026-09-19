@@ -3,10 +3,12 @@ use std::collections::HashSet;
 use std::rc::Rc;
 use crate::process::CommandExecutor;
 
+type InstalledListener = Box<dyn Fn() + 'static>;
+
 #[derive(Clone)]
 pub struct InstalledState {
     installed_pkgs: Rc<RefCell<HashSet<String>>>,
-    listeners: Rc<RefCell<Vec<Box<dyn Fn() + 'static>>>>,
+    listeners: Rc<RefCell<Vec<InstalledListener>>>,
 }
 
 impl Default for InstalledState {
@@ -93,7 +95,6 @@ impl InstalledState {
         glib::spawn_future_local(async move {
             let mut set = HashSet::new();
 
-            // 1. Pacman / AUR paketleri (pacman -Q)
             if let Ok((success, stdout, _)) = CommandExecutor::run_captured("pacman", &["-Q"]).await {
                 if success {
                     for line in stdout.lines() {
@@ -104,7 +105,6 @@ impl InstalledState {
                 }
             }
 
-            // 2. Flatpak paketleri
             if let Ok((success, stdout, _)) = CommandExecutor::run_captured("flatpak", &["list", "--app", "--columns=application"]).await {
                 if success {
                     for line in stdout.lines() {

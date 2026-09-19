@@ -5,7 +5,6 @@ use gtk4::IconTheme;
 pub struct IconResolver;
 
 impl IconResolver {
-    /// İkonun sistemde var olup olmadığını kontrol eder, yoksa en uygun profesyonel yedeği döndürür.
     pub fn resolve(requested_icon: &str, category: AppCategory) -> String {
         let display = match Display::default() {
             Some(d) => d,
@@ -14,27 +13,54 @@ impl IconResolver {
 
         let theme = IconTheme::for_display(&display);
 
-        // 1. İstenen ikon doğrudan sistem temasında var mı?
         if theme.has_icon(requested_icon) {
             return requested_icon.to_string();
         }
 
-        // 2. Bilinen alternatif eşleşmeler (Alias listesi)
-        let aliases = Self::get_aliases(requested_icon);
-        for alias in aliases {
+        for alias in Self::get_aliases(requested_icon) {
             if theme.has_icon(alias) {
                 return alias.to_string();
             }
         }
 
-        // 3. Kategoriye özel garantili XDG sistem simgesi
+        let stripped = Self::strip_package_suffixes(requested_icon);
+        if stripped != requested_icon {
+            if theme.has_icon(stripped) {
+                return stripped.to_string();
+            }
+            for alias in Self::get_aliases(stripped) {
+                if theme.has_icon(alias) {
+                    return alias.to_string();
+                }
+            }
+        }
+
         let cat_fallback = Self::fallback_for_category(category);
         if theme.has_icon(cat_fallback) {
             return cat_fallback.to_string();
         }
 
-        // 4. Son çare
         "application-x-executable".to_string()
+    }
+
+    fn strip_package_suffixes(name: &str) -> &str {
+        let suffixes = [
+            "-bin",
+            "-git",
+            "-stable",
+            "-beta",
+            "-dev",
+            "-nightly",
+            "-community",
+            "-ce",
+            "-launcher",
+        ];
+        for suffix in suffixes {
+            if let Some(stripped) = name.strip_suffix(suffix) {
+                return stripped;
+            }
+        }
+        name
     }
 
     /// Verilen aday ikonlar arasında sistemde ilk bulunanı döndürür, hiçbiri yoksa fallback'i döner.
@@ -345,7 +371,39 @@ impl IconResolver {
                 "flatseal",
                 "preferences-system",
             ],
-            // Sürücüler & Donanım
+            "obsidian" | "md.obsidian.Obsidian" => &[
+                "obsidian",
+                "md.obsidian.Obsidian",
+                "text-editor",
+                "x-office-document",
+            ],
+            "zen-browser" | "app.zen_browser.zen" => &[
+                "zen-browser",
+                "app.zen_browser.zen",
+                "firefox",
+                "internet-web-browser",
+            ],
+            "libreoffice" | "libreoffice-fresh" | "libreoffice-still" | "org.libreoffice.LibreOffice" => &[
+                "libreoffice-startcenter",
+                "libreoffice",
+                "org.libreoffice.LibreOffice",
+                "x-office-document",
+            ],
+            "onlyoffice" | "org.onlyoffice.desktopeditors" => &[
+                "onlyoffice-desktopeditors",
+                "org.onlyoffice.desktopeditors",
+                "x-office-document",
+            ],
+            "wireshark" | "wireshark-qt" | "org.wireshark.Wireshark" => &[
+                "org.wireshark.Wireshark",
+                "wireshark",
+                "utilities-system-monitor",
+            ],
+            "filezilla" | "org.filezillaproject.Filezilla" => &[
+                "org.filezillaproject.Filezilla",
+                "filezilla",
+                "network-server",
+            ],
             "vulkan" | "vulkan-radeon" | "vulkan-intel" => &[
                 "vulkan",
                 "video-display",
@@ -376,7 +434,6 @@ impl IconResolver {
                 "cups",
                 "document-print",
             ],
-            // Kodekler
             "ffmpeg" => &[
                 "ffmpeg",
                 "video-x-generic",
@@ -392,7 +449,6 @@ impl IconResolver {
                 "media-playback-start",
                 "applications-multimedia",
             ],
-            // Çalışma Zamanları
             "wine" | "winetricks" => &[
                 "wine",
                 "wine-staging",

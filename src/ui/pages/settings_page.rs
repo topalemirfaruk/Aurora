@@ -145,7 +145,7 @@ impl SettingsPage {
         };
 
         let helper_toggle_btn = Button::builder()
-            .label(&format!("Araç: {}", helper_label))
+            .label(format!("Araç: {}", helper_label))
             .valign(Align::Center)
             .css_classes(["flat"])
             .build();

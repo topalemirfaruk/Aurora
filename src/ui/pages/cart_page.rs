@@ -248,7 +248,7 @@ impl CartPage {
                         .build();
 
                     let meta_label = Label::builder()
-                        .label(&format!("{} • Paket: {}", item.source.badge_label(), item.package_name))
+                        .label(format!("{} • Paket: {}", item.source.badge_label(), item.package_name))
                         .halign(Align::Start)
                         .css_classes(["caption", "dim-label"])
                         .build();

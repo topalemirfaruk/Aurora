@@ -64,7 +64,7 @@ impl HomePage {
 
         if let Some(helper) = sys.preferred_aur_helper() {
             let aur_pill = Label::builder()
-                .label(&format!("AUR: {}", helper))
+                .label(format!("AUR: {}", helper))
                 .css_classes(["status-pill"])
                 .build();
             sys_row.append(&aur_pill);
@@ -195,7 +195,7 @@ impl HomePage {
             title_col.append(&title_lbl);
 
             let count_badge = Label::builder()
-                .label(&format!("{} Paket", bundle.package_names.len()))
+                .label(format!("{} Paket", bundle.package_names.len()))
                 .css_classes(["status-pill"])
                 .halign(Align::Start)
                 .build();
@@ -213,7 +213,7 @@ impl HomePage {
             bundle_card.append(&desc_lbl);
 
             let pkgs_summary = Label::builder()
-                .label(&format!("Paketler: {}", bundle.package_names.join(", ")))
+                .label(format!("Paketler: {}", bundle.package_names.join(", ")))
                 .halign(Align::Start)
                 .wrap(true)
                 .css_classes(["caption"])

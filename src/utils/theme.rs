@@ -12,7 +12,6 @@ pub struct ThemeManager;
 impl ThemeManager {
     /// Hem Libadwaita katmanını hem de KDE/XFCE GTK4 CSS kurallarını ezen tema motoru.
     pub fn apply_theme(is_dark: bool) {
-        // 1. Libadwaita Genel StyleManager katmanı
         let manager = adw::StyleManager::default();
         manager.set_color_scheme(if is_dark {
             adw::ColorScheme::ForceDark
@@ -20,7 +19,6 @@ impl ThemeManager {
             adw::ColorScheme::ForceLight
         });
 
-        // 2. Mevcut Display için StyleManager
         if let Some(display) = Display::default() {
             let disp_manager = adw::StyleManager::for_display(&display);
             disp_manager.set_color_scheme(if is_dark {
@@ -29,8 +27,7 @@ impl ThemeManager {
                 adw::ColorScheme::ForceLight
             });
 
-            // 3. KDE Plasma veya pywal tarafından ~/.config/gtk-4.0/gtk.css dosyasına
-            // yazılan sabit renkleri (Priority 800) geçersiz kılan yüksek öncelikli CSS Provider (Priority 850)
+            // Priority 850 overrides any custom priority 800 styles set by desktop environments
             let css_content = if is_dark {
                 include_str!("../../resources/theme_dark.css")
             } else {

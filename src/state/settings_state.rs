@@ -23,10 +23,12 @@ impl Default for SettingsData {
     }
 }
 
+type SettingsListener = Box<dyn Fn(&SettingsData) + 'static>;
+
 #[derive(Clone)]
 pub struct SettingsState {
     data: Rc<RefCell<SettingsData>>,
-    listeners: Rc<RefCell<Vec<Box<dyn Fn(&SettingsData) + 'static>>>>,
+    listeners: Rc<RefCell<Vec<SettingsListener>>>,
 }
 
 impl Default for SettingsState {

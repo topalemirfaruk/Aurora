@@ -2,10 +2,12 @@ use crate::models::AppItem;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+type CartListener = Box<dyn Fn(usize) + 'static>;
+
 #[derive(Clone, Default)]
 pub struct CartState {
     items: Rc<RefCell<Vec<AppItem>>>,
-    listeners: Rc<RefCell<Vec<Box<dyn Fn(usize) + 'static>>>>,
+    listeners: Rc<RefCell<Vec<CartListener>>>,
 }
 
 impl CartState {

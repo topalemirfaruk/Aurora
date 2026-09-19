@@ -17,7 +17,7 @@ impl MainWindow {
     pub fn build(app: &adw::Application) -> adw::ApplicationWindow {
         let window = adw::ApplicationWindow::builder()
             .application(app)
-            .title(&format!("{} v{}", APP_NAME, APP_VERSION))
+            .title(format!("{} v{}", APP_NAME, APP_VERSION))
             .default_width(1100)
             .default_height(720)
             .icon_name(crate::config::APP_ID)

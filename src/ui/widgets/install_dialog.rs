@@ -126,7 +126,7 @@ impl InstallDialog {
 
                 for item in &aur_items_preview {
                     let review_btn = Button::builder()
-                        .label(&format!("{} İncele", item.package_name))
+                        .label(format!("{} İncele", item.package_name))
                         .icon_name("text-x-script-symbolic")
                         .css_classes(["flat", "pill"])
                         .build();
