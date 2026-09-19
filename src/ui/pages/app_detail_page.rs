@@ -43,7 +43,6 @@ impl AppDetailPage {
             .margin_bottom(24)
             .build();
 
-        // Üst Başlık Bölümü: İkon + İsim + Rozet
         let top_row = Box::builder()
             .orientation(Orientation::Horizontal)
             .spacing(16)
@@ -94,7 +93,6 @@ impl AppDetailPage {
         top_row.append(&title_box);
         content.append(&top_row);
 
-        // Açıklama
         let desc_label = Label::builder()
             .label(&item.description)
             .wrap(true)
@@ -102,7 +100,6 @@ impl AppDetailPage {
             .build();
         content.append(&desc_label);
 
-        // Bilgi Kartı
         let info_group = adw::PreferencesGroup::builder()
             .title("Paket Ayrıntıları")
             .build();
@@ -147,14 +144,12 @@ impl AppDetailPage {
 
         content.append(&info_group);
 
-        // Alt Eylemler Bölümü
         let action_box = Box::builder()
             .orientation(Orientation::Horizontal)
             .spacing(10)
             .margin_top(12)
             .build();
 
-        // AUR paketi ise PKGBUILD İncele Butonu
         if item.source == PackageSource::Aur {
             let pkgbuild_btn = Button::builder()
                 .label("PKGBUILD İncele")
@@ -177,7 +172,6 @@ impl AppDetailPage {
         let spacer = Box::builder().hexpand(true).build();
         action_box.append(&spacer);
 
-        // Sepete Ekle / Yeniden Kur Butonu
         let add_btn = Button::builder().build();
 
         let update_btn = {
@@ -208,7 +202,6 @@ impl AppDetailPage {
             update_clone();
         });
 
-        // Kurulu ise Kaldır butonunu ana eylem (pill + destructive-action) yap
         if is_installed {
             let uninstall_btn = Button::builder()
                 .label("Sistemden Kaldır")

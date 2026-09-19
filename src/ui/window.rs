@@ -36,9 +36,61 @@ impl MainWindow {
             .build();
 
         let search_entry = SearchEntry::builder()
-            .placeholder_text("Uygulama, paket adı veya etiket ara...")
-            .width_request(280)
+            .placeholder_text("Uygulama, paket adı veya etiket ara... (Ctrl+F)")
+            .width_request(300)
             .build();
+
+        fn create_sidebar_row(icon_name: &str, label_text: &str, page_name: &str) -> ListBoxRow {
+            let row = ListBoxRow::new();
+            let row_box = Box::builder()
+                .orientation(Orientation::Horizontal)
+                .spacing(12)
+                .margin_start(12)
+                .margin_end(12)
+                .margin_top(8)
+                .margin_bottom(8)
+                .build();
+
+            let icon = gtk4::Image::from_icon_name(icon_name);
+            let label = Label::builder()
+                .label(label_text)
+                .halign(Align::Start)
+                .hexpand(true)
+                .build();
+
+            row_box.append(&icon);
+            row_box.append(&label);
+            row.set_child(Some(&row_box));
+            row.set_widget_name(page_name);
+            row
+        }
+
+        let list_box = ListBox::builder()
+            .css_classes(["navigation-sidebar"])
+            .selection_mode(gtk4::SelectionMode::Single)
+            .build();
+
+        let row_home = create_sidebar_row("user-home-symbolic", "Keşfet", "home");
+        let row_catalog = create_sidebar_row("view-app-grid-symbolic", "Katalog", "catalog");
+        let row_cart = create_sidebar_row(crate::utils::IconResolver::cart_icon(), "Kurulum Sepeti", "cart");
+        let row_installed = create_sidebar_row("system-software-uninstall-symbolic", "Kurulu & Kaldır", "installed");
+        let row_settings = create_sidebar_row("emblem-system-symbolic", "Ayarlar", "settings");
+
+        list_box.append(&row_home);
+        list_box.append(&row_catalog);
+        list_box.append(&row_cart);
+        list_box.append(&row_installed);
+        list_box.append(&row_settings);
+
+        list_box.select_row(Some(&row_home));
+
+        let stack_for_nav = stack.clone();
+        list_box.connect_row_selected(move |_, selected_row| {
+            if let Some(row) = selected_row {
+                let page_name = row.widget_name();
+                stack_for_nav.set_visible_child_name(&page_name);
+            }
+        });
 
         let window_weak = window.downgrade();
         let cart_for_detail = cart_state.clone();
@@ -54,7 +106,10 @@ impl MainWindow {
 
         let stack_for_cat = stack.clone();
         let refresh_cat = refresh_catalog.clone();
+        let list_for_cat = list_box.clone();
+        let row_cat_for_cb = row_catalog.clone();
         let on_cat_clicked = move |cat: AppCategory| {
+            list_for_cat.select_row(Some(&row_cat_for_cb));
             stack_for_cat.set_visible_child_name("catalog");
             refresh_cat(Some(cat), "");
         };
@@ -94,9 +149,12 @@ impl MainWindow {
 
         let stack_for_search = stack.clone();
         let refresh_search = refresh_catalog.clone();
+        let list_for_search = list_box.clone();
+        let row_cat_for_search = row_catalog.clone();
         search_entry.connect_search_changed(move |entry| {
             let text = entry.text().to_string();
             if !text.is_empty() {
+                list_for_search.select_row(Some(&row_cat_for_search));
                 stack_for_search.set_visible_child_name("catalog");
             }
             refresh_search(None, &text);
@@ -108,7 +166,7 @@ impl MainWindow {
 
         let cart_header_btn = Button::builder()
             .css_classes(["flat"])
-            .tooltip_text("Kurulum Sepetini Aç")
+            .tooltip_text("Kurulum Sepetini Aç (Ctrl+3)")
             .build();
 
         let cart_btn_box = Box::builder()
@@ -127,7 +185,10 @@ impl MainWindow {
         cart_header_btn.set_child(Some(&cart_btn_box));
 
         let stack_for_cart_btn = stack.clone();
+        let list_for_cart_btn = list_box.clone();
+        let row_cart_for_btn = row_cart.clone();
         cart_header_btn.connect_clicked(move |_| {
+            list_for_cart_btn.select_row(Some(&row_cart_for_btn));
             stack_for_cart_btn.set_visible_child_name("cart");
         });
 
@@ -191,69 +252,13 @@ impl MainWindow {
         brand_box.append(&logo_icon);
         brand_box.append(&brand_label);
         sidebar_box.append(&brand_box);
-
-        // Sidebar Menü ListBox
-        let list_box = ListBox::builder()
-            .css_classes(["navigation-sidebar"])
-            .selection_mode(gtk4::SelectionMode::Single)
-            .build();
-
-        fn create_sidebar_row(icon_name: &str, label_text: &str, page_name: &str) -> ListBoxRow {
-            let row = ListBoxRow::new();
-            let row_box = Box::builder()
-                .orientation(Orientation::Horizontal)
-                .spacing(12)
-                .margin_start(12)
-                .margin_end(12)
-                .margin_top(8)
-                .margin_bottom(8)
-                .build();
-
-            let icon = gtk4::Image::from_icon_name(icon_name);
-            let label = Label::builder()
-                .label(label_text)
-                .halign(Align::Start)
-                .hexpand(true)
-                .build();
-
-            row_box.append(&icon);
-            row_box.append(&label);
-            row.set_child(Some(&row_box));
-            row.set_widget_name(page_name);
-            row
-        }
-
-        let row_home = create_sidebar_row("user-home-symbolic", "Keşfet", "home");
-        let row_catalog = create_sidebar_row("view-app-grid-symbolic", "Katalog", "catalog");
-        let row_cart = create_sidebar_row(crate::utils::IconResolver::cart_icon(), "Kurulum Sepeti", "cart");
-        let row_installed = create_sidebar_row("system-software-uninstall-symbolic", "Kurulu & Kaldır", "installed");
-        let row_settings = create_sidebar_row("emblem-system-symbolic", "Ayarlar", "settings");
-
-        list_box.append(&row_home);
-        list_box.append(&row_catalog);
-        list_box.append(&row_cart);
-        list_box.append(&row_installed);
-        list_box.append(&row_settings);
-
-        list_box.select_row(Some(&row_home));
-
-        let stack_for_nav = stack.clone();
-        list_box.connect_row_selected(move |_, selected_row| {
-            if let Some(row) = selected_row {
-                let page_name = row.widget_name();
-                stack_for_nav.set_visible_child_name(&page_name);
-            }
-        });
-
         sidebar_box.append(&list_box);
 
-        // Sepet rozetini güncelleme
         let badge_clone = cart_badge_label.clone();
         cart_state.on_change(move |count| {
             badge_clone.set_label(&count.to_string());
         });
 
-        // Ana Gövde Düzeni (Split Horizontal: Sol Sidebar + Sağ Stack)
         let body_box = Box::builder()
             .orientation(Orientation::Horizontal)
             .spacing(0)
@@ -267,7 +272,6 @@ impl MainWindow {
         body_box.append(&separator);
         body_box.append(&stack);
 
-        // Ana Pencere Dikey Kutu: HeaderBar + Root Banner + Body
         let main_layout = Box::builder()
             .orientation(Orientation::Vertical)
             .spacing(0)
@@ -276,6 +280,59 @@ impl MainWindow {
         main_layout.append(&header_bar);
         main_layout.append(&root_banner);
         main_layout.append(&body_box);
+
+        let key_controller = gtk4::EventControllerKey::new();
+        let search_entry_for_keys = search_entry.clone();
+        let list_for_keys = list_box.clone();
+        let stack_for_keys = stack.clone();
+        let row_home_key = row_home.clone();
+        let row_cat_key = row_catalog.clone();
+        let row_cart_key = row_cart.clone();
+        let row_inst_key = row_installed.clone();
+        let row_sett_key = row_settings.clone();
+
+        key_controller.connect_key_pressed(move |_, keyval, _keycode, state| {
+            let is_ctrl = state.contains(gtk4::gdk::ModifierType::CONTROL_MASK);
+            if is_ctrl {
+                match keyval {
+                    gtk4::gdk::Key::f | gtk4::gdk::Key::F => {
+                        search_entry_for_keys.grab_focus();
+                        return glib::Propagation::Stop;
+                    }
+                    gtk4::gdk::Key::_1 => {
+                        list_for_keys.select_row(Some(&row_home_key));
+                        stack_for_keys.set_visible_child_name("home");
+                        return glib::Propagation::Stop;
+                    }
+                    gtk4::gdk::Key::_2 => {
+                        list_for_keys.select_row(Some(&row_cat_key));
+                        stack_for_keys.set_visible_child_name("catalog");
+                        return glib::Propagation::Stop;
+                    }
+                    gtk4::gdk::Key::_3 => {
+                        list_for_keys.select_row(Some(&row_cart_key));
+                        stack_for_keys.set_visible_child_name("cart");
+                        return glib::Propagation::Stop;
+                    }
+                    gtk4::gdk::Key::_4 => {
+                        list_for_keys.select_row(Some(&row_inst_key));
+                        stack_for_keys.set_visible_child_name("installed");
+                        return glib::Propagation::Stop;
+                    }
+                    gtk4::gdk::Key::comma => {
+                        list_for_keys.select_row(Some(&row_sett_key));
+                        stack_for_keys.set_visible_child_name("settings");
+                        return glib::Propagation::Stop;
+                    }
+                    _ => {}
+                }
+            } else if keyval == gtk4::gdk::Key::Escape && search_entry_for_keys.has_focus() {
+                search_entry_for_keys.set_text("");
+                return glib::Propagation::Stop;
+            }
+            glib::Propagation::Proceed
+        });
+        window.add_controller(key_controller);
 
         window.set_content(Some(&main_layout));
         window

@@ -15,7 +15,6 @@ impl SettingsPage {
 
         let initial_data = settings_state.get();
 
-        // 1. Görünüm ve Tema Grubu
         let appearance_group = adw::PreferencesGroup::builder()
             .title("Görünüm ve Tema")
             .description("Arayüz temasını ve renk tercihlerini özelleştirin.")
@@ -51,7 +50,6 @@ impl SettingsPage {
             });
         });
 
-        // Üst bardaki butonla ayarlar sayfasını senkronize tut
         let sw_theme_for_sync = theme_switch.clone();
         let row_theme_for_sync = theme_row.clone();
         settings_state.on_change(move |data| {
@@ -68,13 +66,11 @@ impl SettingsPage {
         appearance_group.add(&theme_row);
         page.add(&appearance_group);
 
-        // 2. Paket Yönetimi ve AUR Grubu
         let pm_group = adw::PreferencesGroup::builder()
             .title("Paket Yönetimi ve AUR")
             .description("Arch Linux depoları ve AUR entegrasyonu kuralları.")
             .build();
 
-        // PKGBUILD İnceleme Switch
         let aur_row = adw::ActionRow::builder()
             .title("PKGBUILD Önizlemesini Zorunlu Tut")
             .subtitle(if initial_data.require_pkgbuild_review {
@@ -105,7 +101,6 @@ impl SettingsPage {
         });
         pm_group.add(&aur_row);
 
-        // Özet Onayı Switch
         let confirm_row = adw::ActionRow::builder()
             .title("İşlem Öncesi Özet Onayı")
             .subtitle(if initial_data.require_summary_confirmation {
@@ -136,14 +131,21 @@ impl SettingsPage {
         });
         pm_group.add(&confirm_row);
 
-        // AUR Yardımcısı Tercihi
         let helper_row = adw::ActionRow::builder()
             .title("Varsayılan AUR Yardımcısı")
             .subtitle("AUR paketlerini aramak ve derlemek için kullanılacak araç (paru / yay)")
             .build();
 
+        let helper_label = if initial_data.aur_helper.is_empty() {
+            crate::utils::SystemCapabilities::detect()
+                .preferred_aur_helper()
+                .unwrap_or("paru")
+        } else {
+            &initial_data.aur_helper
+        };
+
         let helper_toggle_btn = Button::builder()
-            .label(&format!("Araç: {}", initial_data.aur_helper))
+            .label(&format!("Araç: {}", helper_label))
             .valign(Align::Center)
             .css_classes(["flat"])
             .build();
@@ -162,7 +164,6 @@ impl SettingsPage {
 
         page.add(&pm_group);
 
-        // 3. Sistem ve Bakım Grubu
         let maint_group = adw::PreferencesGroup::builder()
             .title("Sistem Bakımı")
             .description("Depo önbellekleri ve temizlik.")
@@ -200,7 +201,6 @@ impl SettingsPage {
         maint_group.add(&cache_row);
         page.add(&maint_group);
 
-        // 4. Hakkında Grubu
         let about_group = adw::PreferencesGroup::builder()
             .title("Hakkında")
             .build();

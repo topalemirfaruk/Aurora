@@ -22,7 +22,6 @@ impl AppCard {
             .css_classes(["aurora-card"])
             .build();
 
-        // Akıllı İkon Çözümleme (Kırık simgeleri engeller)
         let resolved_icon = IconResolver::resolve(&item.icon, item.category);
 
         let icon_frame = Box::builder()
@@ -36,14 +35,12 @@ impl AppCard {
         icon_frame.append(&icon_image);
         root.append(&icon_frame);
 
-        // Orta içerik alanı
         let content_box = Box::builder()
             .orientation(Orientation::Vertical)
             .spacing(4)
             .hexpand(true)
             .build();
 
-        // Başlık satırı: İsim + Kaynak Rozeti + Kurulu Rozeti
         let title_row = Box::builder()
             .orientation(Orientation::Horizontal)
             .spacing(8)
@@ -72,7 +69,6 @@ impl AppCard {
         title_row.append(&badge);
         title_row.append(&installed_badge);
 
-        // Açıklama
         let desc_label = Label::builder()
             .label(&item.description)
             .wrap(true)
@@ -82,7 +78,6 @@ impl AppCard {
             .css_classes(["dim-label"])
             .build();
 
-        // Paket adı ve kategori etiketi
         let meta_row = Box::builder()
             .orientation(Orientation::Horizontal)
             .spacing(12)
@@ -108,14 +103,12 @@ impl AppCard {
         content_box.append(&meta_row);
         root.append(&content_box);
 
-        // Sağ eylem butonları
         let actions_box = Box::builder()
             .orientation(Orientation::Horizontal)
             .spacing(6)
             .valign(Align::Center)
             .build();
 
-        // İncele / Detay Butonu
         let detail_btn = Button::builder()
             .icon_name("document-properties-symbolic")
             .tooltip_text("Uygulama ayrıntılarını görüntüle")
@@ -127,7 +120,6 @@ impl AppCard {
             on_detail_clicked(item_clone_for_detail.clone());
         });
 
-        // Doğrudan Sistemden Kaldır Butonu (Sadece kuruluyken görünür)
         let uninstall_btn = Button::builder()
             .label("Kaldır")
             .icon_name("user-trash-symbolic")
@@ -147,7 +139,6 @@ impl AppCard {
             }
         });
 
-        // Sepete Ekle / Çıkar / Kurulu Butonu
         let cart_btn = Button::builder()
             .css_classes(["suggested-action"])
             .build();
@@ -196,7 +187,6 @@ impl AppCard {
             update_for_click();
         });
 
-        // Sepet ve sistem kurulu paket değişimlerini dinle
         let update_for_cart = update_btn_state.clone();
         cart_state.on_change(move |_| {
             update_for_cart();

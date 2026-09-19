@@ -29,7 +29,6 @@ impl CatalogPage {
             .margin_bottom(32)
             .build();
 
-        // Başlık ve Açıklama
         let header_row = Box::builder()
             .orientation(Orientation::Horizontal)
             .spacing(12)
@@ -51,12 +50,6 @@ impl CatalogPage {
         header_row.append(&count_label);
         root.append(&header_row);
 
-        // Kategori Seçim Butonları
-        let cat_bar = Box::builder()
-            .orientation(Orientation::Horizontal)
-            .spacing(8)
-            .build();
-
         let current_category: Rc<RefCell<Option<AppCategory>>> = Rc::new(RefCell::new(None));
         let current_query: Rc<RefCell<String>> = Rc::new(RefCell::new(String::new()));
 
@@ -65,7 +58,6 @@ impl CatalogPage {
             .spacing(12)
             .build();
 
-        // Boş Durum (Empty State) ve Canlı Arama Butonu
         let empty_box = Box::builder()
             .orientation(Orientation::Vertical)
             .spacing(16)
@@ -98,10 +90,6 @@ impl CatalogPage {
             .build();
         empty_box.append(&live_spinner);
 
-        root.append(&empty_box);
-        root.append(&apps_container);
-
-        // Liste yenileme fonksiyonu
         let refresh_list = {
             let apps_container = apps_container.clone();
             let empty_box = empty_box.clone();
@@ -160,7 +148,6 @@ impl CatalogPage {
             })
         };
 
-        // Canlı Arama Eylemi
         let current_query_for_live = current_query.clone();
         let apps_container_for_live = apps_container.clone();
         let empty_box_for_live = empty_box.clone();
@@ -192,7 +179,6 @@ impl CatalogPage {
             glib::spawn_future_local(async move {
                 let mut found_items = Vec::new();
 
-                // 1. Pacman sonuçları
                 if let Ok(pacman_results) = PacmanManager::search(&q).await {
                     for r in pacman_results.into_iter().take(20) {
                         found_items.push(AppItem {
@@ -210,7 +196,6 @@ impl CatalogPage {
                     }
                 }
 
-                // 2. AUR sonuçları
                 if let Ok(aur_results) = AurManager::search(&q).await {
                     for r in aur_results.into_iter().take(15) {
                         found_items.push(AppItem {
@@ -250,7 +235,11 @@ impl CatalogPage {
             });
         });
 
-        // Kategori butonları: "Tümü" + 6 kategori
+        let cat_bar = Box::builder()
+            .orientation(Orientation::Horizontal)
+            .spacing(8)
+            .build();
+
         let all_btn = CheckButton::builder()
             .label("Tümü")
             .active(true)
@@ -295,8 +284,9 @@ impl CatalogPage {
             .child(&cat_bar)
             .build();
         root.append(&cat_scroller);
+        root.append(&empty_box);
+        root.append(&apps_container);
 
-        // İlk yüklemeyi yap
         refresh_list(None, "");
 
         let scroll = ScrolledWindow::builder()
