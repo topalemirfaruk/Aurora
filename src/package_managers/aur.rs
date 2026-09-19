@@ -3,6 +3,23 @@ use crate::process::CommandExecutor;
 use crate::security::{is_valid_package_name, sanitize_search_query};
 use crate::utils::SystemCapabilities;
 
+use serde::Deserialize;
+
+#[derive(Deserialize)]
+struct AurRpcResponse {
+    results: Option<Vec<AurRpcPackage>>,
+}
+
+#[derive(Deserialize)]
+struct AurRpcPackage {
+    #[serde(rename = "Name")]
+    name: String,
+    #[serde(rename = "Version")]
+    version: Option<String>,
+    #[serde(rename = "Description")]
+    description: Option<String>,
+}
+
 pub struct AurManager;
 
 impl AurManager {
@@ -11,54 +28,81 @@ impl AurManager {
         SystemCapabilities::detect().preferred_aur_helper()
     }
 
-    /// AUR üzerinde güvenli arama yap
+    /// AUR üzerinde güvenli arama yap (Yerel yardımcı veya resmi AUR RPC v5)
     pub async fn search(query: &str) -> Result<Vec<SearchResult>, std::io::Error> {
-        let helper = match Self::helper() {
-            Some(h) => h,
-            None => return Ok(Vec::new()),
-        };
-
         let clean = sanitize_search_query(query);
         if clean.is_empty() {
             return Ok(Vec::new());
         }
 
-        // paru -Ssa -- <query> veya yay -Ssa -- <query>
-        let (success, stdout, _) = CommandExecutor::run_captured(helper, &["-Ssa", "--", &clean]).await?;
-        if !success {
+        if let Some(helper) = Self::helper() {
+            if let Ok((true, stdout, _)) = CommandExecutor::run_captured(helper, &["-Ssa", "--", &clean]).await {
+                if !stdout.is_empty() {
+                    let mut results = Vec::new();
+                    let mut lines = stdout.lines();
+
+                    while let Some(header_line) = lines.next() {
+                        let header_parts: Vec<&str> = header_line.split_whitespace().collect();
+                        if header_parts.is_empty() {
+                            continue;
+                        }
+
+                        let repo_and_name = header_parts[0];
+                        let version = header_parts.get(1).unwrap_or(&"").to_string();
+                        let is_installed = header_line.contains("[installed]");
+
+                        let (repo, name) = match repo_and_name.split_once('/') {
+                            Some((r, n)) => (r.to_string(), n.to_string()),
+                            None => ("aur".to_string(), repo_and_name.to_string()),
+                        };
+
+                        let description = lines.next().unwrap_or("").trim().to_string();
+
+                        results.push(SearchResult {
+                            repo,
+                            name,
+                            version,
+                            description,
+                            is_installed,
+                        });
+                    }
+                    if !results.is_empty() {
+                        return Ok(results);
+                    }
+                }
+            }
+        }
+
+        Self::search_rpc(&clean).await
+    }
+
+    async fn search_rpc(query: &str) -> Result<Vec<SearchResult>, std::io::Error> {
+        let url = format!("https://aur.archlinux.org/rpc/v5/search/{}", query);
+        let (success, stdout, _) = CommandExecutor::run_captured(
+            "curl",
+            &["-sSL", "--proto", "=https", "--tlsv1.2", "--max-time", "8", &url],
+        ).await?;
+
+        if !success || stdout.is_empty() {
             return Ok(Vec::new());
         }
 
-        let mut results = Vec::new();
-        let mut lines = stdout.lines();
-
-        while let Some(header_line) = lines.next() {
-            let header_parts: Vec<&str> = header_line.split_whitespace().collect();
-            if header_parts.is_empty() {
-                continue;
-            }
-
-            let repo_and_name = header_parts[0];
-            let version = header_parts.get(1).unwrap_or(&"").to_string();
-            let is_installed = header_line.contains("[installed]");
-
-            let (repo, name) = match repo_and_name.split_once('/') {
-                Some((r, n)) => (r.to_string(), n.to_string()),
-                None => ("aur".to_string(), repo_and_name.to_string()),
-            };
-
-            let description = lines.next().unwrap_or("").trim().to_string();
-
-            results.push(SearchResult {
-                repo,
-                name,
-                version,
-                description,
-                is_installed,
-            });
+        if let Ok(resp) = serde_json::from_str::<AurRpcResponse>(&stdout) {
+            let items = resp.results.unwrap_or_default();
+            let results = items
+                .into_iter()
+                .map(|item| SearchResult {
+                    repo: "aur".to_string(),
+                    name: item.name,
+                    version: item.version.unwrap_or_default(),
+                    description: item.description.unwrap_or_default(),
+                    is_installed: false,
+                })
+                .collect();
+            return Ok(results);
         }
 
-        Ok(results)
+        Ok(Vec::new())
     }
 
     /// PKGBUILD içeriğini güvenli biçimde çek

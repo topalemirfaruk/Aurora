@@ -211,13 +211,14 @@ impl AppDetailPage {
                 .build();
 
             let pkg_name_clone = item.package_name.clone();
+            let pkg_source = item.source;
             let parent_window = parent.as_ref().clone();
             let inst_clone = installed_state.clone();
             let dialog_clone = dialog.clone();
             uninstall_btn.connect_clicked(move |_| {
                 let inst = inst_clone.clone();
                 let dlg = dialog_clone.clone();
-                UninstallDialog::show(&parent_window, &pkg_name_clone, move || {
+                UninstallDialog::show(&parent_window, &pkg_name_clone, pkg_source, move || {
                     inst.refresh_background();
                     dlg.close();
                 });

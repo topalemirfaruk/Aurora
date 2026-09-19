@@ -1,3 +1,4 @@
+use crate::models::PackageSource;
 use crate::process::{CommandExecutor, ProcessMessage};
 use crate::security::{is_critical_system_package, is_valid_package_name};
 use crate::utils::SystemCapabilities;
@@ -10,14 +11,20 @@ use std::rc::Rc;
 pub struct UninstallDialog;
 
 impl UninstallDialog {
-    pub fn show(parent: &impl IsA<gtk4::Window>, package_name: &str, on_success: impl Fn() + 'static) {
-        let is_critical = is_critical_system_package(package_name);
+    pub fn show(
+        parent: &impl IsA<gtk4::Window>,
+        package_name: &str,
+        source: PackageSource,
+        on_success: impl Fn() + 'static,
+    ) {
+        let is_flatpak = source == PackageSource::Flatpak;
+        let is_critical = !is_flatpak && is_critical_system_package(package_name);
         let is_valid = is_valid_package_name(package_name);
 
         let dialog = adw::Window::builder()
             .transient_for(parent)
             .modal(true)
-            .title(&format!("Paket Kaldır — {}", package_name))
+            .title(format!("Paket Kaldır — {}", package_name))
             .default_width(580)
             .default_height(460)
             .build();
@@ -42,7 +49,7 @@ impl UninstallDialog {
             .build();
 
         let title_label = Label::builder()
-            .label(&format!("'{}' Paketini Kaldır", package_name))
+            .label(format!("'{}' Paketini Kaldır", package_name))
             .halign(Align::Start)
             .css_classes(["title-2"])
             .build();
@@ -91,7 +98,7 @@ impl UninstallDialog {
                 .build();
 
             let crit_desc = Label::builder()
-                .label(&format!(
+                .label(format!(
                     "'{}' paketi Arch Linux'un hayati çekirdek bileşenidir. Bu paketin kaldırılması sistemin çökmesine ve bir daha açılmamasına yol açar. Aurora bu paketin kaldırılmasına izin vermez.",
                     package_name
                 ))
@@ -122,11 +129,20 @@ impl UninstallDialog {
             return;
         }
 
-        let desc_label = Label::builder()
-            .label(&format!(
+        let desc_text = if is_flatpak {
+            format!(
+                "Bu işlem '{}' Flatpak uygulamasını ve yerel verilerini sisteminizden kaldıracaktır.\nKomut: flatpak uninstall -y -- {}",
+                package_name, package_name
+            )
+        } else {
+            format!(
                 "Bu işlem '{}' paketini ve varsa bağımlılıklarını sisteminizden kaldıracaktır.\nKomut: sudo pacman -R -- {}",
                 package_name, package_name
-            ))
+            )
+        };
+
+        let desc_label = Label::builder()
+            .label(&desc_text)
             .wrap(true)
             .halign(Align::Start)
             .css_classes(["dim-label"])
@@ -199,7 +215,9 @@ impl UninstallDialog {
             let pkg = pkg_name_str.clone();
 
             let sys = SystemCapabilities::detect();
-            let (cmd, args) = if sys.has_paru {
+            let (cmd, args) = if is_flatpak {
+                ("flatpak".to_string(), vec!["uninstall".to_string(), "-y".to_string(), "--".to_string(), pkg])
+            } else if sys.has_paru {
                 ("paru".to_string(), vec!["-R".to_string(), "--noconfirm".to_string(), "--sudoflags".to_string(), "-A".to_string(), "--".to_string(), pkg])
             } else if sys.has_yay {
                 ("yay".to_string(), vec!["-R".to_string(), "--noconfirm".to_string(), "--sudoflags".to_string(), "-A".to_string(), "--".to_string(), pkg])

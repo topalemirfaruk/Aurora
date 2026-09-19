@@ -29,8 +29,16 @@ pub struct SearchResult {
 pub struct PacmanManager;
 
 impl PacmanManager {
-    /// Sistemde kurulu tüm paketleri (Adı ve Sürümü) listele
+    /// Sistemde kurulu tüm paketleri (Adı, Sürümü ve Kaynağı) listele
     pub async fn list_installed() -> Result<Vec<InstalledPackage>, std::io::Error> {
+        let foreign_pkgs: std::collections::HashSet<String> = match CommandExecutor::run_captured("pacman", &["-Qm"]).await {
+            Ok((true, stdout, _)) => stdout
+                .lines()
+                .filter_map(|l| l.split_whitespace().next().map(|s| s.to_string()))
+                .collect(),
+            _ => std::collections::HashSet::new(),
+        };
+
         let (success, stdout, _) = CommandExecutor::run_captured("pacman", &["-Q"]).await?;
         if !success {
             return Ok(Vec::new());
@@ -40,10 +48,16 @@ impl PacmanManager {
         for line in stdout.lines() {
             let parts: Vec<&str> = line.split_whitespace().collect();
             if parts.len() >= 2 {
+                let name = parts[0].to_string();
+                let is_foreign = foreign_pkgs.contains(&name);
                 list.push(InstalledPackage {
-                    name: parts[0].to_string(),
+                    name,
                     version: parts[1].to_string(),
-                    source: PackageSource::Official,
+                    source: if is_foreign {
+                        PackageSource::Aur
+                    } else {
+                        PackageSource::Official
+                    },
                 });
             }
         }

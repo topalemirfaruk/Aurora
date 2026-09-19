@@ -9,6 +9,8 @@ use libadwaita as adw;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+pub type FilterCallback = Rc<dyn Fn(Option<AppCategory>, &str)>;
+
 pub struct CatalogPage;
 
 impl CatalogPage {
@@ -16,7 +18,7 @@ impl CatalogPage {
         cart_state: CartState,
         installed_state: InstalledState,
         on_detail_clicked: F,
-    ) -> (ScrolledWindow, Rc<dyn Fn(Option<AppCategory>, &str)>)
+    ) -> (ScrolledWindow, FilterCallback)
     where
         F: Fn(AppItem) + Clone + 'static,
     {
@@ -74,7 +76,7 @@ impl CatalogPage {
         empty_box.append(&status_page);
 
         let live_search_btn = Button::builder()
-            .label("Tüm Depolarda Canlı Ara (Pacman ve AUR)")
+            .label("Tüm Depolarda Canlı Ara (Pacman, AUR, Flatpak)")
             .icon_name("system-search-symbolic")
             .css_classes(["suggested-action", "pill"])
             .halign(Align::Center)
@@ -181,6 +183,7 @@ impl CatalogPage {
 
                 if let Ok(pacman_results) = PacmanManager::search(&q).await {
                     for r in pacman_results.into_iter().take(20) {
+                        let icon_name = crate::utils::IconResolver::resolve(&r.name, AppCategory::System);
                         found_items.push(AppItem {
                             id: format!("official.{}", r.name),
                             name: r.name.clone(),
@@ -188,7 +191,7 @@ impl CatalogPage {
                             description: r.description,
                             category: AppCategory::System,
                             source: PackageSource::Official,
-                            icon: "application-x-executable".into(),
+                            icon: icon_name,
                             homepage: None,
                             license: None,
                             tags: vec!["repo".into(), r.repo],
@@ -198,6 +201,7 @@ impl CatalogPage {
 
                 if let Ok(aur_results) = AurManager::search(&q).await {
                     for r in aur_results.into_iter().take(15) {
+                        let icon_name = crate::utils::IconResolver::resolve(&r.name, AppCategory::System);
                         found_items.push(AppItem {
                             id: format!("aur.{}", r.name),
                             name: r.name.clone(),
@@ -205,10 +209,28 @@ impl CatalogPage {
                             description: r.description,
                             category: AppCategory::System,
                             source: PackageSource::Aur,
-                            icon: "application-x-executable".into(),
+                            icon: icon_name,
                             homepage: None,
                             license: None,
                             tags: vec!["aur".into()],
+                        });
+                    }
+                }
+
+                if let Ok(flatpak_results) = crate::package_managers::FlatpakManager::search(&q).await {
+                    for r in flatpak_results.into_iter().take(10) {
+                        let icon_name = crate::utils::IconResolver::resolve(&r.name, AppCategory::System);
+                        found_items.push(AppItem {
+                            id: format!("flatpak.{}", r.name),
+                            name: r.name.clone(),
+                            package_name: r.name.clone(),
+                            description: r.description,
+                            category: AppCategory::System,
+                            source: PackageSource::Flatpak,
+                            icon: icon_name,
+                            homepage: None,
+                            license: None,
+                            tags: vec!["flatpak".into(), r.repo],
                         });
                     }
                 }

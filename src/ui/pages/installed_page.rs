@@ -130,7 +130,8 @@ impl InstalledPage {
         root.append(&list_box);
 
         let all_packages = Rc::new(RefCell::new(Vec::<crate::package_managers::pacman::InstalledPackage>::new()));
-        let load_data_ref: Rc<RefCell<Option<Rc<dyn Fn()>>>> = Rc::new(RefCell::new(None));
+        type RefreshFn = Rc<dyn Fn()>;
+        let load_data_ref: Rc<RefCell<Option<RefreshFn>>> = Rc::new(RefCell::new(None));
 
         let filter_list = {
             let list_box = list_box.clone();
@@ -164,7 +165,9 @@ impl InstalledPage {
                         .margin_bottom(10)
                         .build();
 
-                    let icon = gtk4::Image::from_icon_name("application-x-executable");
+                    let icon_name = crate::utils::IconResolver::resolve(&pkg.name, crate::models::AppCategory::System);
+                    let icon = gtk4::Image::from_icon_name(&icon_name);
+                    icon.set_pixel_size(24);
                     row_box.append(&icon);
 
                     let text_box = Box::builder()
@@ -173,19 +176,32 @@ impl InstalledPage {
                         .hexpand(true)
                         .build();
 
+                    let title_box = Box::builder()
+                        .orientation(Orientation::Horizontal)
+                        .spacing(8)
+                        .build();
+
                     let name_label = Label::builder()
                         .label(&pkg.name)
                         .halign(Align::Start)
                         .css_classes(["heading"])
                         .build();
+                    title_box.append(&name_label);
+
+                    let badge = Label::builder()
+                        .label(pkg.source.badge_label())
+                        .halign(Align::Start)
+                        .css_classes([pkg.source.css_class()])
+                        .build();
+                    title_box.append(&badge);
 
                     let ver_label = Label::builder()
-                        .label(&format!("Sürüm: {}", pkg.version))
+                        .label(format!("Sürüm: {}", pkg.version))
                         .halign(Align::Start)
                         .css_classes(["caption", "dim-label"])
                         .build();
 
-                    text_box.append(&name_label);
+                    text_box.append(&title_box);
                     text_box.append(&ver_label);
                     row_box.append(&text_box);
 
@@ -196,6 +212,7 @@ impl InstalledPage {
                         .build();
 
                     let pkg_name = pkg.name.clone();
+                    let pkg_source = pkg.source;
                     let load_data_for_success = load_data_ref.clone();
                     let inst_refresh = inst_for_filter.clone();
 
@@ -203,7 +220,7 @@ impl InstalledPage {
                         if let Some(root_win) = btn.root().and_downcast::<gtk4::Window>() {
                             let load_fn = load_data_for_success.borrow().clone();
                             let inst = inst_refresh.clone();
-                            UninstallDialog::show(&root_win, &pkg_name, move || {
+                            UninstallDialog::show(&root_win, &pkg_name, pkg_source, move || {
                                 if let Some(ref f) = load_fn {
                                     f();
                                 }
@@ -246,14 +263,24 @@ impl InstalledPage {
                 let upgrade_btn_clone = upgrade_btn_for_load.clone();
 
                 glib::spawn_future_local(async move {
+                    let mut combined = Vec::new();
                     if let Ok(pkgs) = PacmanManager::list_installed().await {
-                        let total = pkgs.len();
-                        *all_packages.borrow_mut() = pkgs;
-                        count_badge.set_label(&format!("{} paket kurulu", total));
-                        filter_list(&search_entry.text());
-                    } else {
-                        count_badge.set_label("Tarama başarısız");
+                        combined.extend(pkgs);
                     }
+                    if let Ok(flatpaks) = crate::package_managers::FlatpakManager::list_installed().await {
+                        for fp in flatpaks {
+                            combined.push(crate::package_managers::pacman::InstalledPackage {
+                                name: fp.app_id,
+                                version: fp.version,
+                                source: crate::models::PackageSource::Flatpak,
+                            });
+                        }
+                    }
+
+                    let total = combined.len();
+                    *all_packages.borrow_mut() = combined;
+                    count_badge.set_label(&format!("{} paket kurulu", total));
+                    filter_list(&search_entry.text());
 
                     spinner_box.set_visible(false);
                     list_box.set_visible(true);

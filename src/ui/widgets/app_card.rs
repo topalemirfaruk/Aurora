@@ -7,6 +7,7 @@ use gtk4::{Box, Button, Image, Label, Orientation, Align};
 pub struct AppCard;
 
 impl AppCard {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new<F>(
         item: AppItem,
         cart_state: CartState,
@@ -129,11 +130,12 @@ impl AppCard {
             .build();
 
         let pkg_name_for_uninstall = item.package_name.clone();
+        let pkg_source_for_uninstall = item.source;
         let inst_for_uninstall = installed_state.clone();
         uninstall_btn.connect_clicked(move |btn| {
             if let Some(root_win) = btn.root().and_downcast::<gtk4::Window>() {
                 let inst = inst_for_uninstall.clone();
-                crate::ui::widgets::UninstallDialog::show(&root_win, &pkg_name_for_uninstall, move || {
+                crate::ui::widgets::UninstallDialog::show(&root_win, &pkg_name_for_uninstall, pkg_source_for_uninstall, move || {
                     inst.refresh_background();
                 });
             }
