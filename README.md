@@ -23,22 +23,36 @@ Aurora; resmi depolar (pacman), Arch User Repository (AUR - paru/yay) ve Flatpak
 
 - **Toplu Kurulum Sepeti:** Seçilen paketleri kuyruğa ekleyerek tek oturumda toplu olarak kurabilme.
 - **Hızlı Kurulum Paketleri:** Temel medya kodekleri, oyun uyumluluk katmanları (Wine, Mesa, Vulkan), ses sürücüleri ve geliştirici araçları setleri.
-- **Çoklu Paket Yöneticisi:** Pacman, AUR (paru/yay) ve Flatpak kaynaklarını otomatik algılama ve destekleme.
-- **Paket Kaldırma:** Kurulu uygulamaları arayüzden, detay sayfasından veya kurulu paketler sekmesinden doğrudan kaldırabilme. Çekirdek sistem paketleri (`systemd`, `linux`, `glibc`, `pacman`) koruma altındadır.
-- **Asenkron Yürütme:** Kurulum ve derleme işlemleri Tokio thread havuzunda arka planda yürütülür; arayüz işlem sırasında tepkisel kalır.
+- **Çoklu Paket Yöneticisi:** Resmi depolar (Pacman), Arch User Repository (AUR helper ve bağımsız AUR RPC v5 desteği) ve Flatpak kaynaklarını entegre yönetebilme.
+- **Sistem Güncelleme Denetimi:** `checkupdates` / `pacman -Qu` ile bekleyen paket güncellemelerini algılama ve arayüz içi terminal akışı ile tek tıkla sistemi yükseltme (`-Syu`).
+- **Kaynak Duyarlı Paket Kaldırma:** Kurulu uygulamaları arayüzden veya kurulu paketler sekmesinden doğrudan kaldırabilme. Pacman, AUR ve Flatpak ayrımı otomatik yapılır. Çekirdek sistem paketleri (`systemd`, `linux`, `glibc`, `pacman`) koruma altındadır.
+- **Asenkron Yürütme:** Kurulum, arama ve derleme işlemleri Tokio thread havuzunda arka planda yürütülür; arayüz işlem sırasında akıcı kalır.
 - **Parola Yönetimi:** `SUDO_ASKPASS` entegrasyonu sayesinde terminal gerektirmeden grafiksel parola penceresi (`kdialog` / `zenity`) ile yetkilendirme.
 - **AUR İnceleme:** Kurulum öncesinde PKGBUILD derleme betiklerini doğrudan görüntüleyebilme.
-- **Masaüstü Entegrasyonu:** Sistem temasına uyumlu Açık/Koyu tema desteği, FreeDesktop standartlarında simge çözümleme.
+- **Masaüstü Entegrasyonu:** Sistem temasına uyumlu Açık/Koyu tema desteği, FreeDesktop standartlarında akıllı simge çözümleme (`IconTheme`, sonek arındırma ve takma ad haritası).
+- **Klavye Kısayolları:** Hızlı gezinme ve anında arama odaklaması için küresel kısayol desteği.
+
+## Klavye Kısayolları
+
+| Kısayol | İşlev |
+| :--- | :--- |
+| `Ctrl + F` | Arama çubuğuna odaklan |
+| `Ctrl + 1` | **Keşfet** sayfasına geç |
+| `Ctrl + 2` | **Katalog** sayfasına geç |
+| `Ctrl + 3` | **Kurulum Sepeti** sayfasına geç |
+| `Ctrl + 4` | **Kurulu Paketler & Güncellemeler** sayfasına geç |
+| `Ctrl + ,` | **Ayarlar** penceresine geç |
+| `Esc` | Arama çubuğunu temizle |
 
 ## Sayfalar
 
 | Sayfa | Açıklama |
 | :--- | :--- |
 | **Keşfet** | Sistem durumu, kategori kısayolları, hızlı kurulum paketleri ve öne çıkan uygulamalar. |
-| **Katalog** | 86 temel uygulama, sürücü ve kütüphane; kategori filtreleme ve depolarda canlı arama. |
+| **Katalog** | 86 temel uygulama ve sürücü; kategori filtreleme ve Pacman/AUR/Flatpak canlı arama. |
 | **Kurulum Sepeti** | Seçilen paketlerin listesi, kaynak dağılımı ve kurulum başlatıcı. |
-| **Kurulu & Kaldır** | Sistemde yüklü paketleri listeleme ve kaldırma. |
-| **Ayarlar** | AUR yardımcısı seçimi (`paru`/`yay`), PKGBUILD zorunlu inceleme ve tema tercihleri. |
+| **Kurulu & Kaldır** | Sistemde yüklü Pacman, AUR ve Flatpak paketlerini listeleme, güncelleme denetimi ve güvenli kaldırma. |
+| **Ayarlar** | AUR yardımcısı tercihi (`paru`/`yay`), PKGBUILD güvenlik incelemesi ve renk teması seçimi. |
 
 ## Gereksinimler
 
