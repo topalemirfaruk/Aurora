@@ -5,6 +5,7 @@ use gtk4::gdk::Display;
 use gtk4::prelude::*;
 use gtk4::{Box, Button, Label, Orientation, ScrolledWindow, Align};
 use libadwaita as adw;
+use libadwaita::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -40,6 +41,22 @@ impl CartPage {
             .hexpand(true)
             .build();
         header.append(&title);
+
+        let import_btn = Button::builder()
+            .label("İçe Aktar")
+            .icon_name("document-open-symbolic")
+            .css_classes(["flat"])
+            .tooltip_text("Metin veya paket listesinden toplu içe aktar")
+            .build();
+        header.append(&import_btn);
+
+        let export_btn = Button::builder()
+            .label("Dışa Aktar")
+            .icon_name("document-save-symbolic")
+            .css_classes(["flat"])
+            .tooltip_text("Sepetteki paketlerin listesini panoya veya metne aktar")
+            .build();
+        header.append(&export_btn);
 
         let clear_btn = Button::builder()
             .label("Sepeti Temizle")
@@ -183,6 +200,176 @@ impl CartPage {
         let cart_state_for_clear = cart_state.clone();
         clear_btn.connect_clicked(move |_| {
             cart_state_for_clear.clear();
+        });
+
+        let cart_for_import = cart_state.clone();
+        import_btn.connect_clicked(move |btn| {
+            if let Some(root_win) = btn.root().and_downcast::<gtk4::Window>() {
+                let dialog = adw::Window::builder()
+                    .transient_for(&root_win)
+                    .modal(true)
+                    .title("Paket Listesi İçe Aktar")
+                    .default_width(520)
+                    .default_height(400)
+                    .build();
+
+                let d_root = Box::builder()
+                    .orientation(Orientation::Vertical)
+                    .spacing(0)
+                    .build();
+
+                let d_header = adw::HeaderBar::builder()
+                    .show_end_title_buttons(true)
+                    .build();
+                d_root.append(&d_header);
+
+                let d_content = Box::builder()
+                    .orientation(Orientation::Vertical)
+                    .spacing(12)
+                    .margin_start(20)
+                    .margin_end(20)
+                    .margin_top(12)
+                    .margin_bottom(20)
+                    .build();
+
+                let d_label = Label::builder()
+                    .label("Paket adlarını her satıra bir tane gelecek şekilde girin:")
+                    .halign(Align::Start)
+                    .css_classes(["heading"])
+                    .build();
+                d_content.append(&d_label);
+
+                let text_view = gtk4::TextView::builder()
+                    .wrap_mode(gtk4::WrapMode::WordChar)
+                    .monospace(true)
+                    .build();
+
+                let scroller = ScrolledWindow::builder()
+                    .height_request(200)
+                    .css_classes(["card"])
+                    .child(&text_view)
+                    .build();
+                d_content.append(&scroller);
+
+                let action_bar = Box::builder()
+                    .orientation(Orientation::Horizontal)
+                    .halign(Align::End)
+                    .spacing(10)
+                    .margin_top(8)
+                    .build();
+
+                let cancel_b = Button::builder().label("İptal").css_classes(["flat"]).build();
+                let apply_b = Button::builder().label("Sepete Ekle").css_classes(["suggested-action", "pill"]).build();
+
+                action_bar.append(&cancel_b);
+                action_bar.append(&apply_b);
+                d_content.append(&action_bar);
+                d_root.append(&d_content);
+                dialog.set_content(Some(&d_root));
+
+                let d_close = dialog.clone();
+                cancel_b.connect_clicked(move |_| {
+                    d_close.close();
+                });
+
+                let d_apply = dialog.clone();
+                let cart = cart_for_import.clone();
+                let buffer = text_view.buffer();
+                apply_b.connect_clicked(move |_| {
+                    let text = buffer.text(&buffer.start_iter(), &buffer.end_iter(), false);
+                    cart.import_from_text(&text);
+                    d_apply.close();
+                });
+
+                dialog.present();
+            }
+        });
+
+        let cart_for_export = cart_state.clone();
+        export_btn.connect_clicked(move |btn| {
+            if let Some(root_win) = btn.root().and_downcast::<gtk4::Window>() {
+                let export_text = cart_for_export.export_list();
+
+                let dialog = adw::Window::builder()
+                    .transient_for(&root_win)
+                    .modal(true)
+                    .title("Paket Listesi Dışa Aktar")
+                    .default_width(520)
+                    .default_height(400)
+                    .build();
+
+                let d_root = Box::builder()
+                    .orientation(Orientation::Vertical)
+                    .spacing(0)
+                    .build();
+
+                let d_header = adw::HeaderBar::builder()
+                    .show_end_title_buttons(true)
+                    .build();
+                d_root.append(&d_header);
+
+                let d_content = Box::builder()
+                    .orientation(Orientation::Vertical)
+                    .spacing(12)
+                    .margin_start(20)
+                    .margin_end(20)
+                    .margin_top(12)
+                    .margin_bottom(20)
+                    .build();
+
+                let d_label = Label::builder()
+                    .label("Sepetteki paketlerin metin listesi:")
+                    .halign(Align::Start)
+                    .css_classes(["heading"])
+                    .build();
+                d_content.append(&d_label);
+
+                let text_view = gtk4::TextView::builder()
+                    .wrap_mode(gtk4::WrapMode::WordChar)
+                    .monospace(true)
+                    .editable(false)
+                    .build();
+                text_view.buffer().set_text(&export_text);
+
+                let scroller = ScrolledWindow::builder()
+                    .height_request(200)
+                    .css_classes(["card"])
+                    .child(&text_view)
+                    .build();
+                d_content.append(&scroller);
+
+                let action_bar = Box::builder()
+                    .orientation(Orientation::Horizontal)
+                    .halign(Align::End)
+                    .spacing(10)
+                    .margin_top(8)
+                    .build();
+
+                let copy_b = Button::builder().label("Panoya Kopyala").icon_name("edit-copy-symbolic").css_classes(["suggested-action", "pill"]).build();
+                let close_b = Button::builder().label("Kapat").css_classes(["flat"]).build();
+
+                action_bar.append(&close_b);
+                action_bar.append(&copy_b);
+                d_content.append(&action_bar);
+                d_root.append(&d_content);
+                dialog.set_content(Some(&d_root));
+
+                let d_close = dialog.clone();
+                close_b.connect_clicked(move |_| {
+                    d_close.close();
+                });
+
+                let text_to_copy = export_text.clone();
+                let copy_btn_clone = copy_b.clone();
+                copy_b.connect_clicked(move |_| {
+                    if let Some(display) = Display::default() {
+                        display.clipboard().set_text(&text_to_copy);
+                        copy_btn_clone.set_label("Kopyalandı!");
+                    }
+                });
+
+                dialog.present();
+            }
         });
 
         let refresh = {

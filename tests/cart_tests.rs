@@ -71,4 +71,39 @@ mod tests {
         cart.remove("pkg");
         assert_eq!(notified_count.get(), 0);
     }
+
+    #[test]
+    fn test_cart_export_and_import() {
+        let cart = CartState::new();
+        let app1 = mock_app("firefox", "firefox", PackageSource::Official);
+        let app2 = mock_app("vlc", "vlc", PackageSource::Official);
+
+        cart.add(app1);
+        cart.add(app2);
+
+        let exported = cart.export_list();
+        assert!(exported.contains("firefox"));
+        assert!(exported.contains("vlc"));
+
+        let new_cart = CartState::new();
+        let raw_input = r#"
+            # Yorum satırı
+            firefox
+            vlc
+            discord
+            invalid;package
+        "#;
+
+        let added = new_cart.import_from_text(raw_input);
+        assert_eq!(added, 3);
+        assert!(new_cart.contains("firefox"));
+        assert!(new_cart.contains("vlc"));
+        assert!(new_cart.contains("discord"));
+        assert!(!new_cart.contains("invalid;package"));
+
+        // Duplicate import test
+        let duplicate_added = new_cart.import_from_text("firefox\nvlc");
+        assert_eq!(duplicate_added, 0);
+        assert_eq!(new_cart.count(), 3);
+    }
 }

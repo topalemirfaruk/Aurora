@@ -1,6 +1,8 @@
+use crate::config::{APP_CONTRIBUTING_URL, APP_DEV_STATUS, APP_GITHUB_URL, APP_ISSUES_URL};
 use crate::state::SettingsState;
+use crate::ui::widgets::{AboutAppDialog, ShortcutsHelpDialog};
 use gtk4::prelude::*;
-use gtk4::{Button, Switch, Align};
+use gtk4::{Align, Button, Label, Switch};
 use libadwaita as adw;
 use libadwaita::prelude::*;
 
@@ -201,14 +203,135 @@ impl SettingsPage {
         maint_group.add(&cache_row);
         page.add(&maint_group);
 
+        let dev_group = adw::PreferencesGroup::builder()
+            .title("Geliştirme ve Topluluk Katkısı")
+            .description("Aurora açık kaynaklı bir topluluk projesidir. Katkılarınızla birlikte büyüyoruz.")
+            .build();
+
+        // 1. Geliştirme Durumu
+        let status_row = adw::ActionRow::builder()
+            .title("Proje Durumu: Aktif Geliştirme")
+            .subtitle("Aurora henüz erken geliştirme aşamasındadır (Alpha / Pre-release). Düzenli güncellemeler yayınlanmaktadır.")
+            .build();
+
+        let status_badge = Label::builder()
+            .label(APP_DEV_STATUS)
+            .valign(Align::Center)
+            .css_classes(["badge-official"])
+            .build();
+        status_row.add_suffix(&status_badge);
+        dev_group.add(&status_row);
+
+        // 2. Katkıda Bulunma Rehberi
+        let guide_row = adw::ActionRow::builder()
+            .title("Nasıl Katkıda Bulunabilirim?")
+            .subtitle("Hata bildirimleri, özellik fikirleri, kod geliştirme (PR), çeviri ve test rehberi.")
+            .build();
+
+        let guide_btn = Button::builder()
+            .label("Rehberi Aç")
+            .valign(Align::Center)
+            .css_classes(["flat"])
+            .build();
+        guide_btn.connect_clicked(|_| {
+            let _ = gio::AppInfo::launch_default_for_uri(
+                APP_CONTRIBUTING_URL,
+                None::<&gio::AppLaunchContext>,
+            );
+        });
+        guide_row.add_suffix(&guide_btn);
+        guide_row.set_activatable_widget(Some(&guide_btn));
+        dev_group.add(&guide_row);
+
+        // 3. GitHub Kaynak Kodu
+        let github_row = adw::ActionRow::builder()
+            .title("GitHub Açık Kaynak Deposu")
+            .subtitle("Kaynak kodları inceleyin, yıldız verin veya kendi deponuza forklayın.")
+            .build();
+
+        let github_btn = Button::builder()
+            .label("GitHub")
+            .valign(Align::Center)
+            .css_classes(["flat"])
+            .build();
+        github_btn.connect_clicked(|_| {
+            let _ = gio::AppInfo::launch_default_for_uri(
+                APP_GITHUB_URL,
+                None::<&gio::AppLaunchContext>,
+            );
+        });
+        github_row.add_suffix(&github_btn);
+        github_row.set_activatable_widget(Some(&github_btn));
+        dev_group.add(&github_row);
+
+        // 4. Hata Bildirimi veya Öneri
+        let issues_row = adw::ActionRow::builder()
+            .title("Hata Bildir veya Fikir Öner")
+            .subtitle("Bir sorunla karşılaştıysanız veya aklınızda bir özellik varsa bildirin.")
+            .build();
+
+        let issues_btn = Button::builder()
+            .label("Sorun Bildir")
+            .valign(Align::Center)
+            .css_classes(["flat"])
+            .build();
+        issues_btn.connect_clicked(|_| {
+            let _ = gio::AppInfo::launch_default_for_uri(
+                APP_ISSUES_URL,
+                None::<&gio::AppLaunchContext>,
+            );
+        });
+        issues_row.add_suffix(&issues_btn);
+        issues_row.set_activatable_widget(Some(&issues_btn));
+        dev_group.add(&issues_row);
+
+        // 5. Klavye Kısayolları
+        let shortcuts_row = adw::ActionRow::builder()
+            .title("Klavye Kısayolları")
+            .subtitle("Tüm klavye tuş kombinasyonlarını ve hızlı gezinme komutlarını görüntüleyin.")
+            .build();
+
+        let shortcuts_btn = Button::builder()
+            .label("Kısayollar (F1)")
+            .valign(Align::Center)
+            .css_classes(["flat"])
+            .build();
+        let sc_btn_for_click = shortcuts_btn.clone();
+        shortcuts_btn.connect_clicked(move |_| {
+            if let Some(root) = sc_btn_for_click.root() {
+                if let Some(win) = root.downcast_ref::<gtk4::Window>() {
+                    ShortcutsHelpDialog::show(win);
+                }
+            }
+        });
+        shortcuts_row.add_suffix(&shortcuts_btn);
+        shortcuts_row.set_activatable_widget(Some(&shortcuts_btn));
+        dev_group.add(&shortcuts_row);
+
+        page.add(&dev_group);
+
         let about_group = adw::PreferencesGroup::builder()
             .title("Hakkında")
             .build();
 
         let app_info_row = adw::ActionRow::builder()
             .title("Aurora Linux Application Center")
-            .subtitle("Sürüm 0.1.0 • GPL-3.0-or-later • Yapılandırma: ~/.config/aurora/settings.json")
+            .subtitle("Sürüm 0.1.0-alpha • GPL-3.0-or-later • Yapılandırma: ~/.config/aurora/settings.json")
             .build();
+
+        let about_btn = Button::builder()
+            .label("Aurora Hakkında")
+            .valign(Align::Center)
+            .css_classes(["flat"])
+            .build();
+        let ab_btn_for_click = about_btn.clone();
+        about_btn.connect_clicked(move |_| {
+            if let Some(root) = ab_btn_for_click.root() {
+                AboutAppDialog::show(&root);
+            }
+        });
+        app_info_row.add_suffix(&about_btn);
+        app_info_row.set_activatable_widget(Some(&about_btn));
         about_group.add(&app_info_row);
 
         page.add(&about_group);

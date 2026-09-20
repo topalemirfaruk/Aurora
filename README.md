@@ -13,6 +13,12 @@ Arch Linux ve Arch tabanlı dağıtımlar için GTK4 ve Libadwaita ile geliştir
   <img src="https://img.shields.io/badge/License-GPL--3.0--or--later-blue?style=flat-square" alt="GPL-3.0" />
 </p>
 
+> [!IMPORTANT]
+> **Proje Durumu: Aktif Geliştirme Aşamasında (Alpha / Pre-release)**
+> Aurora projesi şu anda **aktif geliştirme aşamasındadır**. Mimari, kullanıcı arayüzü, paket yönetim motoru ve sistem bakımı özellikleri hızla geliştirilmekte, yeni yetenekler eklenmektedir. Karşılaştığınız sorunları veya önerilerinizi paylaşarak ya da kod katkısında bulunarak projenin gelişimine ortak olabilirsiniz.
+> 
+> Ayrıntılı adımlar için [Katkıda Bulunma Rehberi'ni (CONTRIBUTING.md)](CONTRIBUTING.md) inceleyebilirsiniz.
+
 ---
 
 ## Genel Bakış
@@ -22,11 +28,13 @@ Aurora; resmi depolar (pacman), Arch User Repository (AUR - paru/yay) ve Flatpak
 ## Özellikler
 
 - **Toplu Kurulum Sepeti:** Seçilen paketleri kuyruğa ekleyerek tek oturumda toplu olarak kurabilme.
+- **Toplu İçe & Dışa Aktarma:** Sepetteki paket listesini tek tıkla dışa aktarabilme ve hazır metin listelerinden (`packages.txt`) toplu içe aktarım yapabilme.
 - **Hızlı Kurulum Paketleri:** Temel medya kodekleri, oyun uyumluluk katmanları (Wine, Mesa, Vulkan), ses sürücüleri ve geliştirici araçları setleri.
 - **Çoklu Paket Yöneticisi:** Resmi depolar (Pacman), Arch User Repository (AUR helper ve bağımsız AUR RPC v5 desteği) ve Flatpak kaynaklarını entegre yönetebilme.
 - **Sistem Güncelleme Denetimi:** `checkupdates` / `pacman -Qu` ile bekleyen paket güncellemelerini algılama ve arayüz içi terminal akışı ile tek tıkla sistemi yükseltme (`-Syu`).
+- **Sistem Bakımı & Temizlik:** Pacman önbellek boyutunu ölçme (`paccache -r` / `-ruk0`), yetim paket tespiti ve güvenli temizliği (`pacman -Qtdq` ➔ `pacman -Rns`) ile başarısız systemd servislerini denetleme.
 - **Kaynak Duyarlı Paket Kaldırma:** Kurulu uygulamaları arayüzden veya kurulu paketler sekmesinden doğrudan kaldırabilme. Pacman, AUR ve Flatpak ayrımı otomatik yapılır. Çekirdek sistem paketleri (`systemd`, `linux`, `glibc`, `pacman`) koruma altındadır.
-- **Asenkron Yürütme:** Kurulum, arama ve derleme işlemleri Tokio thread havuzunda arka planda yürütülür; arayüz işlem sırasında akıcı kalır.
+- **Asenkron Yürütme:** Kurulum, arama, derleme ve bakım işlemleri Tokio thread havuzunda arka planda yürütülür; arayüz işlem sırasında akıcı kalır.
 - **Parola Yönetimi:** `SUDO_ASKPASS` entegrasyonu sayesinde terminal gerektirmeden grafiksel parola penceresi (`kdialog` / `zenity`) ile yetkilendirme.
 - **AUR İnceleme:** Kurulum öncesinde PKGBUILD derleme betiklerini doğrudan görüntüleyebilme.
 - **Masaüstü Entegrasyonu:** Sistem temasına uyumlu Açık/Koyu tema desteği, FreeDesktop standartlarında akıllı simge çözümleme (`IconTheme`, sonek arındırma ve takma ad haritası).
@@ -34,15 +42,24 @@ Aurora; resmi depolar (pacman), Arch User Repository (AUR - paru/yay) ve Flatpak
 
 ## Klavye Kısayolları
 
-| Kısayol | İşlev |
-| :--- | :--- |
-| `Ctrl + F` | Arama çubuğuna odaklan |
-| `Ctrl + 1` | **Keşfet** sayfasına geç |
-| `Ctrl + 2` | **Katalog** sayfasına geç |
-| `Ctrl + 3` | **Kurulum Sepeti** sayfasına geç |
-| `Ctrl + 4` | **Kurulu Paketler & Güncellemeler** sayfasına geç |
-| `Ctrl + ,` | **Ayarlar** penceresine geç |
-| `Esc` | Arama çubuğunu temizle |
+Aurora, hızlı gezinme ve işlem yönetimi için GTK4 ve Libadwaita'nın küresel eylem (Action) ve öncelikli yakalama (Capture) sistemini kullanır:
+
+| Kısayol | Numpad | İşlev |
+| :--- | :--- | :--- |
+| `Ctrl + 1` | `Ctrl + KP 1` | **Keşfet** (Ana Sayfa) sayfasına geç |
+| `Ctrl + 2` | `Ctrl + KP 2` | **Paket Kataloğu** sayfasına geç |
+| `Ctrl + 3` | `Ctrl + KP 3` | **Kurulum Sepeti** sayfasına geç |
+| `Ctrl + 4` | `Ctrl + KP 4` | **Kurulu Paketler & Güncellemeler** sayfasına geç |
+| `Ctrl + 5` | `Ctrl + KP 5` | **Sistem Bakımı** sayfasına geç |
+| `Ctrl + ,` | - | **Ayarlar** penceresine geç |
+| `Ctrl + F` | - | Arama kutusuna odaklan (mevcut metni otomatik seçer) |
+| `Esc` | - | Arama metnini temizle veya aramadan çık |
+| `F5` / `Ctrl + R` | - | Sayfayı, kurulu paketleri ve kataloğu yenile |
+| `F1` / `Ctrl + ?` | - | **Klavye Kısayolları Penceresi**'ni aç |
+| `Ctrl + Q` | - | Aurora uygulamasından çık |
+
+> [!TIP]
+> Arayüz içindeyken istediğiniz zaman `F1` veya `Ctrl + ?` tuşlayarak veya sağ üstteki **Ana Menü (⋮)** butonundan **Klavye Kısayolları** kılavuzuna ulaşabilirsiniz.
 
 ## Sayfalar
 
@@ -50,8 +67,9 @@ Aurora; resmi depolar (pacman), Arch User Repository (AUR - paru/yay) ve Flatpak
 | :--- | :--- |
 | **Keşfet** | Sistem durumu, kategori kısayolları, hızlı kurulum paketleri ve öne çıkan uygulamalar. |
 | **Katalog** | 86 temel uygulama ve sürücü; kategori filtreleme ve Pacman/AUR/Flatpak canlı arama. |
-| **Kurulum Sepeti** | Seçilen paketlerin listesi, kaynak dağılımı ve kurulum başlatıcı. |
+| **Kurulum Sepeti** | Seçilen paketlerin listesi, kaynak dağılımı, içe/dışa aktarma ve kurulum başlatıcı. |
 | **Kurulu & Kaldır** | Sistemde yüklü Pacman, AUR ve Flatpak paketlerini listeleme, güncelleme denetimi ve güvenli kaldırma. |
+| **Sistem Bakımı** | Pacman önbellek pruneri, yetim paket temizliği ve systemd servis sağlığı denetleyicisi. |
 | **Ayarlar** | AUR yardımcısı tercihi (`paru`/`yay`), PKGBUILD güvenlik incelemesi ve renk teması seçimi. |
 
 ## Gereksinimler
@@ -110,8 +128,28 @@ Aurora/
 ├── uninstall.sh                     # Sistemden kaldırma betiği
 ├── Cargo.toml                       # Rust paket yapılandırması
 ├── LICENSE                          # GNU General Public License v3.0
+├── CONTRIBUTING.md                  # Katkıda bulunma rehberi
 └── README.md                        # Dokümantasyon
 ```
+
+## 🤝 Katkıda Bulunma (Contributing)
+
+Aurora, topluluk desteğiyle hızla gelişen açık kaynaklı bir projedir. Kod yazarak, hata bildirerek veya yeni fikirler sunarak projeyi birlikte büyütebiliriz:
+
+1. **Hata Bildirimi (Bug Reports):** Bir sorunla karşılaştığınızda [GitHub Issues](https://github.com/topalemirfaruk/Aurora/issues) üzerinden detaylı bir hata kaydı oluşturabilirsiniz.
+2. **Yeni Özellik & Paket Talepleri:** Kataloğa eklenmesini istediğiniz Linux uygulamalarını ve kullanıcı deneyimini iyileştirecek önerilerinizi bildirebilirsiniz.
+3. **Kod Katkısı (Pull Requests):** Hata düzeltmeleri veya yeni özellikler için doğrudan kod katkısında bulunabilirsiniz.
+4. **Farklı Dağıtımlarda Test:** EndeavourOS, Manjaro, CachyOS, Garuda veya Artix gibi Arch tabanlı dağıtımlarda Aurora'yı test ederek geri bildirimde bulunabilirsiniz.
+5. **Çeviri:** Uygulamanın farklı dillere yerelleştirilmesi çalışmalarına katılabilirsiniz.
+
+### Geliştirici Standartları:
+- Gönderilecek kodların derleyici ve linter uyarıları içermemesi ve testlerden geçmesi beklenir:
+  ```bash
+  cargo clippy -- -D warnings
+  cargo test
+  cargo fmt --check
+  ```
+- Detaylı adımlar, mimari detaylar ve Git commit kuralları için lütfen [**Katkıda Bulunma Rehberi (CONTRIBUTING.md)**](CONTRIBUTING.md) dosyasını inceleyin.
 
 ## Lisans
 

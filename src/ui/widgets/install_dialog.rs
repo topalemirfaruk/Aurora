@@ -372,10 +372,44 @@ impl InstallDialog {
         settings_state: SettingsState,
         on_finished: impl Fn() + 'static,
     ) {
+        let sys = SystemCapabilities::detect();
+        let configured = settings_state.get().aur_helper;
+        let helper = if !configured.is_empty() {
+            configured
+        } else {
+            sys.preferred_aur_helper().unwrap_or("paru").to_string()
+        };
+
+        let (cmd, args) = if helper == "paru" {
+            ("paru".to_string(), vec!["-Syu".to_string(), "--skipreview".to_string(), "--sudoflags".to_string(), "-A".to_string(), "--noconfirm".to_string()])
+        } else if helper == "yay" {
+            ("yay".to_string(), vec!["-Syu".to_string(), "--answeredit".to_string(), "None".to_string(), "--answerclean".to_string(), "None".to_string(), "--sudoflags".to_string(), "-A".to_string(), "--noconfirm".to_string()])
+        } else {
+            ("sudo".to_string(), vec!["-A".to_string(), "pacman".to_string(), "-Syu".to_string(), "--noconfirm".to_string()])
+        };
+
+        Self::show_command_stream(
+            parent,
+            "Sistem Güncellemesi",
+            "Bu işlem resmi Arch Linux depolarındaki ve AUR üzerindeki tüm güncellemeleri kontrol edip sisteminizi en güncel sürüme yükseltecektir.",
+            cmd,
+            args,
+            on_finished,
+        );
+    }
+
+    pub fn show_command_stream(
+        parent: &impl IsA<gtk4::Window>,
+        title: &str,
+        operation_desc: &str,
+        cmd: String,
+        args: Vec<String>,
+        on_finished: impl Fn() + 'static,
+    ) {
         let dialog = adw::Window::builder()
             .transient_for(parent)
             .modal(true)
-            .title("Sistem Güncellemesi")
+            .title(title)
             .default_width(700)
             .default_height(540)
             .build();
@@ -400,14 +434,14 @@ impl InstallDialog {
             .build();
 
         let title_label = Label::builder()
-            .label("Tüm Sistem ve AUR Paketlerini Güncelle")
+            .label(title)
             .halign(Align::Start)
             .css_classes(["title-2"])
             .build();
         content.append(&title_label);
 
         let desc_label = Label::builder()
-            .label("Bu işlem resmi Arch Linux depolarındaki ve AUR üzerindeki tüm güncellemeleri kontrol edip sisteminizi en güncel sürüme yükseltecektir.")
+            .label(operation_desc)
             .halign(Align::Start)
             .wrap(true)
             .css_classes(["dim-label"])
@@ -415,7 +449,7 @@ impl InstallDialog {
         content.append(&desc_label);
 
         let status_label = Label::builder()
-            .label("Başlatmak için 'Güncellemeyi Başlat' butonuna tıklayın.")
+            .label("Başlatmak için 'İşlemi Başlat' butonuna tıklayın.")
             .halign(Align::Start)
             .css_classes(["dim-label"])
             .build();
@@ -456,8 +490,7 @@ impl InstallDialog {
             .build();
 
         let start_btn = Button::builder()
-            .label("Güncellemeyi Başlat")
-            .icon_name("software-update-available-symbolic")
+            .label("İşlemi Başlat")
             .css_classes(["suggested-action", "pill"])
             .build();
 
@@ -476,13 +509,12 @@ impl InstallDialog {
         let text_buffer = text_view.buffer();
         let tv_clone = text_view.clone();
         let on_finished = Rc::new(on_finished);
-        let settings_for_action = settings_state.clone();
 
         start_btn.connect_clicked(move |btn| {
             btn.set_sensitive(false);
             close_btn.set_label("Kapat");
             progress_bar.set_visible(true);
-            status_label.set_label("Güncelleme işlemi yürütülüyor... Gerekirse parolanızı girin.");
+            status_label.set_label("İşlem yürütülüyor... Gerekirse parolanızı onaylayın.");
 
             let buffer = text_buffer.clone();
             let tv = tv_clone.clone();
@@ -490,26 +522,11 @@ impl InstallDialog {
             let pbar = progress_bar.clone();
             let on_done = on_finished.clone();
 
-            let sys = SystemCapabilities::detect();
-            let configured = settings_for_action.get().aur_helper;
-            let helper = if !configured.is_empty() {
-                configured
-            } else {
-                sys.preferred_aur_helper().unwrap_or("paru").to_string()
-            };
-
-            let (cmd, args) = if helper == "paru" {
-                ("paru".to_string(), vec!["-Syu".to_string(), "--skipreview".to_string(), "--sudoflags".to_string(), "-A".to_string(), "--noconfirm".to_string()])
-            } else if helper == "yay" {
-                ("yay".to_string(), vec!["-Syu".to_string(), "--answeredit".to_string(), "None".to_string(), "--answerclean".to_string(), "None".to_string(), "--sudoflags".to_string(), "-A".to_string(), "--noconfirm".to_string()])
-            } else {
-                ("sudo".to_string(), vec!["-A".to_string(), "pacman".to_string(), "-Syu".to_string(), "--noconfirm".to_string()])
-            };
+            let cmd_clone = cmd.clone();
+            let args_clone = args.clone();
 
             glib::spawn_future_local(async move {
                 let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
-                let cmd_clone = cmd.clone();
-                let args_clone = args.clone();
 
                 let handle = tokio::spawn(async move {
                     let _ = CommandExecutor::run_streaming(&cmd_clone, &args_clone, move |msg| {
@@ -540,7 +557,7 @@ impl InstallDialog {
                         ProcessMessage::Finished(success, code) => {
                             overall_success = success;
                             let mut end_iter = buffer.end_iter();
-                            buffer.insert(&mut end_iter, &format!("\n--- Güncelleme bitti (Başarı: {}, Kod: {:?}) ---\n", success, code));
+                            buffer.insert(&mut end_iter, &format!("\n--- İşlem bitti (Başarı: {}, Kod: {:?}) ---\n", success, code));
                             let mark = buffer.create_mark(None, &buffer.end_iter(), false);
                             tv.scroll_to_mark(&mark, 0.0, true, 0.0, 1.0);
                             buffer.delete_mark(&mark);
@@ -552,10 +569,10 @@ impl InstallDialog {
                 pbar.set_visible(false);
 
                 if overall_success {
-                    status.set_label("Sistem başarıyla güncellendi.");
+                    status.set_label("İşlem başarıyla tamamlandı.");
                     on_done();
                 } else {
-                    status.set_label("Güncelleme işlemi sırasında bir sorun oluştu veya işlem iptal edildi.");
+                    status.set_label("İşlem sırasında bir hata oluştu veya işlem iptal edildi.");
                 }
             });
         });

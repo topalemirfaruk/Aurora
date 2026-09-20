@@ -62,6 +62,55 @@ impl CartState {
         self.notify(0);
     }
 
+    pub fn export_list(&self) -> String {
+        let items = self.items.borrow();
+        items
+            .iter()
+            .map(|i| i.package_name.as_str())
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
+    pub fn import_from_text(&self, text: &str) -> usize {
+        let mut added = 0;
+        let catalog_apps = crate::services::CatalogService::get_all_apps();
+
+        for line in text.lines() {
+            let pkg = line.trim();
+            if pkg.is_empty() || pkg.starts_with('#') {
+                continue;
+            }
+            if !crate::security::is_valid_package_name(pkg) {
+                continue;
+            }
+            if self.contains(pkg) {
+                continue;
+            }
+
+            let item = if let Some(cat_app) = catalog_apps.iter().find(|a| a.package_name == pkg) {
+                cat_app.clone()
+            } else {
+                let icon_name = crate::utils::IconResolver::resolve(pkg, crate::models::AppCategory::System);
+                AppItem {
+                    id: format!("imported.{}", pkg),
+                    name: pkg.to_string(),
+                    package_name: pkg.to_string(),
+                    description: format!("İçe aktarılan sistem paketi ({})", pkg),
+                    category: crate::models::AppCategory::System,
+                    source: crate::models::PackageSource::Official,
+                    icon: icon_name,
+                    homepage: None,
+                    license: None,
+                    tags: vec!["imported".into()],
+                }
+            };
+
+            self.add(item);
+            added += 1;
+        }
+        added
+    }
+
     pub fn on_change<F: Fn(usize) + 'static>(&self, callback: F) {
         self.listeners.borrow_mut().push(Box::new(callback));
     }

@@ -71,4 +71,45 @@ mod tests {
         assert_eq!(upd.name, "systemd");
         assert_ne!(upd.old_version, upd.new_version);
     }
+
+    #[test]
+    fn test_maintenance_command_builders() {
+        use aurora::services::MaintenanceService;
+
+        let (cmd, args) = MaintenanceService::build_cache_clean_command(false);
+        assert!(!cmd.is_empty());
+        assert!(!args.is_empty());
+
+        let (cmd_u, args_u) = MaintenanceService::build_cache_clean_command(true);
+        assert!(!cmd_u.is_empty());
+        assert!(!args_u.is_empty());
+
+        // Empty orphans should return None
+        let empty_clean = MaintenanceService::build_orphan_clean_command(&[]);
+        assert!(empty_clean.is_none());
+
+        // Valid orphans
+        let orphans = vec!["python-build".to_string(), "scdoc".to_string()];
+        let orphan_cmd = MaintenanceService::build_orphan_clean_command(&orphans);
+        assert!(orphan_cmd.is_some());
+        let (ocmd, oargs) = orphan_cmd.unwrap();
+        assert_eq!(ocmd, "sudo");
+        assert!(oargs.contains(&"python-build".to_string()));
+
+        // Critical package protection in orphan cleaner
+        let critical_orphans = vec!["glibc".to_string(), "linux".to_string(), "systemd".to_string()];
+        let blocked = MaintenanceService::build_orphan_clean_command(&critical_orphans);
+        assert!(blocked.is_none(), "Critical system packages must never be targeted for orphan removal");
+
+        // Service restart
+        let s_cmd = MaintenanceService::build_service_restart_command("bluetooth.service");
+        assert!(s_cmd.is_some());
+        let (scmd, sargs) = s_cmd.unwrap();
+        assert_eq!(scmd, "sudo");
+        assert_eq!(sargs, vec!["systemctl", "restart", "--", "bluetooth.service"]);
+
+        // Invalid service name with injection chars
+        let bad_service = MaintenanceService::build_service_restart_command("bad;rm -rf /");
+        assert!(bad_service.is_none());
+    }
 }

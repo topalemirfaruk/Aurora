@@ -57,4 +57,15 @@ mod tests {
         assert_eq!(update.old_version, "6.8.1.arch1-1");
         assert_eq!(update.new_version, "6.8.2.arch1-1");
     }
+
+    #[test]
+    fn test_config_constants() {
+        use aurora::config::{APP_CONTRIBUTING_URL, APP_DEV_STATUS, APP_GITHUB_URL, APP_ID, APP_ISSUES_URL, APP_NAME};
+        assert_eq!(APP_ID, "org.aurora.ApplicationCenter");
+        assert_eq!(APP_NAME, "Aurora");
+        assert!(APP_GITHUB_URL.starts_with("https://github.com/"));
+        assert!(APP_ISSUES_URL.ends_with("/issues"));
+        assert!(APP_CONTRIBUTING_URL.ends_with("/CONTRIBUTING.md"));
+        assert!(APP_DEV_STATUS.contains("Aktif Geliştirme"));
+    }
 }

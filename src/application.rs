@@ -1,5 +1,6 @@
 use crate::config::APP_ID;
 use crate::ui::MainWindow;
+use gio::prelude::*;
 use gtk4::gdk::Display;
 use gtk4::prelude::*;
 use gtk4::CssProvider;
@@ -20,6 +21,27 @@ impl Application {
         let app = adw::Application::builder()
             .application_id(APP_ID)
             .build();
+
+        app.set_accels_for_action("win.search", &["<Primary>f"]);
+        app.set_accels_for_action("win.page-home", &["<Primary>1", "<Primary>KP_1"]);
+        app.set_accels_for_action("win.page-catalog", &["<Primary>2", "<Primary>KP_2"]);
+        app.set_accels_for_action("win.page-cart", &["<Primary>3", "<Primary>KP_3"]);
+        app.set_accels_for_action("win.page-installed", &["<Primary>4", "<Primary>KP_4"]);
+        app.set_accels_for_action("win.page-maintenance", &["<Primary>5", "<Primary>KP_5"]);
+        app.set_accels_for_action("win.page-settings", &["<Primary>comma"]);
+        app.set_accels_for_action("win.refresh", &["F5", "<Primary>r"]);
+        app.set_accels_for_action("win.shortcuts", &["<Primary>question", "F1"]);
+        app.set_accels_for_action("win.about", &["<Primary>slash"]);
+        app.set_accels_for_action("app.quit", &["<Primary>q"]);
+
+        let quit_action = gio::SimpleAction::new("quit", None);
+        let app_weak = app.downgrade();
+        quit_action.connect_activate(move |_, _| {
+            if let Some(app) = app_weak.upgrade() {
+                app.quit();
+            }
+        });
+        app.add_action(&quit_action);
 
         app.connect_startup(|_| {
             let settings = crate::state::SettingsState::new();
