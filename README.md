@@ -17,7 +17,11 @@ Arch Linux ve Arch tabanlı dağıtımlar için GTK4 ve Libadwaita ile geliştir
 > **Proje Durumu: Aktif Geliştirme Aşamasında (Alpha / Pre-release)**
 > Aurora projesi şu anda **aktif geliştirme aşamasındadır**. Mimari, kullanıcı arayüzü, paket yönetim motoru ve sistem bakımı özellikleri hızla geliştirilmekte, yeni yetenekler eklenmektedir. Karşılaştığınız sorunları veya önerilerinizi paylaşarak ya da kod katkısında bulunarak projenin gelişimine ortak olabilirsiniz.
 > 
-> Ayrıntılı adımlar için [Katkıda Bulunma Rehberi'ni (CONTRIBUTING.md)](CONTRIBUTING.md) inceleyebilirsiniz.
+> Ayrıntılı yönergeler için [Katkıda Bulunma Rehberi'ni (CONTRIBUTING.md)](CONTRIBUTING.md) ve sürüm yenilikleri için [Değişiklik Günlüğü'nü (CHANGELOG.md)](CHANGELOG.md) inceleyebilirsiniz.
+
+<p align="center">
+  <img src="assets/screenshots/aurora_main.png" alt="Aurora Kullanıcı Arayüzü" width="850" />
+</p>
 
 ---
 
@@ -110,18 +114,20 @@ chmod +x uninstall.sh
 
 ```text
 Aurora/
-├── assets/                          # Vektörel SVG simgeleri
+├── assets/                          # Vektörel SVG simgeleri ve ekran görüntüleri
+│   ├── icons/                       # Sistem ve uygulama ikonları
+│   └── screenshots/                 # Arayüz ekran görüntüleri
 ├── packaging/                       # .desktop ve AUR PKGBUILD şablonları
 ├── resources/                       # CSS temaları
 ├── src/                             # Rust kaynak kodları
-│   ├── application.rs               # AdwApplication yaşam döngüsü
+│   ├── application.rs               # AdwApplication yaşam döngüsü ve akseleratörler
 │   ├── models/                      # Veri modelleri
 │   ├── package_managers/            # Pacman, AUR ve Flatpak modülleri
 │   ├── process/                     # Asenkron komut yürütücü
 │   ├── security/                    # Girdi doğrulama ve korumalı paketler
-│   ├── services/                    # Uygulama kataloğu ve paket setleri
-│   ├── state/                       # Sepet ve kurulu paket durum yönetimi
-│   ├── ui/                          # Sayfalar ve bileşenler
+│   ├── services/                    # Uygulama kataloğu, paket setleri ve bakım servisi
+│   ├── state/                       # Sepet, kurulu paket ve ayar durum yönetimi
+│   ├── ui/                          # Sayfalar, diyaloglar ve bileşenler
 │   └── utils/                       # Tema, askpass ve simge çözümleyici
 ├── tests/                           # Birim ve entegrasyon testleri
 ├── install.sh                       # Sisteme kurma betiği
@@ -129,8 +135,15 @@ Aurora/
 ├── Cargo.toml                       # Rust paket yapılandırması
 ├── LICENSE                          # GNU General Public License v3.0
 ├── CONTRIBUTING.md                  # Katkıda bulunma rehberi
+├── CHANGELOG.md                     # Sürüm değişiklik günlüğü
 └── README.md                        # Dokümantasyon
 ```
+
+## 🚀 Sürüm Notları ve Değişiklik Günlüğü
+
+Aurora'nın tüm sürümleri, eklenen yeni yetenekler, performans iyileştirmeleri ve hata düzeltmeleri sürüm bazında düzenli olarak belgelenmektedir.
+
+En son sürümün detaylarını ve geçmiş sürümleri incelemek için [**Değişiklik Günlüğü (CHANGELOG.md)**](CHANGELOG.md) dosyasına göz atabilirsiniz. Ayrıca uygulama içinde **Ana Menü (⋮) ➔ Aurora Hakkında** penceresinden de o sürüme ait yenilikler incelenebilir.
 
 ## 🤝 Katkıda Bulunma (Contributing)
 
