@@ -409,7 +409,7 @@ impl IconResolver {
                 "video-display",
                 "preferences-desktop-display",
             ],
-            "nvidia" | "nvidia-open" | "nvidia-utils" => &[
+            "nvidia" | "nvidia-open" | "nvidia-utils" | "nvidia-dkms" | "nvidia-470xx-dkms" | "nvidia-settings" => &[
                 "nvidia",
                 "nvidia-settings",
                 "video-display",

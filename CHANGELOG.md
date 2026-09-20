@@ -37,6 +37,10 @@ Format, [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına da
   - Pacman resmi depoları, bağımsız AUR RPC v5 araması ve Flatpak entegrasyonu.
   - `pacman -Qm` ile yerel ve yabancı paketlerin ayrımı (`OFFICIAL`, `AUR`, `FLATPAK` rozetleri).
   - Kurulu uygulamalar listesinden doğrudan kaynak duyarlı güvenli kaldırma (`UninstallDialog`).
+- **Nvidia DKMS ve Miras (Legacy) Sürücü Desteği (#1):**
+  - GeForce GTX 10 serisi (Pascal) ve GTX 900 serisi (Maxwell) için `nvidia-dkms` tescilli sürücüsü kataloğa eklendi.
+  - Kepler mimarili (GeForce GTX 600 / 700 serisi) eski kartlar için `nvidia-470xx-dkms` miras sürücüsü eklendi.
+  - Nvidia grafik kartları için resmi grafiksel yapılandırma aracı `nvidia-settings` kataloğa eklendi.
 - **Açık Kaynak Katkı Altyapısı:**
   - Detaylı [Katkıda Bulunma Rehberi (CONTRIBUTING.md)](CONTRIBUTING.md).
   - Başlık çubuğunda GNOME HIG standartlarında Ana Menü butonu (`open-menu-symbolic`).

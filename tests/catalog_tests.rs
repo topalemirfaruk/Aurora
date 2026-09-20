@@ -50,4 +50,16 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    fn test_nvidia_dkms_drivers_in_catalog() {
+        let all_apps = CatalogService::get_all_apps();
+        let has_nvidia_dkms = all_apps.iter().any(|a| a.package_name == "nvidia-dkms");
+        let has_nvidia_legacy = all_apps.iter().any(|a| a.package_name == "nvidia-470xx-dkms");
+        let has_nvidia_settings = all_apps.iter().any(|a| a.package_name == "nvidia-settings");
+
+        assert!(has_nvidia_dkms, "nvidia-dkms katalogda yer almalıdır");
+        assert!(has_nvidia_legacy, "nvidia-470xx-dkms katalogda yer almalıdır");
+        assert!(has_nvidia_settings, "nvidia-settings katalogda yer almalıdır");
+    }
 }
