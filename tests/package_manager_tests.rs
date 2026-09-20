@@ -99,6 +99,53 @@ bad-line-without-arrow
     }
 
     #[test]
+    fn test_parse_search_output_multiline_wrapping() {
+        use aurora::package_managers::pacman::PacmanManager;
+
+        let sample_output = "\
+extra/libreoffice-fresh 26.8.0-2 [installed]
+    LibreOffice is the free and open source personal productivity suite for
+    Windows, Macintosh and GNU/Linux. This package contains the latest stable
+    release.
+core/linux 6.13.2.arch1-1 [kurulu]
+    The Linux kernel and modules
+aur/visual-studio-code-bin 1.97.0-1
+    Visual Studio Code (vscode): Editor for building and debugging modern web
+    and cloud applications, official binary version
+";
+
+        let results = PacmanManager::parse_search_output(sample_output, "repo");
+        assert_eq!(results.len(), 3, "Tam olarak 3 paket bulunmalı, sahte kayıt olmamalı");
+
+        // 1. Paket (3 satıra bölünmüş açıklama birleştirilmeli)
+        assert_eq!(results[0].repo, "extra");
+        assert_eq!(results[0].name, "libreoffice-fresh");
+        assert_eq!(results[0].version, "26.8.0-2");
+        assert!(results[0].is_installed);
+        assert_eq!(
+            results[0].description,
+            "LibreOffice is the free and open source personal productivity suite for Windows, Macintosh and GNU/Linux. This package contains the latest stable release."
+        );
+
+        // 2. Paket (Türkçe [kurulu] etiketi)
+        assert_eq!(results[1].repo, "core");
+        assert_eq!(results[1].name, "linux");
+        assert_eq!(results[1].version, "6.13.2.arch1-1");
+        assert!(results[1].is_installed);
+        assert_eq!(results[1].description, "The Linux kernel and modules");
+
+        // 3. Paket (AUR ve 2 satıra sarılmış açıklama)
+        assert_eq!(results[2].repo, "aur");
+        assert_eq!(results[2].name, "visual-studio-code-bin");
+        assert_eq!(results[2].version, "1.97.0-1");
+        assert!(!results[2].is_installed);
+        assert_eq!(
+            results[2].description,
+            "Visual Studio Code (vscode): Editor for building and debugging modern web and cloud applications, official binary version"
+        );
+    }
+
+    #[test]
     fn test_maintenance_command_builders() {
         use aurora::services::MaintenanceService;
 

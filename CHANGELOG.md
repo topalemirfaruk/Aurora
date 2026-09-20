@@ -60,6 +60,9 @@ Format, [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına da
 - **AUR RPC Arama URL Kodlaması (#3):**
   - AUR RPC v5 üzerinden yapılan aramalarda sorgu dizgisi RFC 3986 standartlarına uygun yüzde kodlama (`url_encode`) süzgecinden geçirildi.
   - Birden fazla kelime içeren aramalarda (`"visual studio"` vb.) ham boşlukların `curl` tarafından `URL rejected: Malformed input` (Hata 3) ile reddedilmesi önlendi.
+- **Arama Çıktılarında Çok Satırlı Açıklama Sarmalama Ayrıştırması (#4):**
+  - `pacman -Ss` ve `paru -Ssa` komutlarında 80 sütunu aşan açıklamaların bölünmesi durumunda, devam satırlarının yeni paket sanılıp `repo="repo"` veya `repo="aur"` isimli sahte sonuçlar üretmesi engellendi.
+  - Ortak `parse_search_output` durum temelli ayrıştırıcısı yazılarak açıklamaların eksiksiz birleştirilmesi ve hem İngilizce (`[installed]`) hem Türkçe (`[kurulu]`) paket durumlarının doğru algılanması sağlandı.
 
 ---
 

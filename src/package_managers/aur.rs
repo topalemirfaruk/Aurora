@@ -1,4 +1,4 @@
-use super::pacman::SearchResult;
+use super::pacman::{PacmanManager, SearchResult};
 use crate::process::CommandExecutor;
 use crate::security::{is_valid_package_name, sanitize_search_query, url_encode};
 use crate::utils::SystemCapabilities;
@@ -38,34 +38,7 @@ impl AurManager {
         if let Some(helper) = Self::helper() {
             if let Ok((true, stdout, _)) = CommandExecutor::run_captured(helper, &["-Ssa", "--", &clean]).await {
                 if !stdout.is_empty() {
-                    let mut results = Vec::new();
-                    let mut lines = stdout.lines();
-
-                    while let Some(header_line) = lines.next() {
-                        let header_parts: Vec<&str> = header_line.split_whitespace().collect();
-                        if header_parts.is_empty() {
-                            continue;
-                        }
-
-                        let repo_and_name = header_parts[0];
-                        let version = header_parts.get(1).unwrap_or(&"").to_string();
-                        let is_installed = header_line.contains("[installed]");
-
-                        let (repo, name) = match repo_and_name.split_once('/') {
-                            Some((r, n)) => (r.to_string(), n.to_string()),
-                            None => ("aur".to_string(), repo_and_name.to_string()),
-                        };
-
-                        let description = lines.next().unwrap_or("").trim().to_string();
-
-                        results.push(SearchResult {
-                            repo,
-                            name,
-                            version,
-                            description,
-                            is_installed,
-                        });
-                    }
+                    let results = PacmanManager::parse_search_output(&stdout, "aur");
                     if !results.is_empty() {
                         return Ok(results);
                     }

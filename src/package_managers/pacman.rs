@@ -82,40 +82,66 @@ impl PacmanManager {
         }
 
         let (success, stdout, _) = CommandExecutor::run_captured("pacman", &["-Ss", "--", &clean]).await?;
-        if !success {
+        if !success || stdout.is_empty() {
             return Ok(Vec::new());
         }
 
-        let mut results = Vec::new();
-        let mut lines = stdout.lines();
+        Ok(Self::parse_search_output(&stdout, "repo"))
+    }
 
-        while let Some(header_line) = lines.next() {
-            let header_parts: Vec<&str> = header_line.split_whitespace().collect();
-            if header_parts.is_empty() {
+    /// pacman -Ss veya paru -Ssa çıktısını SearchResult vektörüne ayrıştırır.
+    /// 80 sütunluk açıklama sarmalamalarını ve çok satırlı açıklamaları güvenle birleştirir.
+    pub fn parse_search_output(stdout: &str, default_repo: &str) -> Vec<SearchResult> {
+        let mut results = Vec::new();
+        let mut current_pkg: Option<SearchResult> = None;
+
+        for line in stdout.lines() {
+            let trimmed = line.trim();
+            if trimmed.is_empty() {
                 continue;
             }
 
-            let repo_and_name = header_parts[0];
-            let version = header_parts.get(1).unwrap_or(&"").to_string();
-            let is_installed = header_line.contains("[installed]");
+            let is_indent = line.starts_with(' ') || line.starts_with('\t');
+            let first_word = line.split_whitespace().next().unwrap_or("");
+            let is_header = !is_indent && (first_word.contains('/') || current_pkg.is_none());
 
-            let (repo, name) = match repo_and_name.split_once('/') {
-                Some((r, n)) => (r.to_string(), n.to_string()),
-                None => ("repo".to_string(), repo_and_name.to_string()),
-            };
+            if is_header {
+                if let Some(pkg) = current_pkg.take() {
+                    results.push(pkg);
+                }
 
-            let description = lines.next().unwrap_or("").trim().to_string();
+                let header_parts: Vec<&str> = line.split_whitespace().collect();
+                let repo_and_name = header_parts[0];
+                let version = header_parts.get(1).unwrap_or(&"").to_string();
+                let is_installed = line.contains("[installed]") || line.contains("[kurulu]");
 
-            results.push(SearchResult {
-                repo,
-                name,
-                version,
-                description,
-                is_installed,
-            });
+                let (repo, name) = match repo_and_name.split_once('/') {
+                    Some((r, n)) => (r.to_string(), n.to_string()),
+                    None => (default_repo.to_string(), repo_and_name.to_string()),
+                };
+
+                current_pkg = Some(SearchResult {
+                    repo,
+                    name,
+                    version,
+                    description: String::new(),
+                    is_installed,
+                });
+            } else if let Some(ref mut pkg) = current_pkg {
+                if pkg.description.is_empty() {
+                    pkg.description.push_str(trimmed);
+                } else {
+                    pkg.description.push(' ');
+                    pkg.description.push_str(trimmed);
+                }
+            }
         }
 
-        Ok(results)
+        if let Some(pkg) = current_pkg {
+            results.push(pkg);
+        }
+
+        results
     }
 
     /// Paket bilgilerini al (`pacman -Si <package>`)
