@@ -29,7 +29,7 @@ Bir çökme, görsel bozulma, paket yönetim hatası veya beklenmeyen bir davran
 - Uygulama kataloğuna (`src/models/catalog_seed.rs`) eklenmesini istediğiniz popüler veya vazgeçilmez Linux yazılımları
 - AUR, Flatpak veya sistem bakımına dair yeni iyileştirme önerileri
 
-Yeni önerilerinizi [GitHub Discussions](https://github.com/topalemirfaruk/Aurora/discussions) veya [GitHub Issues](https://github.com/topalemirfaruk/Aurora/issues) üzerinden paylaşabilirsiniz.
+Yeni önerilerinizi [GitHub Issues](https://github.com/topalemirfaruk/Aurora/issues) üzerinden paylaşabilirsiniz.
 
 ### 3. Farklı Dağıtım ve Ortamlarda Test
 Aurora saf Arch Linux'un yanı sıra Arch tabanlı farklı dağıtımları da desteklemeyi hedefler:
