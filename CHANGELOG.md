@@ -52,6 +52,12 @@ Format, [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına da
 - Shell enjeksiyonlarına karşı sıkı regex paket adı doğrulaması (`is_valid_package_name`).
 - Root kullanıcısı altında başlatıldığında güvenlik uyarı şeridi (Banner).
 
+### 🐛 Düzeltilen Hatalar
+- **checkupdates Güncelleme Tespiti ve Çıkış Kodu (#2):**
+  - Arch Linux `checkupdates` yardımcı aracının güncelleme bulunduğunda ürettiği standart çıkış kodu `2`'nin hata sanılıp güncellemelerin çöpe atılması sorunu giderildi.
+  - `CommandExecutor::run_captured_with_status` yöntemi eklenerek `ExitStatus` ayrıştırması sağlandı; `status.code() == Some(2)` durumu doğrudan güncellemeleri listelemek üzere bağlandı.
+  - `pacman.rs` içerisindeki `parse_updates_output` mantığı izole edilerek birim testlerle doğrulandı; aynı sürüme sahip sahte kayıtlar elendi.
+
 ---
 
 ## 📝 Yeni Bir Özellik Eklendiğinde Nasıl Güncellenir?

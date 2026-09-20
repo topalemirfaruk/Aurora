@@ -73,6 +73,32 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_updates_output() {
+        use aurora::package_managers::pacman::PacmanManager;
+
+        let sample_output = "\
+firefox 134.0-1 -> 135.0-1
+glibc 2.40-2 -> 2.41-1
+linux 6.13.1.arch1-1 -> 6.13.2.arch1-1
+ignored-pkg 1.0-1 -> 1.0-1
+bad-line-without-arrow
+";
+        let updates = PacmanManager::parse_updates_output(sample_output);
+        assert_eq!(updates.len(), 3);
+        assert_eq!(updates[0].name, "firefox");
+        assert_eq!(updates[0].old_version, "134.0-1");
+        assert_eq!(updates[0].new_version, "135.0-1");
+
+        assert_eq!(updates[1].name, "glibc");
+        assert_eq!(updates[1].old_version, "2.40-2");
+        assert_eq!(updates[1].new_version, "2.41-1");
+
+        assert_eq!(updates[2].name, "linux");
+        assert_eq!(updates[2].old_version, "6.13.1.arch1-1");
+        assert_eq!(updates[2].new_version, "6.13.2.arch1-1");
+    }
+
+    #[test]
     fn test_maintenance_command_builders() {
         use aurora::services::MaintenanceService;
 
@@ -111,5 +137,18 @@ mod tests {
         // Invalid service name with injection chars
         let bad_service = MaintenanceService::build_service_restart_command("bad;rm -rf /");
         assert!(bad_service.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_live_or_mock_check_updates_integration() {
+        use aurora::package_managers::pacman::PacmanManager;
+        let res = PacmanManager::check_updates().await;
+        assert!(res.is_ok(), "check_updates must return Ok");
+        let updates = res.unwrap();
+        // Bu sistemde güncellemeler mevcut olduğundan listenin başarıyla dolduğunu teyit ediyoruz
+        assert!(!updates.is_empty(), "Updates should be detected on this system");
+        for u in updates.iter().take(5) {
+            assert_ne!(u.old_version, u.new_version);
+        }
     }
 }

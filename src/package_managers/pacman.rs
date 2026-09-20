@@ -132,40 +132,66 @@ impl PacmanManager {
         }
     }
 
-    pub async fn check_updates() -> Result<Vec<PackageUpdate>, std::io::Error> {
-        let has_checkupdates = which::which("checkupdates").is_ok();
-        let (success, stdout, _) = if has_checkupdates {
-            CommandExecutor::run_captured("checkupdates", &["--nocolor"]).await?
-        } else {
-            CommandExecutor::run_captured("pacman", &["-Qu"]).await?
-        };
-
-        if !success || stdout.is_empty() {
-            return Ok(Vec::new());
-        }
-
+    /// checkupdates veya pacman -Qu çıktısını PackageUpdate vektörüne ayrıştırır
+    pub fn parse_updates_output(stdout: &str) -> Vec<PackageUpdate> {
         let mut updates = Vec::new();
         for line in stdout.lines() {
             let parts: Vec<&str> = line.split_whitespace().collect();
-            if parts.len() >= 4 && parts[2] == "->" {
-                updates.push(PackageUpdate {
-                    name: parts[0].to_string(),
-                    old_version: parts[1].to_string(),
-                    new_version: parts[3].to_string(),
-                });
-            } else if parts.len() >= 2 {
-                let new_ver = if parts.len() >= 3 {
-                    parts[2].to_string()
-                } else {
-                    parts[1].to_string()
-                };
-                updates.push(PackageUpdate {
-                    name: parts[0].to_string(),
-                    old_version: parts[1].to_string(),
-                    new_version: new_ver,
-                });
+            if let Some(arrow_idx) = parts.iter().position(|&p| p == "->") {
+                if arrow_idx > 0 && arrow_idx + 1 < parts.len() {
+                    let old_ver = parts[arrow_idx - 1].to_string();
+                    let new_ver = parts[arrow_idx + 1].to_string();
+                    // Gerçek bir güncelleme olması için eski ve yeni sürüm birbirinden farklı olmalıdır
+                    if old_ver != new_ver {
+                        updates.push(PackageUpdate {
+                            name: parts[0].to_string(),
+                            old_version: old_ver,
+                            new_version: new_ver,
+                        });
+                    }
+                }
             }
         }
-        Ok(updates)
+        updates
+    }
+
+    pub async fn check_updates() -> Result<Vec<PackageUpdate>, std::io::Error> {
+        let has_checkupdates = which::which("checkupdates").is_ok();
+        let (has_updates, stdout) = if has_checkupdates {
+            let (status, stdout, stderr) =
+                CommandExecutor::run_captured_with_status("checkupdates", &["--nocolor"]).await?;
+            // checkupdates:
+            // Standart Arch: 0 = güncelleme yok, 2 = güncellemeler mevcut, 1 = hata.
+            // Bazı dağıtımlarda (örn. CachyOS / yamalı betikler): 0 veya 2 dönebilir.
+            let has_upd = match status.code() {
+                Some(0) | Some(2) => !stdout.trim().is_empty(),
+                Some(code) => {
+                    tracing::warn!("checkupdates çıkış kodu {}: {}", code, stderr.trim());
+                    !stdout.trim().is_empty()
+                }
+                None => !stdout.trim().is_empty(),
+            };
+            (has_upd, stdout)
+        } else {
+            let (status, stdout, stderr) =
+                CommandExecutor::run_captured_with_status("pacman", &["-Qu"]).await?;
+            // pacman -Qu: 0 = güncellemeler mevcut, 1 = güncelleme yok
+            let has_upd = match status.code() {
+                Some(0) => !stdout.trim().is_empty(),
+                Some(1) => false,
+                Some(code) => {
+                    tracing::warn!("pacman -Qu çıkış kodu {}: {}", code, stderr.trim());
+                    !stdout.trim().is_empty()
+                }
+                None => !stdout.trim().is_empty(),
+            };
+            (has_upd, stdout)
+        };
+
+        if !has_updates || stdout.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        Ok(Self::parse_updates_output(&stdout))
     }
 }

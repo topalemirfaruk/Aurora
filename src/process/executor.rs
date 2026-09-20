@@ -77,8 +77,11 @@ impl CommandExecutor {
         Ok(success)
     }
 
-    /// Çıktıyı tek seferde string olarak alma (hızlı sorgular için)
-    pub async fn run_captured(program: &str, args: &[&str]) -> Result<(bool, String, String), std::io::Error> {
+    /// Çıktıyı tam ExitStatus ile birlikte alma (çıkış kodu duyarlı komutlar için örn. checkupdates)
+    pub async fn run_captured_with_status(
+        program: &str,
+        args: &[&str],
+    ) -> Result<(std::process::ExitStatus, String, String), std::io::Error> {
         let output = Command::new(program)
             .args(args)
             .output()
@@ -86,6 +89,12 @@ impl CommandExecutor {
 
         let stdout = String::from_utf8_lossy(&output.stdout).to_string();
         let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-        Ok((output.status.success(), stdout, stderr))
+        Ok((output.status, stdout, stderr))
+    }
+
+    /// Çıktıyı tek seferde string olarak alma (hızlı sorgular için)
+    pub async fn run_captured(program: &str, args: &[&str]) -> Result<(bool, String, String), std::io::Error> {
+        let (status, stdout, stderr) = Self::run_captured_with_status(program, args).await?;
+        Ok((status.success(), stdout, stderr))
     }
 }
