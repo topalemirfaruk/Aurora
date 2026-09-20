@@ -15,7 +15,7 @@ impl AboutAppDialog {
             .website(APP_GITHUB_URL)
             .issue_url(APP_ISSUES_URL)
             .support_url(APP_CONTRIBUTING_URL)
-            .comments("Arch Linux ve tabanlı sistemler için modern, hızlı ve güvenli grafiksel paket ve uygulama yönetim merkezi.\n\n⚠️ Bu yazılım aktif geliştirme aşamasındadır (Alpha). Topluluk katkılarına, hata bildirimlerine ve yeni özellik önerilerine tamamen açıktır.")
+            .comments("Arch Linux ve tabanlı sistemler için modern, hızlı ve güvenli grafiksel paket ve uygulama yönetim merkezi.\n\nBu yazılım aktif geliştirme aşamasındadır (Alpha). Topluluk katkılarına, hata bildirimlerine ve yeni özellik önerilerine tamamen açıktır.")
             .license_type(gtk4::License::Gpl30)
             .developers(["Emir Faruk Topal <topalemirfaruk@users.noreply.github.com>"])
             .release_notes_version("0.1.0-alpha")

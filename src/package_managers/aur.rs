@@ -1,6 +1,6 @@
 use super::pacman::SearchResult;
 use crate::process::CommandExecutor;
-use crate::security::{is_valid_package_name, sanitize_search_query};
+use crate::security::{is_valid_package_name, sanitize_search_query, url_encode};
 use crate::utils::SystemCapabilities;
 
 use serde::Deserialize;
@@ -77,7 +77,8 @@ impl AurManager {
     }
 
     async fn search_rpc(query: &str) -> Result<Vec<SearchResult>, std::io::Error> {
-        let url = format!("https://aur.archlinux.org/rpc/v5/search/{}", query);
+        let encoded_query = url_encode(query);
+        let url = format!("https://aur.archlinux.org/rpc/v5/search/{}", encoded_query);
         let (success, stdout, _) = CommandExecutor::run_captured(
             "curl",
             &["-sSL", "--proto", "=https", "--tlsv1.2", "--max-time", "8", &url],

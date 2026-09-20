@@ -36,7 +36,7 @@ Aurora; resmi depolar (pacman), Arch User Repository (AUR - paru/yay) ve Flatpak
 - **Hızlı Kurulum Paketleri:** Temel medya kodekleri, oyun uyumluluk katmanları (Wine, Mesa, Vulkan), ses sürücüleri ve geliştirici araçları setleri.
 - **Çoklu Paket Yöneticisi:** Resmi depolar (Pacman), Arch User Repository (AUR helper ve bağımsız AUR RPC v5 desteği) ve Flatpak kaynaklarını entegre yönetebilme.
 - **Sistem Güncelleme Denetimi:** `checkupdates` / `pacman -Qu` ile bekleyen paket güncellemelerini algılama ve arayüz içi terminal akışı ile tek tıkla sistemi yükseltme (`-Syu`).
-- **Sistem Bakımı & Temizlik:** Pacman önbellek boyutunu ölçme (`paccache -r` / `-ruk0`), yetim paket tespiti ve güvenli temizliği (`pacman -Qtdq` ➔ `pacman -Rns`) ile başarısız systemd servislerini denetleme.
+- **Sistem Bakımı & Temizlik:** Pacman önbellek boyutunu ölçme (`paccache -r` / `-ruk0`), yetim paket tespiti ve güvenli temizliği (`pacman -Qtdq` -> `pacman -Rns`) ile başarısız systemd servislerini denetleme.
 - **Kaynak Duyarlı Paket Kaldırma:** Kurulu uygulamaları arayüzden veya kurulu paketler sekmesinden doğrudan kaldırabilme. Pacman, AUR ve Flatpak ayrımı otomatik yapılır. Çekirdek sistem paketleri (`systemd`, `linux`, `glibc`, `pacman`) koruma altındadır.
 - **Asenkron Yürütme:** Kurulum, arama, derleme ve bakım işlemleri Tokio thread havuzunda arka planda yürütülür; arayüz işlem sırasında akıcı kalır.
 - **Parola Yönetimi:** `SUDO_ASKPASS` entegrasyonu sayesinde terminal gerektirmeden grafiksel parola penceresi (`kdialog` / `zenity`) ile yetkilendirme.
@@ -139,13 +139,13 @@ Aurora/
 └── README.md                        # Dokümantasyon
 ```
 
-## 🚀 Sürüm Notları ve Değişiklik Günlüğü
+## Sürüm Notları ve Değişiklik Günlüğü
 
 Aurora'nın tüm sürümleri, eklenen yeni yetenekler, performans iyileştirmeleri ve hata düzeltmeleri sürüm bazında düzenli olarak belgelenmektedir.
 
-En son sürümün detaylarını ve geçmiş sürümleri incelemek için [**Değişiklik Günlüğü (CHANGELOG.md)**](CHANGELOG.md) dosyasına göz atabilirsiniz. Ayrıca uygulama içinde **Ana Menü (⋮) ➔ Aurora Hakkında** penceresinden de o sürüme ait yenilikler incelenebilir.
+En son sürümün detaylarını ve geçmiş sürümleri incelemek için [**Değişiklik Günlüğü (CHANGELOG.md)**](CHANGELOG.md) dosyasına göz atabilirsiniz. Ayrıca uygulama içinde **Ana Menü (⋮) -> Aurora Hakkında** penceresinden de o sürüme ait yenilikler incelenebilir.
 
-## 🤝 Katkıda Bulunma (Contributing)
+## Katkıda Bulunma (Contributing)
 
 Aurora, topluluk desteğiyle hızla gelişen açık kaynaklı bir projedir. Kod yazarak, hata bildirerek veya yeni fikirler sunarak projeyi birlikte büyütebiliriz:
 

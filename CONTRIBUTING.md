@@ -4,13 +4,13 @@ Aurora projesine katkıda bulunmak istediğiniz için teşekkür ederiz! Aurora,
 
 ---
 
-## ⚠️ Proje Durumu: Aktif Geliştirme Aşamasında (Alpha)
+## Proje Durumu: Aktif Geliştirme Aşamasında (Alpha)
 
 Aurora şu anda **aktif geliştirme aşamasındadır**. Mimari, kullanıcı arayüzü ve paket yönetim entegrasyonları sürekli genişletilmekte ve iyileştirilmektedir. Bu aşamada topluluktan gelen her türlü geri bildirim, hata bildirimi ve kod katkısı projenin olgunlaşması için kritik öneme sahiptir.
 
 ---
 
-## 🎯 Nasıl Katkıda Bulunabilirsiniz?
+## Nasıl Katkıda Bulunabilirsiniz?
 
 Katkıda bulunmanın pek çok farklı yolu vardır. Yalnızca kod yazarak değil; hata bildirerek, fikir önererek, çeviri yaparak veya test ederek de projeyi büyütebilirsiniz:
 
@@ -49,7 +49,7 @@ Yeni bir özellik geliştirmek veya bir hatayı çözmek için doğrudan kod kat
 
 ---
 
-## 🛠️ Geliştirici Ortamı Kurulumu
+## Geliştirici Ortamı Kurulumu
 
 ### Gereksinimler (Arch Linux ve Türevleri):
 ```bash
@@ -75,7 +75,7 @@ cargo run
 
 ---
 
-## 📋 Kodlama Standartları ve Kalite Güvencesi
+## Kodlama Standartları ve Kalite Güvencesi
 
 Aurora kod tabanında yüksek mühendislik kalitesi, temiz kod ilkeleri ve katı Rust deyimleri esastır. Göndereceğiniz çekme isteklerinin (PR) şu kriterleri karşılaması beklenir:
 
@@ -103,7 +103,7 @@ Aurora kod tabanında yüksek mühendislik kalitesi, temiz kod ilkeleri ve katı
 
 ---
 
-## 🌿 Git İş Akışı ve Commit Kuralları
+## Git İş Akışı ve Commit Kuralları
 
 1. Depoyu forklayın ve güncel `main` dalından yeni bir özellik dalı açın:
    ```bash
@@ -123,7 +123,7 @@ Aurora kod tabanında yüksek mühendislik kalitesi, temiz kod ilkeleri ve katı
 
 ---
 
-## 💬 İletişim ve Destek
+## İletişim ve Destek
 
 - **GitHub Issues:** [https://github.com/topalemirfaruk/Aurora/issues](https://github.com/topalemirfaruk/Aurora/issues)
 - **Geliştirici:** Emir Faruk Topal ([GitHub @topalemirfaruk](https://github.com/topalemirfaruk))

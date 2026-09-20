@@ -7,10 +7,10 @@ Format, [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına da
 
 ## [0.1.0-alpha] - 2026-09-20
 
-### 📸 Ekran Görüntüsü
+### Ekran Görüntüsü
 ![Aurora Ana Ekranı](assets/screenshots/aurora_main.png)
 
-### ✨ Eklenenler
+### Eklenenler
 - **Sistem Bakımı ve Temizlik Motoru:**
   - Pacman paket önbelleği disk boyutu ölçümü (`du -sh /var/cache/pacman/pkg`).
   - `paccache -r` (son 3 sürümü koruyarak temizleme) ve `paccache -ruk0` (kaldırılmış paket önbelleklerini silme) temizlik motoru.
@@ -47,35 +47,38 @@ Format, [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına da
   - Ayarlar sayfasında "Geliştirme ve Topluluk Katkısı" paneli.
   - Libadwaita `adw::AboutDialog` üzerinde yerel "Sürüm Notları (Yenilikler)" penceresi.
 
-### 🔒 Güvenlik
+### Güvenlik
 - Kritik çekirdek paket koruması (`glibc`, `linux`, `systemd`, `pacman`) yetim paket temizliğinden ve kaldırma işlemlerinden muaf tutuldu.
 - Shell enjeksiyonlarına karşı sıkı regex paket adı doğrulaması (`is_valid_package_name`).
 - Root kullanıcısı altında başlatıldığında güvenlik uyarı şeridi (Banner).
 
-### 🐛 Düzeltilen Hatalar
+### Düzeltilen Hatalar
 - **checkupdates Güncelleme Tespiti ve Çıkış Kodu (#2):**
   - Arch Linux `checkupdates` yardımcı aracının güncelleme bulunduğunda ürettiği standart çıkış kodu `2`'nin hata sanılıp güncellemelerin çöpe atılması sorunu giderildi.
   - `CommandExecutor::run_captured_with_status` yöntemi eklenerek `ExitStatus` ayrıştırması sağlandı; `status.code() == Some(2)` durumu doğrudan güncellemeleri listelemek üzere bağlandı.
   - `pacman.rs` içerisindeki `parse_updates_output` mantığı izole edilerek birim testlerle doğrulandı; aynı sürüme sahip sahte kayıtlar elendi.
+- **AUR RPC Arama URL Kodlaması (#3):**
+  - AUR RPC v5 üzerinden yapılan aramalarda sorgu dizgisi RFC 3986 standartlarına uygun yüzde kodlama (`url_encode`) süzgecinden geçirildi.
+  - Birden fazla kelime içeren aramalarda (`"visual studio"` vb.) ham boşlukların `curl` tarafından `URL rejected: Malformed input` (Hata 3) ile reddedilmesi önlendi.
 
 ---
 
-## 📝 Yeni Bir Özellik Eklendiğinde Nasıl Güncellenir?
+## Yeni Bir Özellik Eklendiğinde Nasıl Güncellenir?
 
 Gelecekte yeni bir sürüm yayınlandığında bu dosyaya aşağıdaki şablon takip edilerek yeni bir blok eklenir:
 
 ```markdown
 ## [0.2.0-alpha] - YYYY-AA-GG
 
-### 📸 Ekran Görüntüsü
+### Ekran Görüntüsü
 ![Özellik Adı](assets/screenshots/yeni_ozellik.png)
 
-### ✨ Eklenenler
+### Eklenenler
 - **Özellik Adı:** Özelliğin ne işe yaradığı ve nasıl çalıştığının kısa açıklaması.
 
-### ⚡ İyileştirmeler
+### İyileştirmeler
 - Mevcut bileşenlerde yapılan performans veya arayüz geliştirmeleri.
 
-### 🐛 Düzeltilenler
+### Düzeltilenler
 - Çözülen hatalar ve kullanıcı bildirimleri.
 ```

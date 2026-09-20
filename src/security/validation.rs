@@ -60,6 +60,24 @@ pub fn sanitize_search_query(query: &str) -> String {
     sanitized
 }
 
+/// URL sorgu parametreleri ve bileşenleri için RFC 3986 uyumlu yüzde kodlama (percent-encoding)
+pub fn url_encode(input: &str) -> String {
+    let mut encoded = String::with_capacity(input.len());
+    for b in input.bytes() {
+        match b {
+            b'a'..=b'z' | b'A'..=b'Z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                encoded.push(b as char);
+            }
+            b' ' => encoded.push_str("%20"),
+            _ => {
+                use std::fmt::Write;
+                let _ = write!(encoded, "%{:02X}", b);
+            }
+        }
+    }
+    encoded
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -99,5 +117,13 @@ mod tests {
         assert_eq!(sanitize_search_query("firefox; reboot"), "firefox reboot");
         assert_eq!(sanitize_search_query("vlc $(whoami)"), "vlc whoami");
         assert_eq!(sanitize_search_query("  code-bin  "), "code-bin");
+    }
+
+    #[test]
+    fn test_url_encode() {
+        assert_eq!(url_encode("firefox"), "firefox");
+        assert_eq!(url_encode("visual studio"), "visual%20studio");
+        assert_eq!(url_encode("foo+bar"), "foo%2Bbar");
+        assert_eq!(url_encode("a b c"), "a%20b%20c");
     }
 }

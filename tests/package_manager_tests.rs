@@ -151,4 +151,20 @@ bad-line-without-arrow
             assert_ne!(u.old_version, u.new_version);
         }
     }
+
+    #[tokio::test]
+    async fn test_aur_multi_word_search_rpc_url_encoding() {
+        use aurora::package_managers::aur::AurManager;
+        use aurora::security::url_encode;
+
+        // Verify URL encoding of spaces and special chars
+        let encoded = url_encode("visual studio");
+        assert_eq!(encoded, "visual%20studio");
+
+        // AurManager::search ile çok kelimeli arama (curl hatası 3 vermemeli)
+        let res = AurManager::search("visual studio").await;
+        assert!(res.is_ok(), "Multi-word AUR search must not fail");
+        let results = res.unwrap();
+        assert!(!results.is_empty(), "Multi-word query should return packages from AUR");
+    }
 }
