@@ -6,6 +6,7 @@ use gtk4::prelude::*;
 use gtk4::{Box, Button, Label, Orientation, ProgressBar, ScrolledWindow, TextView, Align};
 use libadwaita as adw;
 use libadwaita::prelude::*;
+use std::cell::RefCell;
 use std::rc::Rc;
 
 pub struct UninstallDialog;
@@ -195,9 +196,33 @@ impl UninstallDialog {
         root.append(&content);
         dialog.set_content(Some(&root));
 
+        let active_cancel_tx = Rc::new(RefCell::new(Option::<tokio::sync::watch::Sender<bool>>::None));
+        let is_running = Rc::new(RefCell::new(false));
+
+        let active_cancel_for_close = active_cancel_tx.clone();
+        let is_running_for_close = is_running.clone();
+        dialog.connect_close_request(move |_| {
+            if *is_running_for_close.borrow() {
+                if let Some(tx) = active_cancel_for_close.borrow().as_ref() {
+                    let _ = tx.send(true);
+                }
+            }
+            glib::Propagation::Proceed
+        });
+
         let dialog_for_cancel = dialog.clone();
-        cancel_btn.connect_clicked(move |_| {
-            dialog_for_cancel.close();
+        let active_cancel_for_btn = active_cancel_tx.clone();
+        let is_running_for_btn = is_running.clone();
+        cancel_btn.connect_clicked(move |btn| {
+            if *is_running_for_btn.borrow() {
+                if let Some(tx) = active_cancel_for_btn.borrow().as_ref() {
+                    let _ = tx.send(true);
+                }
+                btn.set_sensitive(false);
+                btn.set_label("İptal Ediliyor...");
+            } else {
+                dialog_for_cancel.close();
+            }
         });
 
         let pkg_name_str = package_name.to_string();
@@ -205,14 +230,19 @@ impl UninstallDialog {
         let on_success = Rc::new(on_success);
 
         remove_btn.connect_clicked(move |btn| {
+            *is_running.borrow_mut() = true;
             btn.set_sensitive(false);
-            cancel_btn.set_label("Kapat");
+            cancel_btn.set_label("İptal Et");
+            cancel_btn.add_css_class("destructive-action");
             progress_bar.set_visible(true);
 
             let buffer = buffer.clone();
             let pbar = progress_bar.clone();
             let on_done = on_success.clone();
             let pkg = pkg_name_str.clone();
+            let active_cancel_in_task = active_cancel_tx.clone();
+            let is_running_in_task = is_running.clone();
+            let cancel_btn_in_task = cancel_btn.clone();
 
             let sys = SystemCapabilities::detect();
             let (cmd, args) = if is_flatpak {
@@ -227,11 +257,14 @@ impl UninstallDialog {
 
             glib::spawn_future_local(async move {
                 let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
+                let (cancel_tx, cancel_rx) = tokio::sync::watch::channel(false);
+                *active_cancel_in_task.borrow_mut() = Some(cancel_tx);
+
                 let cmd_clone = cmd.clone();
                 let args_clone = args.clone();
 
                 let handle = tokio::spawn(async move {
-                    let _ = CommandExecutor::run_streaming(&cmd_clone, &args_clone, move |msg| {
+                    let _ = CommandExecutor::run_streaming_cancellable(&cmd_clone, &args_clone, cancel_rx, move |msg| {
                         let _ = sender.send(msg);
                     }).await;
                 });
@@ -259,6 +292,13 @@ impl UninstallDialog {
                 }
 
                 let _ = handle.await;
+
+                *is_running_in_task.borrow_mut() = false;
+                *active_cancel_in_task.borrow_mut() = None;
+                cancel_btn_in_task.set_sensitive(true);
+                cancel_btn_in_task.set_label("Kapat");
+                cancel_btn_in_task.remove_css_class("destructive-action");
+
                 pbar.set_visible(false);
 
                 if success_status {

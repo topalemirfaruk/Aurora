@@ -214,4 +214,43 @@ aur/visual-studio-code-bin 1.97.0-1
         let results = res.unwrap();
         assert!(!results.is_empty(), "Multi-word query should return packages from AUR");
     }
+
+    #[tokio::test]
+    async fn test_command_executor_cancellation_kills_process() {
+        use aurora::process::{CommandExecutor, ProcessMessage};
+        use std::sync::atomic::{AtomicBool, Ordering};
+        use std::sync::Arc;
+        use std::time::{Duration, Instant};
+
+        let (cancel_tx, cancel_rx) = tokio::sync::watch::channel(false);
+        let cancelled_received = Arc::new(AtomicBool::new(false));
+        let cr = cancelled_received.clone();
+
+        let args = vec!["10".to_string()];
+        let start = Instant::now();
+
+        let handle = tokio::spawn(async move {
+            CommandExecutor::run_streaming_cancellable("sleep", &args, cancel_rx, move |msg| {
+                if let ProcessMessage::Finished(success, code) = msg {
+                    if !success && code.is_none() {
+                        cr.store(true, Ordering::SeqCst);
+                    }
+                }
+            })
+            .await
+        });
+
+        // 50ms sonra iptal sinyali gönder
+        tokio::time::sleep(Duration::from_millis(50)).await;
+        let _ = cancel_tx.send(true);
+
+        // Süreç 10 saniye beklemeden hemen (< 2 saniye) öldürülmeli ve bitmeli
+        let res = tokio::time::timeout(Duration::from_secs(2), handle).await;
+        assert!(res.is_ok(), "Process should be killed promptly, not wait 10s");
+        let run_res = res.unwrap().unwrap();
+        assert!(run_res.is_ok());
+        assert_eq!(run_res.unwrap(), false, "Cancelled process should return false");
+        assert!(start.elapsed() < Duration::from_secs(2), "Killed within 2 seconds");
+        assert!(cancelled_received.load(Ordering::SeqCst), "ProcessMessage::Finished with false and None code received");
+    }
 }

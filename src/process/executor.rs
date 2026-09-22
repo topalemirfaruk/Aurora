@@ -22,6 +22,21 @@ impl CommandExecutor {
     where
         F: Fn(ProcessMessage) + Send + Sync + 'static,
     {
+        let (_tx, rx) = tokio::sync::watch::channel(false);
+        Self::run_streaming_cancellable(program, args, rx, callback).await
+    }
+
+    /// Asenkron komut koşturucu (İptal edilebilir)
+    /// UI thread'ini asla bloklamaz, cancel_rx üzerinden gelen iptal sinyaliyle child process'i derhal sonlandırır.
+    pub async fn run_streaming_cancellable<F>(
+        program: &str,
+        args: &[String],
+        mut cancel_rx: tokio::sync::watch::Receiver<bool>,
+        callback: F,
+    ) -> Result<bool, std::io::Error>
+    where
+        F: Fn(ProcessMessage) + Send + Sync + 'static,
+    {
         tracing::info!("Komut başlatılıyor: {} {:?}", program, args);
 
         let mut cmd = Command::new(program);
@@ -64,14 +79,43 @@ impl CommandExecutor {
             }));
         }
 
-        // I/O okuma görevlerini bekle
-        for handle in handles {
-            let _ = handle.await;
-        }
+        let mut cancelled = *cancel_rx.borrow();
 
-        let status = child.wait().await?;
-        let success = status.success();
-        let exit_code = status.code();
+        let (success, exit_code) = if cancelled {
+            tracing::warn!("İşlem başlatılmadan önce iptal edildi: {}", program);
+            let _ = child.kill().await;
+            cb_out(ProcessMessage::Stderr("İşlem kullanıcı tarafından iptal edildi.".to_string()));
+            (false, None)
+        } else {
+            tokio::select! {
+                res = child.wait() => {
+                    let status = res?;
+                    (status.success(), status.code())
+                }
+                res = cancel_rx.changed() => {
+                    if res.is_ok() && *cancel_rx.borrow() {
+                        cancelled = true;
+                        tracing::warn!("İşlem yürütülürken iptal edildi, child process sonlandırılıyor: {}", program);
+                        let _ = child.kill().await;
+                        cb_out(ProcessMessage::Stderr("İşlem kullanıcı tarafından iptal edildi.".to_string()));
+                        (false, None)
+                    } else {
+                        let status = child.wait().await?;
+                        (status.success(), status.code())
+                    }
+                }
+            }
+        };
+
+        if cancelled {
+            for handle in handles {
+                handle.abort();
+            }
+        } else {
+            for handle in handles {
+                let _ = handle.await;
+            }
+        }
 
         cb_out(ProcessMessage::Finished(success, exit_code));
         Ok(success)

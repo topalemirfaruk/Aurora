@@ -10,6 +10,7 @@ use gtk4::{
 };
 use libadwaita as adw;
 use libadwaita::prelude::*;
+use std::cell::RefCell;
 use std::rc::Rc;
 
 pub struct InstallDialog;
@@ -201,9 +202,33 @@ impl InstallDialog {
         root.append(&content);
         dialog.set_content(Some(&root));
 
+        let active_cancel_tx = Rc::new(RefCell::new(Option::<tokio::sync::watch::Sender<bool>>::None));
+        let is_running = Rc::new(RefCell::new(false));
+
+        let active_cancel_for_close = active_cancel_tx.clone();
+        let is_running_for_close = is_running.clone();
+        dialog.connect_close_request(move |_| {
+            if *is_running_for_close.borrow() {
+                if let Some(tx) = active_cancel_for_close.borrow().as_ref() {
+                    let _ = tx.send(true);
+                }
+            }
+            glib::Propagation::Proceed
+        });
+
         let dialog_for_close = dialog.clone();
-        close_btn.connect_clicked(move |_| {
-            dialog_for_close.close();
+        let active_cancel_for_btn = active_cancel_tx.clone();
+        let is_running_for_btn = is_running.clone();
+        close_btn.connect_clicked(move |btn| {
+            if *is_running_for_btn.borrow() {
+                if let Some(tx) = active_cancel_for_btn.borrow().as_ref() {
+                    let _ = tx.send(true);
+                }
+                btn.set_sensitive(false);
+                btn.set_label("İptal Ediliyor...");
+            } else {
+                dialog_for_close.close();
+            }
         });
 
         let text_buffer = text_view.buffer();
@@ -213,8 +238,10 @@ impl InstallDialog {
         let settings_for_action = settings_state.clone();
 
         start_btn.connect_clicked(move |btn| {
+            *is_running.borrow_mut() = true;
             btn.set_sensitive(false);
-            close_btn.set_label("Kapat");
+            close_btn.set_label("İptal Et");
+            close_btn.add_css_class("destructive-action");
             progress_bar.set_visible(true);
             status_label.set_label("İşlem başlatılıyor... (Gerekirse açılan pencereden yönetici şifrenizi onaylayın)");
 
@@ -223,6 +250,9 @@ impl InstallDialog {
             let status = status_label.clone();
             let pbar = progress_bar.clone();
             let on_done = on_finished.clone();
+            let active_cancel_in_task = active_cancel_tx.clone();
+            let is_running_in_task = is_running.clone();
+            let close_btn_in_task = close_btn.clone();
 
             let official_items: Vec<_> = items_for_action.iter().filter(|i| i.source == PackageSource::Official).cloned().collect();
             let aur_items: Vec<_> = items_for_action.iter().filter(|i| i.source == PackageSource::Aur).cloned().collect();
@@ -305,13 +335,20 @@ impl InstallDialog {
                 let mut overall_success = true;
 
                 for (cmd, args) in all_commands {
+                    if !*is_running_in_task.borrow() {
+                        overall_success = false;
+                        break;
+                    }
+
                     let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
+                    let (cancel_tx, cancel_rx) = tokio::sync::watch::channel(false);
+                    *active_cancel_in_task.borrow_mut() = Some(cancel_tx);
 
                     let cmd_clone = cmd.clone();
                     let args_clone = args.clone();
 
                     let handle = tokio::spawn(async move {
-                        let _ = CommandExecutor::run_streaming(&cmd_clone, &args_clone, move |msg| {
+                        let _ = CommandExecutor::run_streaming_cancellable(&cmd_clone, &args_clone, cancel_rx, move |msg| {
                             let _ = sender.send(msg);
                         }).await;
                     });
@@ -348,7 +385,18 @@ impl InstallDialog {
                     }
 
                     let _ = handle.await;
+
+                    if !*is_running_in_task.borrow() {
+                        overall_success = false;
+                        break;
+                    }
                 }
+
+                *is_running_in_task.borrow_mut() = false;
+                *active_cancel_in_task.borrow_mut() = None;
+                close_btn_in_task.set_sensitive(true);
+                close_btn_in_task.set_label("Kapat");
+                close_btn_in_task.remove_css_class("destructive-action");
 
                 pbar.set_visible(false);
                 if overall_success {
@@ -501,9 +549,33 @@ impl InstallDialog {
         root.append(&content);
         dialog.set_content(Some(&root));
 
+        let active_cancel_tx = Rc::new(RefCell::new(Option::<tokio::sync::watch::Sender<bool>>::None));
+        let is_running = Rc::new(RefCell::new(false));
+
+        let active_cancel_for_close = active_cancel_tx.clone();
+        let is_running_for_close = is_running.clone();
+        dialog.connect_close_request(move |_| {
+            if *is_running_for_close.borrow() {
+                if let Some(tx) = active_cancel_for_close.borrow().as_ref() {
+                    let _ = tx.send(true);
+                }
+            }
+            glib::Propagation::Proceed
+        });
+
         let dialog_for_close = dialog.clone();
-        close_btn.connect_clicked(move |_| {
-            dialog_for_close.close();
+        let active_cancel_for_btn = active_cancel_tx.clone();
+        let is_running_for_btn = is_running.clone();
+        close_btn.connect_clicked(move |btn| {
+            if *is_running_for_btn.borrow() {
+                if let Some(tx) = active_cancel_for_btn.borrow().as_ref() {
+                    let _ = tx.send(true);
+                }
+                btn.set_sensitive(false);
+                btn.set_label("İptal Ediliyor...");
+            } else {
+                dialog_for_close.close();
+            }
         });
 
         let text_buffer = text_view.buffer();
@@ -511,8 +583,10 @@ impl InstallDialog {
         let on_finished = Rc::new(on_finished);
 
         start_btn.connect_clicked(move |btn| {
+            *is_running.borrow_mut() = true;
             btn.set_sensitive(false);
-            close_btn.set_label("Kapat");
+            close_btn.set_label("İptal Et");
+            close_btn.add_css_class("destructive-action");
             progress_bar.set_visible(true);
             status_label.set_label("İşlem yürütülüyor... Gerekirse parolanızı onaylayın.");
 
@@ -521,15 +595,20 @@ impl InstallDialog {
             let status = status_label.clone();
             let pbar = progress_bar.clone();
             let on_done = on_finished.clone();
+            let active_cancel_in_task = active_cancel_tx.clone();
+            let is_running_in_task = is_running.clone();
+            let close_btn_in_task = close_btn.clone();
 
             let cmd_clone = cmd.clone();
             let args_clone = args.clone();
 
             glib::spawn_future_local(async move {
                 let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
+                let (cancel_tx, cancel_rx) = tokio::sync::watch::channel(false);
+                *active_cancel_in_task.borrow_mut() = Some(cancel_tx);
 
                 let handle = tokio::spawn(async move {
-                    let _ = CommandExecutor::run_streaming(&cmd_clone, &args_clone, move |msg| {
+                    let _ = CommandExecutor::run_streaming_cancellable(&cmd_clone, &args_clone, cancel_rx, move |msg| {
                         let _ = sender.send(msg);
                     }).await;
                 });
@@ -566,6 +645,13 @@ impl InstallDialog {
                 }
 
                 let _ = handle.await;
+
+                *is_running_in_task.borrow_mut() = false;
+                *active_cancel_in_task.borrow_mut() = None;
+                close_btn_in_task.set_sensitive(true);
+                close_btn_in_task.set_label("Kapat");
+                close_btn_in_task.remove_css_class("destructive-action");
+
                 pbar.set_visible(false);
 
                 if overall_success {

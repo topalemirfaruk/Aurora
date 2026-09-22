@@ -63,6 +63,10 @@ Format, [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına da
 - **Arama Çıktılarında Çok Satırlı Açıklama Sarmalama Ayrıştırması (#4):**
   - `pacman -Ss` ve `paru -Ssa` komutlarında 80 sütunu aşan açıklamaların bölünmesi durumunda, devam satırlarının yeni paket sanılıp `repo="repo"` veya `repo="aur"` isimli sahte sonuçlar üretmesi engellendi.
   - Ortak `parse_search_output` durum temelli ayrıştırıcısı yazılarak açıklamaların eksiksiz birleştirilmesi ve hem İngilizce (`[installed]`) hem Türkçe (`[kurulu]`) paket durumlarının doğru algılanması sağlandı.
+- **Çalışan İşlemlerin İptal Edilmesi ve Pencere Kapanışında Sonlandırılması (#5):**
+  - `CommandExecutor::run_streaming_cancellable` metodu eklenerek arka plandaki komutların `Child::kill` ile derhal sonlandırılması sağlandı.
+  - Kurulum (`InstallDialog`), kaldırma (`UninstallDialog`) ve akış pencerelerinde (`show_command_stream`) "İptal Et" butonu ve pencere kapatma olayı (`close_request`) arka plandaki `pacman`/`paru`/`flatpak` işlemlerini durduracak şekilde bağlandı.
+  - İptal edilen işlemlerin ardından ölü arayüz bileşenlerine çıktı yazılması ve sistemde yetim arka plan süreçlerinin kalması engellendi.
 
 ---
 
