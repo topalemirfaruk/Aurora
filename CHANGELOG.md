@@ -66,7 +66,11 @@ Format, [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/) standardına da
 - **Çalışan İşlemlerin İptal Edilmesi ve Pencere Kapanışında Sonlandırılması (#5):**
   - `CommandExecutor::run_streaming_cancellable` metodu eklenerek arka plandaki komutların `Child::kill` ile derhal sonlandırılması sağlandı.
   - Kurulum (`InstallDialog`), kaldırma (`UninstallDialog`) ve akış pencerelerinde (`show_command_stream`) "İptal Et" butonu ve pencere kapatma olayı (`close_request`) arka plandaki `pacman`/`paru`/`flatpak` işlemlerini durduracak şekilde bağlandı.
-  - İptal edilen işlemlerin ardından ölü arayüz bileşenlerine çıktı yazılması ve sistemde yetim arka plan süreçlerinin kalması engellendi.
+- **PKGBUILD Güvenlik İncelemesi Zorunluluğu ve Komut Argümanları (#6):**
+  - Ayarlarda yer alan `require_pkgbuild_review` seçeneğinin grafik kurulum arayüzünde fiilen yok sayılması ve kullanıcı inceleme yapmasa dahi doğrudan kuruluma geçilebilmesi sorunu giderildi.
+  - AUR paketleri kurulurken `require_pkgbuild_review` etkinse "Kurulumu Başlat" butonu başlangıçta kilitlenerek her AUR paketinin PKGBUILD betiğinin incelenmesi zorunlu kılındı; incelenen paketler "İncelendi" durumuyla işaretlenip tüm incelemeler bitmeden kuruluma izin verilmemesi sağlandı.
+  - `require_summary_confirmation` kapalı olsa dahi incelenmemiş AUR paketleri varken otomatik kurulum başlatılması engellendi.
+  - `InstallDialog::build_helper_args` ve `InstallDialog::build_system_upgrade_args` fonksiyonları modüler ve parametrik hale getirilerek uçbirimsiz GUI ortamında süreç kilitlenmesini önleyen atlama bayrakları test edilebilir bir yapıya kavuşturuldu.
 
 ---
 

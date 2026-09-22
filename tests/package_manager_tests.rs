@@ -253,4 +253,67 @@ aur/visual-studio-code-bin 1.97.0-1
         assert!(start.elapsed() < Duration::from_secs(2), "Killed within 2 seconds");
         assert!(cancelled_received.load(Ordering::SeqCst), "ProcessMessage::Finished with false and None code received");
     }
+
+    #[test]
+    fn test_build_helper_args_paru_and_yay() {
+        use aurora::ui::widgets::InstallDialog;
+
+        let pkgs = vec!["google-chrome".to_string(), "visual-studio-code-bin".to_string()];
+
+        // Paru with skip_review = true
+        let (cmd, args) = InstallDialog::build_helper_args("paru", &pkgs, true);
+        assert_eq!(cmd, "paru");
+        assert!(args.contains(&"--skipreview".to_string()));
+        assert!(args.contains(&"--sudoflags".to_string()));
+        assert!(args.contains(&"-A".to_string()));
+        assert!(args.contains(&"--noconfirm".to_string()));
+        assert!(args.contains(&"google-chrome".to_string()));
+        assert!(args.contains(&"visual-studio-code-bin".to_string()));
+
+        // Paru with skip_review = false
+        let (cmd_no_skip, args_no_skip) = InstallDialog::build_helper_args("paru", &pkgs, false);
+        assert_eq!(cmd_no_skip, "paru");
+        assert!(!args_no_skip.contains(&"--skipreview".to_string()));
+        assert!(args_no_skip.contains(&"--sudoflags".to_string()));
+
+        // Yay with skip_review = true
+        let (cmd_yay, args_yay) = InstallDialog::build_helper_args("yay", &pkgs, true);
+        assert_eq!(cmd_yay, "yay");
+        assert!(args_yay.contains(&"--answeredit".to_string()));
+        assert!(args_yay.contains(&"None".to_string()));
+        assert!(args_yay.contains(&"--answerclean".to_string()));
+
+        // Yay with skip_review = false
+        let (cmd_yay_no_skip, args_yay_no_skip) = InstallDialog::build_helper_args("yay", &pkgs, false);
+        assert_eq!(cmd_yay_no_skip, "yay");
+        assert!(!args_yay_no_skip.contains(&"--answeredit".to_string()));
+        assert!(!args_yay_no_skip.contains(&"--answerclean".to_string()));
+    }
+
+    #[test]
+    fn test_build_system_upgrade_args() {
+        use aurora::ui::widgets::InstallDialog;
+
+        let (cmd_paru, args_paru) = InstallDialog::build_system_upgrade_args("paru", true);
+        assert_eq!(cmd_paru, "paru");
+        assert!(args_paru.contains(&"-Syu".to_string()));
+        assert!(args_paru.contains(&"--skipreview".to_string()));
+
+        let (cmd_paru_rev, args_paru_rev) = InstallDialog::build_system_upgrade_args("paru", false);
+        assert_eq!(cmd_paru_rev, "paru");
+        assert!(!args_paru_rev.contains(&"--skipreview".to_string()));
+
+        let (cmd_yay, args_yay) = InstallDialog::build_system_upgrade_args("yay", true);
+        assert_eq!(cmd_yay, "yay");
+        assert!(args_yay.contains(&"--answeredit".to_string()));
+
+        let (cmd_yay_rev, args_yay_rev) = InstallDialog::build_system_upgrade_args("yay", false);
+        assert_eq!(cmd_yay_rev, "yay");
+        assert!(!args_yay_rev.contains(&"--answeredit".to_string()));
+
+        let (cmd_pacman, args_pacman) = InstallDialog::build_system_upgrade_args("pacman", true);
+        assert_eq!(cmd_pacman, "sudo");
+        assert!(args_pacman.contains(&"pacman".to_string()));
+        assert!(args_pacman.contains(&"-Syu".to_string()));
+    }
 }

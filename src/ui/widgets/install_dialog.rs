@@ -11,11 +11,66 @@ use gtk4::{
 use libadwaita as adw;
 use libadwaita::prelude::*;
 use std::cell::RefCell;
+use std::collections::HashSet;
 use std::rc::Rc;
 
 pub struct InstallDialog;
 
 impl InstallDialog {
+    /// AUR helper kurulum komut ve argümanlarını üretir.
+    /// `skip_review: true` olduğunda etkileşimsiz ortamda kilitlenmeyi önlemek için
+    /// helper'a ait PKGBUILD inceleme atlama bayrakları eklenir.
+    pub fn build_helper_args(helper: &str, pkgs: &[String], skip_review: bool) -> (String, Vec<String>) {
+        let mut args = vec!["-S".to_string(), "--needed".to_string(), "--noconfirm".to_string()];
+        if helper == "paru" {
+            if skip_review {
+                args.push("--skipreview".to_string());
+            }
+            args.push("--sudoflags".to_string());
+            args.push("-A".to_string());
+        } else if helper == "yay" {
+            if skip_review {
+                args.push("--answeredit".to_string());
+                args.push("None".to_string());
+                args.push("--answerclean".to_string());
+                args.push("None".to_string());
+            }
+            args.push("--sudoflags".to_string());
+            args.push("-A".to_string());
+        }
+        args.push("--".to_string());
+        args.extend(pkgs.iter().cloned());
+        (helper.to_string(), args)
+    }
+
+    /// Sistem güncellemesi için komut ve argümanları üretir.
+    pub fn build_system_upgrade_args(helper: &str, skip_review: bool) -> (String, Vec<String>) {
+        if helper == "paru" {
+            let mut args = vec!["-Syu".to_string()];
+            if skip_review {
+                args.push("--skipreview".to_string());
+            }
+            args.push("--sudoflags".to_string());
+            args.push("-A".to_string());
+            args.push("--noconfirm".to_string());
+            ("paru".to_string(), args)
+        } else if helper == "yay" {
+            let mut args = vec!["-Syu".to_string()];
+            if skip_review {
+                args.push("--answeredit".to_string());
+                args.push("None".to_string());
+                args.push("--answerclean".to_string());
+                args.push("None".to_string());
+            }
+            args.push("--sudoflags".to_string());
+            args.push("-A".to_string());
+            args.push("--noconfirm".to_string());
+            ("yay".to_string(), args)
+        } else {
+            ("sudo".to_string(), vec!["-A".to_string(), "pacman".to_string(), "-Syu".to_string(), "--noconfirm".to_string()])
+        }
+    }
+
     pub fn show(
         parent: &impl IsA<gtk4::Window>,
         items: Vec<AppItem>,
@@ -88,6 +143,28 @@ impl InstallDialog {
             content.append(&root_box);
         }
 
+        let require_review = has_aur && settings_data.require_pkgbuild_review;
+        let pending_reviews = Rc::new(RefCell::new(
+            aur_items_preview.iter().map(|i| i.package_name.clone()).collect::<HashSet<String>>()
+        ));
+
+        let status_label = Label::builder()
+            .label(if require_review {
+                "Güvenlik ayarınız gereği kuruluma geçmeden önce aşağıdaki AUR paketlerinin PKGBUILD betiklerini incelemeniz zorunludur."
+            } else {
+                "Tüm paket adları doğrulandı. Başlatmak için aşağıdaki butona tıklayın."
+            })
+            .halign(Align::Start)
+            .css_classes(["dim-label"])
+            .wrap(true)
+            .build();
+
+        let start_btn = Button::builder()
+            .label("Kurulumu Başlat")
+            .css_classes(["suggested-action", "pill"])
+            .sensitive(!require_review)
+            .build();
+
         if has_aur {
             let aur_warning_box = Box::builder()
                 .orientation(Orientation::Vertical)
@@ -111,49 +188,64 @@ impl InstallDialog {
             aur_warning_box.append(&warn_title);
             aur_warning_box.append(&warn_text);
 
-            if settings_data.require_pkgbuild_review {
-                let btn_box = Box::builder()
-                    .orientation(Orientation::Horizontal)
-                    .spacing(8)
-                    .margin_top(4)
+            let btn_box = Box::builder()
+                .orientation(Orientation::Horizontal)
+                .spacing(8)
+                .margin_top(4)
+                .build();
+
+            let notice_label = Label::builder()
+                .label(if require_review {
+                    "Ayarınız gereği PKGBUILD incelemesi zorunludur:"
+                } else {
+                    "İsteğe bağlı PKGBUILD incelemesi:"
+                })
+                .css_classes(["caption", "dim-label"])
+                .halign(Align::Start)
+                .build();
+            btn_box.append(&notice_label);
+
+            for item in &aur_items_preview {
+                let review_btn = Button::builder()
+                    .label(format!("{} İncele", item.package_name))
+                    .icon_name("text-x-script-symbolic")
+                    .css_classes(["flat", "pill"])
                     .build();
 
-                let notice_label = Label::builder()
-                    .label("Ayarınız gereği PKGBUILD incelemesi:")
-                    .css_classes(["caption", "dim-label"])
-                    .halign(Align::Start)
-                    .build();
-                btn_box.append(&notice_label);
+                let pkg_name = item.package_name.clone();
+                let dialog_weak = dialog.downgrade();
+                let pending_reviews_clone = pending_reviews.clone();
+                let start_btn_clone = start_btn.clone();
+                let status_label_clone = status_label.clone();
+                let review_btn_clone = review_btn.clone();
+                let require_review_val = require_review;
 
-                for item in &aur_items_preview {
-                    let review_btn = Button::builder()
-                        .label(format!("{} İncele", item.package_name))
-                        .icon_name("text-x-script-symbolic")
-                        .css_classes(["flat", "pill"])
-                        .build();
+                review_btn.connect_clicked(move |_| {
+                    if let Some(win) = dialog_weak.upgrade() {
+                        PkgbuildDialog::show(&win, &pkg_name);
+                    }
 
-                    let pkg_name = item.package_name.clone();
-                    let dialog_weak = dialog.downgrade();
-                    review_btn.connect_clicked(move |_| {
-                        if let Some(win) = dialog_weak.upgrade() {
-                            PkgbuildDialog::show(&win, &pkg_name);
+                    if require_review_val {
+                        let mut pending = pending_reviews_clone.borrow_mut();
+                        pending.remove(&pkg_name);
+                        review_btn_clone.set_label(&format!("{} (İncelendi)", pkg_name));
+                        review_btn_clone.set_icon_name("emblem-ok-symbolic");
+                        review_btn_clone.add_css_class("success");
+
+                        if pending.is_empty() {
+                            start_btn_clone.set_sensitive(true);
+                            status_label_clone.set_label("Tüm AUR PKGBUILD betikleri incelendi. Kuruluma başlayabilirsiniz.");
                         }
-                    });
+                    }
+                });
 
-                    btn_box.append(&review_btn);
-                }
-
-                aur_warning_box.append(&btn_box);
+                btn_box.append(&review_btn);
             }
 
+            aur_warning_box.append(&btn_box);
             content.append(&aur_warning_box);
         }
 
-        let status_label = Label::builder()
-            .label("Tüm paket adları doğrulandı. Başlatmak için aşağıdaki butona tıklayın.")
-            .halign(Align::Start)
-            .css_classes(["dim-label"])
-            .build();
         content.append(&status_label);
 
         let progress_bar = ProgressBar::builder()
@@ -188,11 +280,6 @@ impl InstallDialog {
         let close_btn = Button::builder()
             .label("İptal")
             .css_classes(["flat"])
-            .build();
-
-        let start_btn = Button::builder()
-            .label("Kurulumu Başlat")
-            .css_classes(["suggested-action", "pill"])
             .build();
 
         action_box.append(&close_btn);
@@ -266,25 +353,6 @@ impl InstallDialog {
                 sys.preferred_aur_helper().unwrap_or("paru").to_string()
             };
 
-            let build_helper_args = |helper: &str, pkgs: Vec<String>| -> (String, Vec<String>) {
-                let mut args = vec!["-S".to_string(), "--needed".to_string(), "--noconfirm".to_string()];
-                if helper == "paru" {
-                    args.push("--skipreview".to_string());
-                    args.push("--sudoflags".to_string());
-                    args.push("-A".to_string());
-                } else if helper == "yay" {
-                    args.push("--answeredit".to_string());
-                    args.push("None".to_string());
-                    args.push("--answerclean".to_string());
-                    args.push("None".to_string());
-                    args.push("--sudoflags".to_string());
-                    args.push("-A".to_string());
-                }
-                args.push("--".to_string());
-                args.extend(pkgs);
-                (helper.to_string(), args)
-            };
-
             let mut all_commands: Vec<(String, Vec<String>)> = Vec::new();
 
             if !official_items.is_empty() {
@@ -296,7 +364,7 @@ impl InstallDialog {
 
                 if !safe_pkgs.is_empty() {
                     if sys.has_paru || sys.has_yay {
-                        all_commands.push(build_helper_args(&aur_helper, safe_pkgs));
+                        all_commands.push(Self::build_helper_args(&aur_helper, &safe_pkgs, true));
                     } else {
                         let mut args = vec!["-A".to_string(), "pacman".to_string(), "-S".to_string(), "--needed".to_string(), "--noconfirm".to_string(), "--".to_string()];
                         args.extend(safe_pkgs);
@@ -313,7 +381,7 @@ impl InstallDialog {
                     .collect();
 
                 if !safe_pkgs.is_empty() {
-                    all_commands.push(build_helper_args(&aur_helper, safe_pkgs));
+                    all_commands.push(Self::build_helper_args(&aur_helper, &safe_pkgs, true));
                 }
             }
 
@@ -410,7 +478,7 @@ impl InstallDialog {
 
         dialog.present();
 
-        if !settings_data.require_summary_confirmation {
+        if !settings_data.require_summary_confirmation && !require_review {
             start_btn.emit_clicked();
         }
     }
@@ -428,13 +496,7 @@ impl InstallDialog {
             sys.preferred_aur_helper().unwrap_or("paru").to_string()
         };
 
-        let (cmd, args) = if helper == "paru" {
-            ("paru".to_string(), vec!["-Syu".to_string(), "--skipreview".to_string(), "--sudoflags".to_string(), "-A".to_string(), "--noconfirm".to_string()])
-        } else if helper == "yay" {
-            ("yay".to_string(), vec!["-Syu".to_string(), "--answeredit".to_string(), "None".to_string(), "--answerclean".to_string(), "None".to_string(), "--sudoflags".to_string(), "-A".to_string(), "--noconfirm".to_string()])
-        } else {
-            ("sudo".to_string(), vec!["-A".to_string(), "pacman".to_string(), "-Syu".to_string(), "--noconfirm".to_string()])
-        };
+        let (cmd, args) = Self::build_system_upgrade_args(&helper, true);
 
         Self::show_command_stream(
             parent,
